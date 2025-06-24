@@ -1,0 +1,198 @@
+// Input Component Styles
+// Здесь вы можете написать свои стили для input
+
+// Переменные
+$input-bg: #E4E6FF;
+$input-border-focus: #3B82F6;
+$input-border-error: #F55C42;
+$input-bg-disabled: #F0F0F0;
+$input-label: #808080;
+$input-placeholder: #808080;
+$input-value: #000000;
+$input-value-error: #F55C42;
+$input-radius: 30px;
+$input-transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+
+.input-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+.input-wrapper--full-width {
+  width: 100%;
+}
+
+.input-wrapper--disabled {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.input__container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  .input__placeholder {
+    position: absolute;
+    left: 18px;
+    top: 0;
+    color: $input-placeholder;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 150%;
+    letter-spacing: 0%;
+    opacity: 1;
+    vertical-align: middle;
+  }
+}
+
+.input {
+  width: 100%;
+  background: $input-bg;
+  border: none;
+  outline: none;
+  border-radius: $input-radius;
+  padding: 0 24px;
+  font-size: 16px;
+  font-weight: 400;
+  color: $input-value;
+  transition: background $input-transition, border $input-transition, color $input-transition;
+  box-sizing: border-box;
+  min-height: 56px;
+  height: 56px;
+  line-height: 55px;
+  &::placeholder {
+    color: $input-placeholder;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 150%;
+    letter-spacing: 0%;
+    opacity: 1;
+    vertical-align: middle;
+  }
+}
+
+.input--with-label {
+  line-height: 24px;
+}
+
+.input--focused {
+  border: 1.5px solid $input-border-focus;
+  background: $input-bg;
+}
+
+.input--error {
+  border: 1.5px solid $input-border-error;
+  color: $input-value-error;
+}
+
+.input--disabled {
+  background: $input-bg-disabled;
+  color: #bdbdbd;
+  cursor: not-allowed;
+}
+
+.input__label--static {
+  position: absolute;
+  left: 26px;
+  top: 3px;
+  font-size: 12px;
+  font-weight: 400;
+  color: $input-label;
+  line-height: 150%;
+  letter-spacing: 0%;
+  pointer-events: none;
+  background: transparent;
+  z-index: 2;
+}
+
+.input__label--error {
+  color: $input-border-error;
+}
+
+.input__label--disabled {
+  color: #bdbdbd;
+}
+
+.input__icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  &.input__icon--left {
+    left: 12px;
+  }
+  &.input__icon--right {
+    right: 12px;
+  }
+}
+
+.input__message {
+  margin-top: 4px;
+  min-height: 18px;
+}
+
+.input__error {
+  color: $input-border-error;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 150%;
+}
+
+.input__helper {
+  color: $input-label;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 150%;
+}
+
+// Варианты input
+.input--outlined {
+  // Стили для outlined input
+}
+
+.input--underlined {
+  // Стили для underlined input
+}
+
+.input--ghost {
+  // Стили для ghost input
+}
+
+// Размеры input
+.input--small {
+  // Маленький input
+}
+
+.input--medium {
+  // Средний input
+}
+
+.input--large {
+  // Большой input
+}
+
+// Состояния
+.input--full-width {
+  // Полная ширина
+}
+
+// Внутренние элементы
+.input__required {
+  // Стили для обязательного поля
+}
+
+.input__icon {
+  // Стили для иконок
+}
+
+.input__icon--left {
+  // Левая иконка
+}
+
+.input__icon--right {
+  // Правая иконка
+}
+
+.input__message {
+  // Контейнер для сообщений
+} 

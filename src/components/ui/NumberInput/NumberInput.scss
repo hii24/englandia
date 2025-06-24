@@ -1,0 +1,75 @@
+$color-active: #440693;
+$color-disabled: #808080;
+$color-bg: #E4E6FF;
+$color-value: #000;
+$color-label: #808080;
+$radius: 30px;
+
+.number-input-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.number-input__label {
+  font-size: 12px;
+  color: $color-label;
+  font-weight: 400;
+  line-height: 150%;
+  min-width: 120px;
+  padding-left: 30px;
+}
+
+.number-input__container {
+  display: flex;
+  align-items: center;
+  background: $color-bg;
+  border-radius: $radius;
+  padding: 0 32px;
+  min-width: 220px;
+  height: 56px;
+  justify-content: center;
+  gap: 32px;
+}
+
+.number-input__btn {
+  background: none;
+  border: none;
+  outline: none;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s;
+  
+  .number-input__icon {
+    font-size: 26px;
+    width: 15px;
+    height: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    color: $color-active;
+    transition: color 0.2s;
+  }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    .number-input__icon {
+      color: $color-disabled;
+    }
+  }
+}
+
+.number-input__value {
+  font-size: 16px;
+  color: $color-value;
+  font-weight: 400;
+  min-width: 24px;
+  text-align: center;
+} 

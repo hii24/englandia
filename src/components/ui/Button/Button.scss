@@ -1,0 +1,133 @@
+// Button Component Styles
+// Здесь вы можете написать свои стили для кнопки
+
+.button {
+  background-color: #e26145;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: 14px 40px;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-right: 0; /* важно */
+  &:hover {
+    background-color: #d14e30;
+  }
+}
+.button__container {
+  display: flex;
+  align-items: center;
+  .circle-btn {
+    width: 60px;
+    height: 60px;
+    background-color: #3f0296;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .arrow {
+    position: absolute;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .arrow-left {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  .arrow-right {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  &:hover .arrow-right {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  &:hover .arrow-left {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+// Варианты кнопок
+.button--primary {
+  // Стили для primary кнопки
+}
+
+.button--secondary {
+  // Стили для secondary кнопки
+}
+
+.button--success {
+  // Стили для success кнопки
+}
+
+.button--danger {
+  // Стили для danger кнопки
+}
+
+.button--warning {
+  // Стили для warning кнопки
+}
+
+.button--info {
+  // Стили для info кнопки
+}
+
+.button--outline {
+  // Стили для outline кнопки
+}
+
+.button--ghost {
+  // Стили для ghost кнопки
+}
+
+// Размеры кнопок
+.button--small {
+  // Стили для маленькой кнопки
+}
+
+.button--medium {
+  // Стили для средней кнопки
+}
+
+.button--large {
+  // Стили для большой кнопки
+}
+
+.button--xl {
+  // Стили для очень большой кнопки
+}
+
+// Состояния
+.button--disabled {
+  // Стили для отключенной кнопки
+}
+
+.button--loading {
+  // Стили для загружающейся кнопки
+}
+
+.button--full-width {
+  // Стили для кнопки на всю ширину
+}
+
+// Внутренние элементы
+.button__loader {
+  // Стили для лоадера
+}
+
+.button__content {
+  // Стили для контента кнопки
+}

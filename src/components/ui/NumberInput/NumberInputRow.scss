@@ -1,0 +1,20 @@
+$color-label: #808080;
+
+.number-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 32px;
+}
+
+.number-input-row__left {
+  font-size: 12px;
+  color: $color-label;
+  padding-left: 30px;
+  font-weight: 400;
+  line-height: 150%;
+  min-width: 120px;
+  margin-right: 24px;
+  white-space: nowrap;
+} 

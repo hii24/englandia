@@ -1,0 +1,113 @@
+$modal-bg: #fff;
+$modal-radius: 20px;
+$modal-width: 670px;
+$modal-max-width: 95vw;
+$modal-shadow: 0 8px 32px rgba(44, 16, 90, 0.18);
+$modal-z: 1000;
+$backdrop-bg: #440693B2;
+
+.modal-root {
+  position: fixed;
+  z-index: $modal-z;
+  inset: 0;
+  overflow-y: auto;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: $backdrop-bg;
+  backdrop-filter: blur(8px);
+  z-index: $modal-z;
+}
+
+.modal-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: $modal-z + 1;
+}
+
+.modal-panel {
+  position: relative;
+  background: $modal-bg;
+  border-radius: $modal-radius;
+  width: $modal-width;
+  max-width: $modal-max-width;
+  box-shadow: $modal-shadow;
+  padding: 32px 32px 28px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 120px;
+}
+
+.modal-close {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  background: #fff;
+  border: none;
+  font-size: 28px;
+  color: #440693;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  z-index: 2;
+  &:hover {
+    background: #f3f0fa;
+  }
+  @media (max-width: 768px) {
+    top: -40px;
+    width: 30px;
+    height: 30px;
+    right: 0;
+  }
+}
+
+.modal-title {
+  width: 100%;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  color: #f55c42;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.modal-content {
+  width: 100%;
+  text-align: center;
+  margin-top: 0;
+}
+
+// Анимации (можно доработать под себя)
+.modal-enter {
+  transition: opacity 0.2s, transform 0.2s;
+}
+.modal-enterFrom {
+  opacity: 0;
+  transform: scale(0.96);
+}
+.modal-enterTo {
+  opacity: 1;
+  transform: scale(1);
+}
+.modal-leave {
+  transition: opacity 0.2s, transform 0.2s;
+}
+.modal-leaveFrom {
+  opacity: 1;
+  transform: scale(1);
+}
+.modal-leaveTo {
+  opacity: 0;
+  transform: scale(0.96);
+} 
