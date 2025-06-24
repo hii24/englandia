@@ -1,9 +1,11 @@
 'use client';
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { useModal } from '../../hooks/useModal';
 import { sendRegistration, loginUser } from '@/lib/api';
 
 export const ModalExamples: React.FC = () => {
+  const router = useRouter();
   const {
     openRegistrationModal,
     openLoginModal,
@@ -32,13 +34,18 @@ export const ModalExamples: React.FC = () => {
     openLoginModal({
       onSubmit: async (data) => {
         try {
+          console.log('Начинаем процесс входа...');
           const result = await loginUser(data);
-          openInfoModal({
-            title: 'Успешно!',
-            message: `Добро пожаловать, ${result.data.user.firstName} ${result.data.user.lastName}!`,
-            buttonText: 'Понятно'
-          });
+          console.log('Вход успешен, результат:', result);
+          
+          // Добавляем небольшую задержку для обновления store
+          setTimeout(() => {
+            console.log('Перенаправляем на dashboard...');
+            router.push('/dashboard');
+          }, 100);
+          
         } catch (e: any) {
+          console.error('Ошибка входа:', e);
           openInfoModal({
             title: 'Ошибка входа',
             message: e.message,
@@ -68,7 +75,7 @@ export const ModalExamples: React.FC = () => {
     <div className="modal-examples p-8">
       <h2 className="text-2xl font-bold mb-6">Примеры модальных окон</h2>
       
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <button
           className="btn btn-primary"
           onClick={handleRegistration}
@@ -81,6 +88,13 @@ export const ModalExamples: React.FC = () => {
           onClick={handleLogin}
         >
           Открыть Login Modal
+        </button>
+
+        <button
+          className="btn btn-secondary"
+          onClick={() => router.push('/dashboard/test')}
+        >
+          Тестовая страница Dashboard
         </button>
       </div>
     </div>
