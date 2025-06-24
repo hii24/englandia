@@ -20,14 +20,45 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
   onClose,
 }) => {
   const [form, setForm] = useState(initialState);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (field: string, value: string | number) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(form);
+    
+    // Базовая валидация на фронтенде
+    if (!form.firstName.trim()) {
+      alert('Пожалуйста, введите имя');
+      return;
+    }
+    
+    if (!form.lastName.trim()) {
+      alert('Пожалуйста, введите фамилию');
+      return;
+    }
+    
+    if (!form.email.trim()) {
+      alert('Пожалуйста, введите email');
+      return;
+    }
+    
+    if (!form.phone.trim()) {
+      alert('Пожалуйста, введите телефон');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      await onSubmit(form);
+    } catch (error) {
+      console.error('Ошибка регистрации:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -40,7 +71,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
           Запишитесь на бесплатное занятие
         </h2>
         <Input
-          placeholder="Имя *"
+          placeholder="Имя"
           value={form.firstName}
           onChange={(e) => handleChange("firstName", e.target.value)}
           required
@@ -49,9 +80,11 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
           placeholder="Фамилия"
           value={form.lastName}
           onChange={(e) => handleChange("lastName", e.target.value)}
+          required
         />
         <Input
-          placeholder="Email *"
+          placeholder="Email"
+          type="email"
           value={form.email}
           onChange={(e) => handleChange("email", e.target.value)}
           required
@@ -60,6 +93,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
           placeholder="Телефон"
           value={form.phone}
           onChange={(e) => handleChange("phone", e.target.value)}
+          required
         />
 
         <NumberInput
@@ -71,13 +105,13 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
         />
 
         <Input
-          placeholder="Комментарий"
+          placeholder="Комментарий (необязательно)"
           value={form.comment}
           onChange={(e) => handleChange("comment", e.target.value)}
         />
         <div className="flex justify-center">
-          <Button type="submit" showIcon>
-            Отправить
+          <Button type="submit" showIcon disabled={isSubmitting}>
+            {isSubmitting ? 'Отправка...' : 'Отправить'}
           </Button>
         </div>
       </form>

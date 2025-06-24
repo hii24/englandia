@@ -4,6 +4,8 @@ import ConfirmModal from '../modals/ConfirmModal';
 import InfoModal from '../modals/InfoModal';
 import FormModal from '../modals/FormModal';
 import RegistrationModal from '../modals/RegistrationModal';
+import LoginModal from '../modals/LoginModal';
+import RegistrationSuccessModal from '../modals/RegistrationSuccessModal';
 
 export const useModal = () => {
   const { openModal, closeModal } = useModalStore();
@@ -85,12 +87,41 @@ export const useModal = () => {
     openModal(modalConfig);
   };
 
+  const openLoginModal = (props: {
+    onSubmit: (data: { email: string; password: string }) => void;
+    onRegisterClick: () => void;
+  }) => {
+    const modalConfig: ModalConfig = {
+      id: 'login',
+      component: LoginModal,
+      props: {
+        ...props,
+        onClose: closeModal,
+      },
+    };
+    openModal(modalConfig);
+  };
+
+  const openRegistrationSuccessModal = (props: { onClose: () => void }) => {
+    const modalConfig: ModalConfig = {
+      id: 'registration-success',
+      component: RegistrationSuccessModal,
+      props: {
+        ...props,
+        onClose: closeModal,
+      },
+    };
+    openModal(modalConfig);
+  };
+
   return {
     openConfirmModal,
     openInfoModal,
     openFormModal,
     openCustomModal,
     openRegistrationModal,
+    openLoginModal,
+    openRegistrationSuccessModal,
     closeModal,
   };
 }; 

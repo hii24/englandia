@@ -1,17 +1,53 @@
 'use client';
 import React from 'react';
 import { useModal } from '../../hooks/useModal';
+import { sendRegistration, loginUser } from '@/lib/api';
 
 export const ModalExamples: React.FC = () => {
   const {
-    openRegistrationModal
+    openRegistrationModal,
+    openLoginModal,
+    openInfoModal,
+    openRegistrationSuccessModal,
+    closeModal
   } = useModal();
 
-  const handleConfirm = () => {
+  const handleRegistration = () => {
     openRegistrationModal({
-      onSubmit: (data) => {
-        // обработка данных формы
-        console.log(data);
+      onSubmit: async (data) => {
+        try {
+          const result = await sendRegistration(data);
+          if (result.data && result.data.plainPassword) {
+            alert('Ваш временный пароль: ' + result.data.plainPassword);
+          }
+          openRegistrationSuccessModal({ onClose: closeModal });
+        } catch (e: any) {
+          alert(e.message);
+        }
+      }
+    });
+  };
+
+  const handleLogin = () => {
+    openLoginModal({
+      onSubmit: async (data) => {
+        try {
+          const result = await loginUser(data);
+          openInfoModal({
+            title: 'Успешно!',
+            message: `Добро пожаловать, ${result.data.user.firstName} ${result.data.user.lastName}!`,
+            buttonText: 'Понятно'
+          });
+        } catch (e: any) {
+          openInfoModal({
+            title: 'Ошибка входа',
+            message: e.message,
+            buttonText: 'Понятно'
+          });
+        }
+      },
+      onRegisterClick: () => {
+        handleRegistration();
       }
     });
   };
@@ -35,12 +71,17 @@ export const ModalExamples: React.FC = () => {
       <div className="grid grid-cols-2 gap-4">
         <button
           className="btn btn-primary"
-          onClick={() => handleConfirm()}
+          onClick={handleRegistration}
         >
-          Открыть Confirm Modal
+          Открыть Registration Modal
         </button>
 
-        
+        <button
+          className="btn btn-secondary"
+          onClick={handleLogin}
+        >
+          Открыть Login Modal
+        </button>
       </div>
     </div>
   );

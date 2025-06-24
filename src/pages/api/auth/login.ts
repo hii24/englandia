@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { handleRegistration } from '@/server/registration/service';
+import { handleLogin } from '@/server/auth/service';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -7,23 +7,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const result = await handleRegistration(req.body);
+    const { email, password } = req.body;
     
-    // В продакшене не возвращаем plainPassword
-    const { plainPassword, ...responseData } = result;
+    if (!email || !password) {
+      return res.status(400).json({ 
+        error: 'Email и пароль обязательны',
+        type: 'validation'
+      });
+    }
+
+    const result = await handleLogin(email, password);
     
     return res.status(200).json({ 
       success: true, 
-      data: responseData,
-      message: 'Регистрация прошла успешно! Проверьте email для получения данных для входа.'
+      data: result,
+      message: 'Вход выполнен успешно'
     });
   } catch (e: any) {
-    console.error('Ошибка регистрации:', e);
+    console.error('Ошибка логина:', e);
     
     if (e.name === 'ValidationError') {
       return res.status(400).json({ 
         error: e.message,
         type: 'validation'
+      });
+    }
+    
+    if (e.name === 'AuthError') {
+      return res.status(401).json({ 
+        error: e.message,
+        type: 'auth'
       });
     }
     
