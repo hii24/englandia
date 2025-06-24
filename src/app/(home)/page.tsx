@@ -1,6 +1,6 @@
 import { ComponentExamples } from "@/components/examples/ComponentExamples";
-import type { Metadata } from "next";
 import { ModalExamples } from "@/components/examples/ModalExamples";
+import type { Metadata } from "next";
 
 
 export const metadata: Metadata = {
@@ -16,7 +16,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       <h1>Home</h1>
-      <ComponentExamples />
+      {/* <ComponentExamples /> */}
       <ModalExamples />
     </div>
   );

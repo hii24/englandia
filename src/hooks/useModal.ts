@@ -3,6 +3,7 @@ import { useModalStore, ModalConfig } from '../store/modalStore';
 import ConfirmModal from '../modals/ConfirmModal';
 import InfoModal from '../modals/InfoModal';
 import FormModal from '../modals/FormModal';
+import RegistrationModal from '../modals/RegistrationModal';
 
 export const useModal = () => {
   const { openModal, closeModal } = useModalStore();
@@ -70,11 +71,26 @@ export const useModal = () => {
     openModal(modalConfig);
   };
 
+  const openRegistrationModal = (props: {
+    onSubmit: (data: any) => void;
+  }) => {
+    const modalConfig: ModalConfig = {
+      id: 'registration',
+      component: RegistrationModal,
+      props: {
+        ...props,
+        onClose: closeModal,
+      },
+    };
+    openModal(modalConfig);
+  };
+
   return {
     openConfirmModal,
     openInfoModal,
     openFormModal,
     openCustomModal,
+    openRegistrationModal,
     closeModal,
   };
 }; 

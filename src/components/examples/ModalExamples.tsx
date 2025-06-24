@@ -4,14 +4,16 @@ import { useModal } from '../../hooks/useModal';
 
 export const ModalExamples: React.FC = () => {
   const {
-    openConfirmModal,
-    openInfoModal,
-    openFormModal,
-    openCustomModal,
+    openRegistrationModal
   } = useModal();
 
   const handleConfirm = () => {
-    console.log('Подтверждено!');
+    openRegistrationModal({
+      onSubmit: (data) => {
+        // обработка данных формы
+        console.log(data);
+      }
+    });
   };
 
   const handleFormSubmit = (data: any) => {
@@ -33,46 +35,12 @@ export const ModalExamples: React.FC = () => {
       <div className="grid grid-cols-2 gap-4">
         <button
           className="btn btn-primary"
-          onClick={() => openConfirmModal({
-            title: 'Подтверждение действия',
-            message: 'Вы уверены, что хотите выполнить это действие?',
-            onConfirm: handleConfirm,
-            confirmText: 'Да, выполнить',
-            cancelText: 'Отмена',
-          })}
+          onClick={() => handleConfirm()}
         >
           Открыть Confirm Modal
         </button>
 
-        <button
-          className="btn btn-secondary"
-          onClick={() => openInfoModal({
-            title: 'Информация',
-            message: 'Это информационное сообщение для пользователя.',
-            buttonText: 'Понятно',
-          })}
-        >
-          Открыть Info Modal
-        </button>
-
-        <button
-          className="btn btn-success"
-          onClick={() => openFormModal({
-            title: 'Форма регистрации',
-            onSubmit: handleFormSubmit,
-            submitText: 'Зарегистрироваться',
-            cancelText: 'Отмена',
-          })}
-        >
-          Открыть Form Modal
-        </button>
-
-        <button
-          className="btn btn-warning"
-          onClick={() => openCustomModal(CustomModal)}
-        >
-          Открыть Custom Modal
-        </button>
+        
       </div>
     </div>
   );
