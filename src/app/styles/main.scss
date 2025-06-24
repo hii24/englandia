@@ -156,4 +156,7 @@ p {
   h1 { font-size: $font-size-3xl; }
   h2 { font-size: $font-size-2xl; }
   h3 { font-size: $font-size-xl; }
-} 
+}
+
+// Импорт стилей модальных окон
+@import '../../modals/modals.scss'; 

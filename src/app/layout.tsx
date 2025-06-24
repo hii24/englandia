@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
 import "./globals.css";
 import "./styles/main.scss";
+import { ModalProvider } from "../providers/ModalProvider";
 
 
 const rubik = Rubik({
@@ -84,7 +85,9 @@ export default function RootLayout({
       </head>
       <body className="font-sans ">
         <div id="root">
-          {children}
+          <ModalProvider>
+            {children}
+          </ModalProvider>
         </div>
       </body>
     </html>
