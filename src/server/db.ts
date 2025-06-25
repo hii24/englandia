@@ -91,6 +91,11 @@ export async function saveRegistration(data: any) {
   return createUser(data);
 }
 
+export async function getDb() {
+  const client = await clientPromise;
+  return client.db(dbName);
+}
+
 declare global {
   // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
