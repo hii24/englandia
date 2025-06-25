@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Lesson, LessonProgress, LessonCard } from '../LessonCard';
 import './LessonList.scss';
+import { useUserStore } from '@/store/userStore';
+import { useLessonStore } from '@/store/lessonStore';
 
 interface LessonListProps {
   lessons: Lesson[];
@@ -11,10 +13,28 @@ interface LessonListProps {
 
 export const LessonList: React.FC<LessonListProps> = ({ 
   lessons, 
-  progresses, 
+  progresses = [], 
   isLoading = false,
   error 
 }) => {
+  const user = useUserStore(s => s.user);
+  const selectedStudentId = useUserStore(s => s.selectedStudentId);
+  const removeLesson = useLessonStore((s: any) => s.removeLesson);
+  const [editId, setEditId] = useState<string | null>(null);
+
+  // Фильтрация по ролям
+  let filteredLessons = lessons;
+  let filteredProgresses = progresses;
+  if (user?.role === 'guest') {
+    filteredLessons = lessons.filter(l => l.orderNumber === 1);
+  } else if (user?.role === 'student') {
+    // TODO: фильтрация по прогрессу (текущий + следующий)
+    filteredLessons = lessons.slice(0, 2); // пример
+  } else if (user?.role === 'teacher' && selectedStudentId) {
+    // teacher: показываем прогресс выбранного ученика
+    filteredProgresses = progresses.filter(p => p.lessonId === selectedStudentId);
+  }
+
   if (error) {
     return (
       <div className="lesson-list lesson-list--error">
@@ -26,6 +46,7 @@ export const LessonList: React.FC<LessonListProps> = ({
 
   if (isLoading) {
     return (
+      
       <div className="lesson-list lesson-list--loading">
         {Array.from({ length: 3 }).map((_, index) => (
           <div key={index} className="lesson-card lesson-card--skeleton">
@@ -54,12 +75,11 @@ export const LessonList: React.FC<LessonListProps> = ({
 
   return (
     <div className="lesson-list">
-      {lessons.map((lesson) => (
-        <LessonCard
-          key={lesson.id}
-          lesson={lesson}
-          progress={progresses?.find(p => p.lessonId === lesson.id)}
-        />
+       <div>Текущая роль: {user?.role}</div>
+      {filteredLessons.map((lesson) => (
+        <div key={lesson._id} style={{ position: 'relative' }}>
+          <LessonCard lesson={lesson} progress={filteredProgresses?.find(p => p.lessonId === lesson._id)} />
+        </div>
       ))}
     </div>
   );

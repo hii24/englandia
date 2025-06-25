@@ -80,5 +80,42 @@ export function isAuthenticated(): boolean {
   return useUserStore.getState().isAuthenticated;
 }
 
+// LESSONS API
+export async function fetchLessons() {
+  const response = await api.get('/lessons');
+  return response.data;
+}
+
+export async function fetchLessonById(id: string) {
+  const response = await api.get(`/lessons/${id}`);
+  return response.data;
+}
+
+export async function createLesson(data: any) {
+  const response = await api.post('/lessons', data);
+  return response.data;
+}
+
+export async function updateLesson(id: string, data: any) {
+  const response = await api.put(`/lessons/${id}`, data);
+  return response.data;
+}
+
+export async function archiveLesson(id: string) {
+  const response = await api.delete(`/lessons/${id}`);
+  return response.data;
+}
+
+// USERS API
+export async function fetchUsersByRole(role: string) {
+  const response = await api.get(`/users?role=${role}`);
+  return response.data;
+}
+
+export async function assignTeacherToStudent(studentId: string, teacherId: string) {
+  const response = await api.patch(`/users/${studentId}`, { teacherId });
+  return response.data;
+}
+
 // Экспортируем экземпляр api для использования в других местах
 export { api }; 

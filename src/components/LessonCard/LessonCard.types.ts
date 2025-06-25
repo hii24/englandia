@@ -4,7 +4,7 @@ export interface LessonMaterial {
 }
 
 export interface Lesson {
-  id: string;
+  _id: string;
   orderNumber: number;
   title: string;
   description: string;
@@ -12,6 +12,10 @@ export interface Lesson {
   materials: LessonMaterial[];
   additionalMaterials: LessonMaterial[];
   homework: LessonMaterial[];
+  isActive?: boolean;
+  isArchived?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface LessonProgress {

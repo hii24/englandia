@@ -35,7 +35,7 @@ export const LessonCardAdminView: React.FC<LessonCardProps> = ({ lesson, progres
             </div>
           )}
           <div className="lesson-card__materials">
-            {lesson.materials.length > 0 && (
+            {lesson.materials?.length > 0 && (
               <div className="lesson-card__materials-block">
                 <span>Учебные материалы урока</span>
                 {lesson.materials.map((m: LessonMaterial) =>
@@ -45,7 +45,7 @@ export const LessonCardAdminView: React.FC<LessonCardProps> = ({ lesson, progres
                 )}
               </div>
             )}
-            {lesson.additionalMaterials.length > 0 && (
+            {lesson.additionalMaterials?.length > 0 && (
               <div className="lesson-card__materials-block">
                 <span>Дополнительные материалы</span>
                 {lesson.additionalMaterials.map((m: LessonMaterial) =>
@@ -55,7 +55,7 @@ export const LessonCardAdminView: React.FC<LessonCardProps> = ({ lesson, progres
                 )}
               </div>
             )}
-            {lesson.homework.length > 0 && (
+            {lesson.homework?.length > 0 && (
               <div className="lesson-card__materials-block">
                 <span>Домашнее задание</span>
                 {lesson.homework.map((m: LessonMaterial) =>

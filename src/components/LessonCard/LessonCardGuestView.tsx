@@ -3,6 +3,7 @@ import { LessonCardProps, LessonMaterial } from './LessonCard.types';
 
 export const LessonCardGuestView: React.FC<LessonCardProps> = ({ lesson }) => {
   const [open, setOpen] = useState(false);
+  const { materials = [], additionalMaterials = [], homework = [] } = lesson;
   return (
     <div className={`lesson-card${open ? ' lesson-card--open' : ''}`}>
       <div className="lesson-card__header">
@@ -23,30 +24,30 @@ export const LessonCardGuestView: React.FC<LessonCardProps> = ({ lesson }) => {
             </div>
           )}
           <div className="lesson-card__materials">
-            {lesson.materials.length > 0 && (
+            {materials.length > 0 && (
               <div className="lesson-card__materials-block">
                 <span>Учебные материалы урока</span>
-                {lesson.materials.map((m: LessonMaterial) =>
+                {materials.map((m: LessonMaterial) =>
                   m.type === 'file' ? (
                     <a key={m.url} href={m.url} download className="lesson-card__download">Скачать [PDF]</a>
                   ) : null
                 )}
               </div>
             )}
-            {lesson.additionalMaterials.length > 0 && (
+            {additionalMaterials?.length > 0 && (
               <div className="lesson-card__materials-block">
                 <span>Дополнительные материалы</span>
-                {lesson.additionalMaterials.map((m: LessonMaterial) =>
+                {additionalMaterials.map((m: LessonMaterial) =>
                   m.type === 'file' ? (
                     <a key={m.url} href={m.url} download className="lesson-card__download">Скачать [PDF]</a>
                   ) : null
                 )}
               </div>
             )}
-            {lesson.homework.length > 0 && (
+            {homework?.length > 0 && (
               <div className="lesson-card__materials-block">
                 <span>Домашнее задание</span>
-                {lesson.homework.map((m: LessonMaterial) =>
+                {homework.map((m: LessonMaterial) =>
                   m.type === 'file' ? (
                     <a key={m.url} href={m.url} download className="lesson-card__download">Скачать [PDF]</a>
                   ) : null

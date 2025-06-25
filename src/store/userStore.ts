@@ -19,6 +19,8 @@ interface UserState {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  selectedStudentId?: string | null;
+  setSelectedStudent: (id: string | null) => void;
   
   // Actions
   setUser: (user: User) => void;
@@ -35,7 +37,8 @@ export const useUserStore = create<UserState>()(
       token: null,
       isAuthenticated: false,
       isLoading: false,
-
+      selectedStudentId: null,
+      setSelectedStudent: (id) => set({ selectedStudentId: id }),
       setUser: (user) => set({ user }),
       setToken: (token) => set({ token }),
       login: (user, token) => set({ 
@@ -48,7 +51,8 @@ export const useUserStore = create<UserState>()(
         user: null, 
         token: null, 
         isAuthenticated: false,
-        isLoading: false 
+        isLoading: false,
+        selectedStudentId: null
       }),
       setLoading: (isLoading) => set({ isLoading }),
     }),
@@ -58,7 +62,8 @@ export const useUserStore = create<UserState>()(
       partialize: (state) => ({ 
         user: state.user, 
         token: state.token, 
-        isAuthenticated: state.isAuthenticated 
+        isAuthenticated: state.isAuthenticated,
+        selectedStudentId: state.selectedStudentId
       }),
     }
   )
