@@ -17,15 +17,11 @@ export const ModalExamples: React.FC = () => {
   const handleRegistration = () => {
     openRegistrationModal({
       onSubmit: async (data) => {
-        try {
-          const result = await sendRegistration(data);
-          if (result.data && result.data.plainPassword) {
-            alert('Ваш временный пароль: ' + result.data.plainPassword);
-          }
-          openRegistrationSuccessModal({ onClose: closeModal });
-        } catch (e: any) {
-          alert(e.message);
+        const result = await sendRegistration(data);
+        if (result.data && result.data.plainPassword) {
+          alert('Ваш временный пароль: ' + result.data.plainPassword);
         }
+        openRegistrationSuccessModal({ onClose: closeModal });
       }
     });
   };
@@ -33,25 +29,11 @@ export const ModalExamples: React.FC = () => {
   const handleLogin = () => {
     openLoginModal({
       onSubmit: async (data) => {
-        try {
-          console.log('Начинаем процесс входа...');
-          const result = await loginUser(data);
-          console.log('Вход успешен, результат:', result);
-          
-          // Добавляем небольшую задержку для обновления store
-          setTimeout(() => {
-            console.log('Перенаправляем на dashboard...');
-            router.push('/dashboard');
-          }, 100);
-          
-        } catch (e: any) {
-          console.error('Ошибка входа:', e);
-          openInfoModal({
-            title: 'Ошибка входа',
-            message: e.message,
-            buttonText: 'Понятно'
-          });
-        }
+        const result = await loginUser(data);
+        // Добавляем небольшую задержку для обновления store
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 100);
       },
       onRegisterClick: () => {
         handleRegistration();

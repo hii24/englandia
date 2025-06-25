@@ -1,7 +1,6 @@
 import { MongoClient, ObjectId } from 'mongodb';
 import type { User, CreateUserData } from '@/types/registration';
-
-const uri = process.env.MONGODB_URI || 'mongodb+srv://webenglandia:MM3D5gvys8ZZIwge@cluster0.g1oslk8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const uri = process.env.MONGODB_URI || '';
 const dbName = process.env.MONGODB_DB || 'englandia';
 
 let client: MongoClient;

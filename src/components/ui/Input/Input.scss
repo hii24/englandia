@@ -69,6 +69,10 @@ $input-transition: 0.2s cubic-bezier(0.4,0,0.2,1);
     opacity: 1;
     vertical-align: middle;
   }
+  &:focus {
+    border: 1.5px solid $input-border-focus;
+    background: $input-bg;
+  }
 }
 
 .input--with-label {
@@ -129,6 +133,7 @@ $input-transition: 0.2s cubic-bezier(0.4,0,0.2,1);
 .input__message {
   margin-top: 4px;
   min-height: 18px;
+  text-align: left;
 }
 
 .input__error {

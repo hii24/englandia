@@ -2,6 +2,7 @@
 
 import { ComponentExamples } from "@/components/examples/ComponentExamples";
 import { ModalExamples } from "@/components/examples/ModalExamples";
+import { BurgerMenuExamples } from "@/components/examples/BurgerMenuExamples";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/store/userStore";
@@ -26,7 +27,8 @@ export default function HomePage() {
     <div className="min-h-screen bg-white">
       <h1>Home</h1>
       {/* <ComponentExamples /> */}
-      <ModalExamples />
+      {/* <ModalExamples /> */}
+      {/* <BurgerMenuExamples /> */}
     </div>
   );
 } 

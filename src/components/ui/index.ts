@@ -4,6 +4,8 @@ export { Text } from './Text';
 export { Input } from './Input';
 export { NumberInput } from './NumberInput';
 export { Modal } from './Modal';
+export { BurgerMenuButton } from './BurgerMenuButton/BurgerMenuButton';
+export { BurgerMenu } from './BurgerMenu';
 
 // Types
 export type { 

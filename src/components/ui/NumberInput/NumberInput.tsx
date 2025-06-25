@@ -10,6 +10,7 @@ interface NumberInputProps {
   step?: number;
   label?: string;
   className?: string;
+  error?: string;
 }
 
 export const NumberInput: React.FC<NumberInputProps> = ({
@@ -20,6 +21,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   step = 1,
   label = '',
   className = '',
+  error,
 }) => {
   const handleDecrement = () => {
     if (value > min) onChange(value - step);
@@ -53,6 +55,9 @@ export const NumberInput: React.FC<NumberInputProps> = ({
           <span className="number-input__icon">+</span>
         </button>
       </div>
+      {error && <div className="number-input__error">{error}</div>}
     </div>
   );
-}; 
+};
+
+export type { NumberInputProps }; 
