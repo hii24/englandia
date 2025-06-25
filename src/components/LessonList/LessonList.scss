@@ -1,0 +1,133 @@
+// LessonList.scss
+.lesson-list {
+  background: #f8f8ff;
+  border-radius: 24px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  
+  @media (max-width: 600px) {
+    padding: 16px 4px;
+    gap: 20px;
+    border-radius: 16px;
+  }
+  
+  @media (min-width: 1200px) {
+    max-width: 1000px;
+  }
+  
+  // Анимация появления карточек
+  .lesson-card {
+    animation: slideInUp 0.3s ease-out;
+    
+    @for $i from 1 through 10 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{$i * 0.05}s;
+      }
+    }
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Состояние загрузки
+.lesson-list--loading {
+  .lesson-card {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+// Скелетон загрузки
+.lesson-card--skeleton {
+  .skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 4px;
+    
+    &--text {
+      height: 16px;
+      margin-bottom: 8px;
+    }
+    
+    &--circle {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+  }
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// Пустое состояние
+.lesson-list--empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+  
+  &::before {
+    content: "📚";
+    font-size: 48px;
+    display: block;
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: #666;
+  }
+  
+  p {
+    font-size: 16px;
+    color: #999;
+  }
+}
+
+// Состояние ошибки
+.lesson-list--error {
+  text-align: center;
+  padding: 60px 20px;
+  color: #d32f2f;
+  
+  &::before {
+    content: "⚠️";
+    font-size: 48px;
+    display: block;
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: #d32f2f;
+  }
+  
+  p {
+    font-size: 16px;
+    color: #666;
+  }
+} 
