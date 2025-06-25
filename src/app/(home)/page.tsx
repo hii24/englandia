@@ -6,11 +6,13 @@ import { BurgerMenuExamples } from "@/components/examples/BurgerMenuExamples";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/store/userStore";
+import { BurgerMenuDashboard } from "@/components/BurgerMenuDashboard";
+import { useBurgerMenu } from "@/hooks/useBurgerMenu";
 
 export default function HomePage() {
   const router = useRouter();
   const { isAuthenticated } = useUserStore();
-
+  const { isOpen, toggle } = useBurgerMenu();
   useEffect(() => {
     console.log('Главная страница: проверка аутентификации', { isAuthenticated });
     
@@ -26,6 +28,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       <h1>Home</h1>
+      <BurgerMenuDashboard isOpen={isOpen} onToggle={toggle} />
       {/* <ComponentExamples /> */}
       {/* <ModalExamples /> */}
       {/* <BurgerMenuExamples /> */}

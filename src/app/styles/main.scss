@@ -52,10 +52,7 @@ h6 {
   font-weight: 500;
 }
 
-p {
-  @include text-style();
-  margin-bottom: $spacing-md;
-}
+
 
 .container {
   max-width: 1200px;

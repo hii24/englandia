@@ -1,9 +1,10 @@
 import { Modal, NumberInput, Input, Button } from "@/components/ui";
 import React, { useState } from "react";
+import { sendRegistration } from '@/lib/api';
 
 interface RegistrationModalProps {
-  onSubmit: (data: any) => Promise<any>;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 const initialState = {
@@ -16,8 +17,8 @@ const initialState = {
 };
 
 const RegistrationModal: React.FC<RegistrationModalProps> = ({
-  onSubmit,
   onClose,
+  onSuccess,
 }) => {
   const [form, setForm] = useState(initialState);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,6 +31,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
   }>({});
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const validate = (field: string, value: string | number) => {
     let error = '';
@@ -45,7 +47,6 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
     }
     if (field === 'phone') {
       if (!value || typeof value === 'string' && !value.trim()) error = 'Введите телефон';
-      // Можно добавить маску/регулярку для телефона
     }
     if (field === 'age') {
       if (typeof value === 'number' && (value < 4 || value > 12)) error = 'Возраст от 4 до 12';
@@ -63,6 +64,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
     e.preventDefault();
     setSubmitted(true);
     setServerError(null);
+    setSuccess(false);
     // Проверяем все поля
     const firstNameError = validate('firstName', form.firstName);
     const lastNameError = validate('lastName', form.lastName);
@@ -72,7 +74,11 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
     if (firstNameError || lastNameError || emailError || phoneError || ageError) return;
     setIsSubmitting(true);
     try {
-      await onSubmit(form);
+      await sendRegistration(form);
+      setSuccess(true);
+      if (onSuccess) onSuccess();
+      // Можно закрыть модалку автоматически:
+      // onClose();
     } catch (error: any) {
       setServerError(error?.message || 'Ошибка регистрации');
       console.error('Ошибка регистрации:', error);
@@ -136,6 +142,9 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
         />
         {serverError && (
           <div className="text-center text-red-600 text-sm mt-2">{serverError}</div>
+        )}
+        {success && (
+          <div className="text-center text-green-600 text-sm mt-2">Регистрация прошла успешно!</div>
         )}
         <div className="flex justify-center">
           <Button type="submit" showIcon disabled={isSubmitting}>

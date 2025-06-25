@@ -1,0 +1,46 @@
+.dashboard-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+  
+  justify-content: space-between;
+  background: #fff;
+  padding: 18px 20px;
+  padding-top: 5px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.04);
+  gap: 16px;
+  @media (min-width: 768px) {
+    display: none;
+  }
+  &__top {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    &-right{
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+    }
+  }
+
+  &__bottom {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+   
+  }
+
+ 
+
+  &__avatar {
+    border-radius: 50%;
+    object-fit: cover;
+    background: #f3f0fa;
+  }
+}

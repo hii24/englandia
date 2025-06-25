@@ -1,10 +1,11 @@
 import { Modal, Input, Button } from "@/components/ui";
 import React, { useState } from "react";
+import { loginUser } from '@/lib/api';
 
 interface LoginModalProps {
-  onSubmit: (data: { email: string; password: string }) => Promise<any>;
   onClose: () => void;
   onRegisterClick: () => void;
+  onSuccess?: () => void;
 }
 
 const initialState = {
@@ -13,9 +14,9 @@ const initialState = {
 };
 
 const LoginModal: React.FC<LoginModalProps> = ({
-  onSubmit,
   onClose,
   onRegisterClick,
+  onSuccess,
 }) => {
   const [form, setForm] = useState(initialState);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,6 +24,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const validate = (field: string, value: string) => {
     let error = '';
@@ -40,7 +42,6 @@ const LoginModal: React.FC<LoginModalProps> = ({
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-    // Валидация на лету, но ошибки не показываем до submit
     validate(field, value);
   };
 
@@ -48,13 +49,19 @@ const LoginModal: React.FC<LoginModalProps> = ({
     e.preventDefault();
     setSubmitted(true);
     setServerError(null);
+    setSuccess(false);
+    
     // Проверяем все поля перед отправкой
+    // TODO: Добавить валидацию на лету, но ошибки не показываем до submit
+
     const emailError = validate('email', form.email);
     const passwordError = validate('password', form.password);
     if (emailError || passwordError) return;
     setIsSubmitting(true);
     try {
-      await onSubmit(form);
+      await loginUser(form);
+      setSuccess(true);
+      if (onSuccess) onSuccess();
     } catch (error: any) {
       setServerError(error?.message || 'Ошибка входа');
       console.error('Ошибка входа:', error);
@@ -103,25 +110,31 @@ const LoginModal: React.FC<LoginModalProps> = ({
         {serverError && (
           <div className="text-center text-red-600 text-sm mt-2">{serverError}</div>
         )}
-
+        {success && (
+          <div className="text-center text-green-600 text-sm mt-2">Вход выполнен успешно!</div>
+        )}
+        <div className="text-center flex flex-row gap-2 justify-center align-middle">
+          <p className="flex flex-col justify-center align-middle">
+            Нет аккаунта?
+          </p>
+          <button
+            type="button"
+            className="text-blue-600 hover:text-blue-800 text-sm underline cursor-pointer"
+            onClick={()=>{
+              console.log("onRegisterClick");
+              onRegisterClick();
+            }}
+          >
+            Зарегистрироваться
+          </button>
+        </div>
         <div className="flex justify-center">
           <Button type="submit" showIcon disabled={isSubmitting}>
             {isSubmitting ? 'Вход...' : 'Войти'}
           </Button>
         </div>
 
-        <div className="text-center">
-          <p className="text-sm text-gray-600 mb-2">
-            Нет аккаунта?
-          </p>
-          <button
-            type="button"
-            className="text-blue-600 hover:text-blue-800 text-sm underline"
-            onClick={onRegisterClick}
-          >
-            Зарегистрироваться
-          </button>
-        </div>
+        
       </form>
     </Modal>
   );

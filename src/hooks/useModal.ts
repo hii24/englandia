@@ -1,10 +1,8 @@
 'use client';
 import { useModalStore, ModalConfig } from '../store/modalStore';
 import ConfirmModal from '../modals/ConfirmModal';
-import InfoModal from '../modals/InfoModal';
-import FormModal from '../modals/FormModal';
-import RegistrationModal from '../modals/RegistrationModal';
 import LoginModal from '../modals/LoginModal';
+import RegistrationModal from '../modals/RegistrationModal';
 import RegistrationSuccessModal from '../modals/RegistrationSuccessModal';
 
 export const useModal = () => {
@@ -28,38 +26,7 @@ export const useModal = () => {
     openModal(modalConfig);
   };
 
-  const openInfoModal = (props: {
-    title?: string;
-    message: string;
-    buttonText?: string;
-  }) => {
-    const modalConfig: ModalConfig = {
-      id: 'info',
-      component: InfoModal,
-      props: {
-        ...props,
-        onClose: closeModal,
-      },
-    };
-    openModal(modalConfig);
-  };
 
-  const openFormModal = (props: {
-    title?: string;
-    onSubmit: (data: any) => void;
-    submitText?: string;
-    cancelText?: string;
-  }) => {
-    const modalConfig: ModalConfig = {
-      id: 'form',
-      component: FormModal,
-      props: {
-        ...props,
-        onCancel: closeModal,
-      },
-    };
-    openModal(modalConfig);
-  };
 
   const openCustomModal = (component: React.ComponentType<any>, props?: Record<string, any>) => {
     const modalConfig: ModalConfig = {
@@ -73,30 +40,24 @@ export const useModal = () => {
     openModal(modalConfig);
   };
 
-  const openRegistrationModal = (props: {
-    onSubmit: (data: any) => void;
-  }) => {
+  const openRegistrationModal = () => {
     const modalConfig: ModalConfig = {
-      id: 'registration',
+      id: "registration",
       component: RegistrationModal,
       props: {
-        ...props,
         onClose: closeModal,
       },
     };
     openModal(modalConfig);
   };
 
-  const openLoginModal = (props: {
-    onSubmit: (data: { email: string; password: string }) => void;
-    onRegisterClick: () => void;
-  }) => {
+  const openLoginModal = () => {
     const modalConfig: ModalConfig = {
-      id: 'login',
+      id: "login",
       component: LoginModal,
       props: {
-        ...props,
         onClose: closeModal,
+        onRegisterClick: openRegistrationModal,
       },
     };
     openModal(modalConfig);
@@ -116,8 +77,6 @@ export const useModal = () => {
 
   return {
     openConfirmModal,
-    openInfoModal,
-    openFormModal,
     openCustomModal,
     openRegistrationModal,
     openLoginModal,

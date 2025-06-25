@@ -9,22 +9,21 @@ interface EmailData {
 
 // Создаем транспортер для отправки email
 const createTransporter = () => {
-  // Проверяем, настроены ли переменные окружения
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-    console.warn('Email не настроен. Создаем тестовый транспортер.');
-    return null;
+    throw new Error('Gmail credentials not configured. Please set GMAIL_USER and GMAIL_APP_PASSWORD in .env.local')
   }
 
-  // Для разработки используем Gmail SMTP
-  // В продакшене лучше использовать специализированные сервисы (SendGrid, Mailgun, etc.)
   return nodemailer.createTransport({
     service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD, // App Password для Gmail
+      pass: process.env.EMAIL_PASSWORD,
     },
-  });
-};
+  })
+}
 
 // Альтернативная конфигурация для других SMTP серверов
 const createCustomTransporter = () => {
