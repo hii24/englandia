@@ -1,4 +1,5 @@
 import { MongoClient, ObjectId } from 'mongodb';
+import mongoose from 'mongoose';
 import type { User, CreateUserData } from '@/types/registration';
 const uri = process.env.MONGODB_URI || '';
 const dbName = process.env.MONGODB_DB || 'englandia';
@@ -94,6 +95,20 @@ export async function saveRegistration(data: any) {
 export async function getDb() {
   const client = await clientPromise;
   return client.db(dbName);
+}
+
+// Функция для подключения к mongoose
+export async function dbConnect() {
+  if (mongoose.connection.readyState >= 1) {
+    return;
+  }
+  
+  const uri = process.env.MONGODB_URI || '';
+  if (!uri) {
+    throw new Error('MONGODB_URI не задан в переменных окружения');
+  }
+  
+  await mongoose.connect(uri);
 }
 
 declare global {

@@ -14,6 +14,19 @@ const StudentProgressSchema = new Schema({
   sessionsAttended: { type: Number, default: 0 },
   attendedSessionIds: [{ type: Types.ObjectId, ref: 'LessonSession' }],
   teacherNotes: [NoteSchema],
+  lessonLink: {
+    title: String,
+    url: String,
+    forStudent: { type: Boolean, default: true }
+  },
+  homework: [
+    {
+      title: String,
+      url: String,
+      type: { type: String, enum: ['file', 'link'], default: 'link' },
+      forStudent: { type: Boolean, default: true }
+    }
+  ]
 }, { timestamps: true });
 
 export default model('StudentProgress', StudentProgressSchema); 

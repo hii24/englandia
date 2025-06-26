@@ -64,7 +64,7 @@ export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, on
 
   return (
     <div className="modal-overlay">
-      <div className="modal modal--teacher">
+      <div className="modal modal--teacher w-full max-w-4xl min-h-[500px] min-w-[700px] max-h-[90vh]">
         <button className="modal__close" onClick={onClose}>×</button>
         
         {/* Сайдбар */}

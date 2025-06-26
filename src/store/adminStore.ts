@@ -1,11 +1,20 @@
 import { create } from 'zustand';
 import { api } from '@/lib/api';
 
-export const useAdminStore = create((set, get) => ({
+interface AdminState {
+  students: any[];
+  teachers: any[];
+  loading: boolean;
+  error: string | null;
+  loadUsers: () => Promise<void>;
+  assignTeacher: (studentId: string, teacherId: string) => Promise<void>;
+}
+
+export const useAdminStore = create<AdminState>((set, get) => ({
   students: [],
   teachers: [],
   loading: false,
-  error: null as string | null,
+  error: null,
 
   loadUsers: async () => {
     set({ loading: true, error: null });

@@ -32,7 +32,7 @@ export async function updateLesson(id: string, updates: any) {
     { $set: { ...updates, updatedAt: new Date() } },
     { returnDocument: 'after' }
   );
-  return result.value;
+  return result?.value || null;
 }
 
 export async function archiveLesson(id: string) {

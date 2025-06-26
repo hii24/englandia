@@ -117,5 +117,23 @@ export async function assignTeacherToStudent(studentId: string, teacherId: strin
   return response.data;
 }
 
+// Получить индивидуальные lessonLink и homework
+export async function fetchStudentLesson(studentId: string, lessonId: string) {
+  const res = await fetch(`/api/progress/student-lesson?studentId=${studentId}&lessonId=${lessonId}`);
+  if (!res.ok) throw new Error('Не удалось получить данные');
+  return res.json();
+}
+
+// Сохранить индивидуальные lessonLink и homework
+export async function saveStudentLesson(studentId: string, lessonId: string, lessonLink: any, homework: any[]) {
+  const res = await fetch('/api/progress/student-lesson', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ studentId, lessonId, lessonLink, homework }),
+  });
+  if (!res.ok) throw new Error('Не удалось сохранить данные');
+  return res.json();
+}
+
 // Экспортируем экземпляр api для использования в других местах
 export { api }; 

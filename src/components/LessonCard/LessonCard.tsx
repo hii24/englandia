@@ -1,12 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { LessonCardProps } from './LessonCard.types';
 import './LessonCard.scss';
+import { useUserStore } from '@/store/userStore';
+import { fetchStudentLesson } from '@/lib/api';
 
 export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
   const [open, setOpen] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [studentLessonLink, setStudentLessonLink] = useState<any>(null);
+  const [studentHomework, setStudentHomework] = useState<any[] | null>(null);
   const { materials = [], additionalMaterials = [], homework = [] } = lesson;
+  const user = useUserStore(s => s.user);
+
+  // Загружаем индивидуальные lessonLink и homework для студента
+  useEffect(() => {
+    if (open && user?.role === 'student' && user._id && lesson._id) {
+      fetchStudentLesson(user._id, lesson._id)
+        .then(data => {
+          setStudentLessonLink(data.lessonLink || null);
+          setStudentHomework(Array.isArray(data.homework) ? data.homework : null);
+        })
+        .catch(() => {
+          setStudentLessonLink(null);
+          setStudentHomework(null);
+        });
+    } else {
+      setStudentLessonLink(null);
+      setStudentHomework(null);
+    }
+  }, [open, user?._id, user?.role, lesson._id]);
 
   // Статус урока
   const status = progress?.status || 'not_started';
@@ -50,6 +73,15 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
 
   const thumbnail = lesson.videoUrl ? getVideoThumbnail(lesson.videoUrl) : null;
 
+  const visibleMaterials = user?.role === 'student' || user?.role === 'guest'
+    ? (lesson.materials || []).filter(m => m.forStudent)
+    : (lesson.materials || []);
+
+  // Ссылка на занятие
+  const effectiveLessonLink = user?.role === 'student' && studentLessonLink ? studentLessonLink : lesson.lessonLink;
+  // Домашка
+  const effectiveHomework = user?.role === 'student' && studentHomework ? studentHomework : homework;
+
   return (
     <div className={`lesson-card${open ? ' lesson-card--open' : ''}`}>
       <div className="lesson-card__header">
@@ -74,80 +106,53 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
       </div>
       {open && (
         <div className="lesson-card__body">
-          {lesson.videoUrl && (
-            <div className="lesson-card__video">
-              {isVideoPlaying ? (
-                <video
-                  controls
-                  autoPlay
-                  onEnded={handleVideoEnd}
-                  className="lesson-card__video-player"
-                >
-                  <source src={lesson.videoUrl} type="video/mp4" />
-                  <source src={lesson.videoUrl} type="video/webm" />
-                  Ваш браузер не поддерживает видео.
-                </video>
-              ) : (
-                <>
-                  {thumbnail ? (
-                    <img src={thumbnail} alt="Превью видео" />
-                  ) : (
-                    <div className="lesson-card__video-placeholder">
-                      <div className="lesson-card__video-placeholder-text">Видео урок</div>
-                    </div>
-                  )}
-                  <button
-                    className="lesson-card__video-play"
-                    onClick={handleVideoPlay}
-                    aria-label="Воспроизвести видео"
-                  >
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                      <circle cx="16" cy="16" r="16" fill="none"/>
-                      <polygon points="13,10 24,16 13,22" fill="#fff"/>
-                    </svg>
-                  </button>
-                </>
-              )}
+          {/* Ссылка на занятие */}
+          {effectiveLessonLink && effectiveLessonLink.url && (effectiveLessonLink.forStudent !== false || user?.role !== 'student') && (
+            <div className="lesson-card__lesson-link bg-violet-50 border border-violet-200 rounded-lg p-3 mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 010 5.656m-3.656-3.656a4 4 0 015.656 0m-7.778 7.778a4 4 0 005.656 0l1.414-1.414a4 4 0 000-5.656m-7.778-7.778a4 4 0 015.656 0l1.414 1.414a4 4 0 010 5.656" /></svg>
+              <span className="font-semibold text-violet-800">Ссылка на занятие:</span>
+              <a href={effectiveLessonLink.url} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline font-medium ml-2">{effectiveLessonLink.title || effectiveLessonLink.url}</a>
             </div>
           )}
-          <div className="lesson-card__materials">
-            {materials.length > 0 && (
-              <div className="lesson-card__materials-block">
-                <span>Учебные материалы урока</span>
-                <div className="lesson-card__materials-links">
-                  {materials.map((m, i) =>
-                    m.type === 'file' ? (
-                      <a key={m.url || i} href={m.url} download className="lesson-card__download">Скачать [PDF]</a>
-                    ) : null
-                  )}
-                </div>
-              </div>
-            )}
-            {additionalMaterials.length > 0 && (
-              <div className="lesson-card__materials-block">
-                <span>Дополнительные материалы</span>
-                <div className="lesson-card__materials-links">
-                  {additionalMaterials.map((m, i) =>
-                    m.type === 'file' ? (
-                      <a key={m.url || i} href={m.url} download className="lesson-card__download">Скачать [PDF]</a>
-                    ) : null
-                  )}
-                </div>
-              </div>
-            )}
-            {homework.length > 0 && (
-              <div className="lesson-card__materials-block">
-                <span>Домашнее задание</span>
-                <div className="lesson-card__materials-links">
-                  {homework.map((m, i) =>
-                    m.type === 'file' ? (
-                      <a key={m.url || i} href={m.url} download className="lesson-card__download">Скачать [PDF]</a>
-                    ) : null
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Материалы */}
+          {visibleMaterials.length > 0 && (
+            <div className="lesson-card__materials-block mb-2">
+              <span className="font-semibold">Учебные материалы урока:</span>
+              <ul className="list-disc pl-5 mt-2 space-y-1">
+                {visibleMaterials.map((m, i) => (
+                  <li key={m.url || i}>
+                    <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline font-medium">{m.title || m.url}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {/* Домашка */}
+          {effectiveHomework.length > 0 && (
+            <div className="lesson-card__materials-block mb-2">
+              <span className="font-semibold">Домашнее задание:</span>
+              <ul className="list-disc pl-5 mt-2 space-y-1">
+                {effectiveHomework.map((m, i) => (
+                  <li key={m.url || i}>
+                    <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline font-medium">{m.title || m.url}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {/* Дополнительные материалы */}
+          {additionalMaterials.length > 0 && (
+            <div className="lesson-card__materials-block mb-2">
+              <span className="font-semibold">Дополнительные материалы:</span>
+              <ul className="list-disc pl-5 mt-2 space-y-1">
+                {additionalMaterials.map((m, i) => (
+                  <li key={m.url || i}>
+                    <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline font-medium">{m.title || m.url}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>

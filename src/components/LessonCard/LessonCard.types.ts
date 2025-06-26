@@ -1,6 +1,8 @@
 export interface LessonMaterial {
+  title: string;
   url: string;
   type: 'file' | 'link';
+  forStudent?: boolean;
 }
 
 export interface Lesson {
@@ -12,6 +14,7 @@ export interface Lesson {
   materials: LessonMaterial[];
   additionalMaterials: LessonMaterial[];
   homework: LessonMaterial[];
+  lessonLink?: { title: string; url: string; forStudent?: boolean };
   isActive?: boolean;
   isArchived?: boolean;
   createdAt?: string;

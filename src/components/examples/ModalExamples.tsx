@@ -9,36 +9,16 @@ export const ModalExamples: React.FC = () => {
   const {
     openRegistrationModal,
     openLoginModal,
-    openInfoModal,
     openRegistrationSuccessModal,
     closeModal
   } = useModal();
 
   const handleRegistration = () => {
-    openRegistrationModal({
-      onSubmit: async (data) => {
-        const result = await sendRegistration(data);
-        if (result.data && result.data.plainPassword) {
-          alert('Ваш временный пароль: ' + result.data.plainPassword);
-        }
-        openRegistrationSuccessModal({ onClose: closeModal });
-      }
-    });
+    openRegistrationModal();
   };
 
   const handleLogin = () => {
-    openLoginModal({
-      onSubmit: async (data) => {
-        const result = await loginUser(data);
-        // Добавляем небольшую задержку для обновления store
-        setTimeout(() => {
-          router.push('/dashboard');
-        }, 100);
-      },
-      onRegisterClick: () => {
-        handleRegistration();
-      }
-    });
+    openLoginModal();
   };
 
   const handleFormSubmit = (data: any) => {
