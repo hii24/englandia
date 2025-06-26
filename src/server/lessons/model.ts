@@ -23,6 +23,9 @@ const LessonSchema = new Schema({
   isActive: { type: Boolean, default: true },
   isArchived: { type: Boolean, default: false },
   teacherId: { type: Types.ObjectId, ref: 'User' },
+  scheduledDate: Date,
+  scheduleEnabled: { type: Boolean, default: false },
+  schedulePattern: { type: String, enum: ['4_per_month', '8_per_month'], default: '4_per_month' },
 }, { timestamps: true });
 
 export default model('Lesson', LessonSchema); 

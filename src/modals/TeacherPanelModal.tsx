@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useUserStore } from '@/store/userStore';
 import { TeacherStudentsTab } from '@/components/admin/TeacherStudentsTab';
 import { TeacherLessonsTab } from '@/components/admin/TeacherLessonsTab';
+import { AttendanceTab } from '@/components/admin/AttendanceTab';
 
 interface TeacherPanelModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-type TeacherTab = 'students' | 'lessons';
+type TeacherTab = 'students' | 'lessons' | 'attendance';
 
 export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, onClose }) => {
   const user = useUserStore(s => s.user);
@@ -28,6 +29,8 @@ export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, on
         return 'Выбор ученика';
       case 'lessons':
         return 'Управление уроками';
+      case 'attendance':
+        return 'Управление посещениями';
       default:
         return 'Панель учителя';
     }
@@ -40,6 +43,10 @@ export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, on
       case 'lessons':
         return selectedStudent 
           ? `Работа с уроками ученика ${selectedStudent.firstName} ${selectedStudent.lastName}`
+          : 'Сначала выберите ученика';
+      case 'attendance':
+        return selectedStudent 
+          ? `Отметка посещений ученика ${selectedStudent.firstName} ${selectedStudent.lastName}`
           : 'Сначала выберите ученика';
       default:
         return '';
@@ -57,6 +64,8 @@ export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, on
         );
       case 'lessons':
         return <TeacherLessonsTab selectedStudent={selectedStudent} />;
+      case 'attendance':
+        return <AttendanceTab selectedStudent={selectedStudent} />;
       default:
         return <TeacherStudentsTab onStudentSelect={handleStudentSelect} />;
     }
@@ -83,6 +92,13 @@ export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, on
               disabled={!selectedStudent}
             >
               📚 Уроки ученика
+            </button>
+            <button
+              className={`teacher-nav__item ${activeTab === 'attendance' ? 'teacher-nav__item--active' : ''}`}
+              onClick={() => setActiveTab('attendance')}
+              disabled={!selectedStudent}
+            >
+              ✅ Посещения
             </button>
           </nav>
           

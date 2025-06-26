@@ -1,32 +1,159 @@
 import { dbConnect } from '@/server/db';
 import StudentProgress from '@/server/progress/model';
+import { Types } from 'mongoose';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  await dbConnect();
-  const { studentId, lessonId } = req.method === 'GET' ? req.query : req.body;
+  let studentId: string | undefined;
+  let lessonId: string | undefined;
+  
+  try {
+    await dbConnect();
+    const queryData = req.method === 'GET' ? req.query : req.body;
+    studentId = queryData.studentId as string;
+    lessonId = queryData.lessonId as string;
 
-  if (!studentId || !lessonId) {
-    return res.status(400).json({ error: 'studentId and lessonId are required' });
-  }
+    console.log('API /progress/student-lesson:', {
+      method: req.method,
+      studentId,
+      lessonId,
+      body: req.body
+    });
 
-  if (req.method === 'GET') {
-    const progress = await StudentProgress.findOne({ studentId, lessonId });
-    if (!progress) return res.status(404).json({ error: 'Not found' });
-    return res.json({ lessonLink: progress.lessonLink, homework: progress.homework });
-  }
-
-  if (req.method === 'PUT') {
-    const { lessonLink, homework } = req.body;
-    let progress = await StudentProgress.findOne({ studentId, lessonId });
-    if (!progress) {
-      progress = new StudentProgress({ studentId, lessonId });
+    if (!studentId || !lessonId) {
+      console.error('Missing required fields:', { studentId, lessonId });
+      return res.status(400).json({ error: 'studentId and lessonId are required' });
     }
-    if (lessonLink) progress.lessonLink = lessonLink;
-    if (homework) progress.homework = homework;
-    await progress.save();
-    return res.json({ success: true });
-  }
 
-  res.status(405).json({ error: 'Method not allowed' });
+    // Конвертируем строковые ID в ObjectId
+    const studentObjectId = new Types.ObjectId(studentId as string);
+    const lessonObjectId = new Types.ObjectId(lessonId as string);
+
+    if (req.method === 'GET') {
+      const progress = await StudentProgress.findOne({ 
+        studentId: studentObjectId, 
+        lessonId: lessonObjectId 
+      });
+      if (!progress) {
+        console.log('Progress not found for:', { studentId, lessonId });
+        return res.status(404).json({ error: 'Not found' });
+      }
+      
+      const response = { 
+        lessonLink: progress.lessonLink, 
+        homework: progress.homework,
+        attended: progress.attended,
+        attendanceDate: progress.attendanceDate,
+        attendanceConfirmedBy: progress.attendanceConfirmedBy,
+        scheduledDate: progress.scheduledDate,
+        status: progress.status
+      };
+      
+      console.log('GET response:', response);
+      return res.json(response);
+    }
+
+    if (req.method === 'PUT') {
+      const { lessonLink, homework, attended, attendanceDate, attendanceConfirmedBy, scheduledDate } = req.body;
+      
+      console.log('PUT request data:', {
+        studentId,
+        lessonId,
+        lessonLink: !!lessonLink,
+        homework: !!homework,
+        attended,
+        attendanceDate,
+        attendanceConfirmedBy,
+        scheduledDate
+      });
+
+      let progress = await StudentProgress.findOne({ 
+        studentId: studentObjectId, 
+        lessonId: lessonObjectId 
+      });
+      const isNew = !progress;
+      
+      if (!progress) {
+        console.log('Creating new progress record for:', { studentId, lessonId });
+        progress = new StudentProgress({ 
+          studentId: studentObjectId, 
+          lessonId: lessonObjectId 
+        });
+      } else {
+        console.log('Found existing progress:', {
+          attended: progress.attended,
+          attendanceDate: progress.attendanceDate,
+          hasLessonLink: !!progress.lessonLink,
+          hasHomework: !!progress.homework
+        });
+      }
+
+      // Сохраняем предыдущее состояние для проверки изменений
+      const wasAttended = progress.attended;
+
+      // Обновляем поля только если они переданы (включая null, но не undefined)
+      if (lessonLink !== undefined) {
+        console.log('Updating lessonLink:', lessonLink);
+        progress.lessonLink = lessonLink;
+      }
+      if (homework !== undefined) {
+        console.log('Updating homework:', homework);
+        progress.homework = homework;
+      }
+      if (attended !== undefined) {
+        console.log('Updating attended:', attended);
+        progress.attended = attended;
+      }
+      if (attendanceDate !== undefined) {
+        console.log('Updating attendanceDate:', attendanceDate);
+        progress.attendanceDate = attendanceDate;
+      }
+      if (attendanceConfirmedBy !== undefined) {
+        console.log('Updating attendanceConfirmedBy:', attendanceConfirmedBy);
+        if (attendanceConfirmedBy) {
+          progress.attendanceConfirmedBy = new Types.ObjectId(attendanceConfirmedBy as string);
+        } else {
+          progress.attendanceConfirmedBy = undefined;
+        }
+      }
+      if (scheduledDate !== undefined) {
+        console.log('Updating scheduledDate:', scheduledDate);
+        progress.scheduledDate = scheduledDate;
+      }
+      
+      console.log('Saving progress with data:', {
+        attended: progress.attended,
+        attendanceDate: progress.attendanceDate,
+        attendanceConfirmedBy: progress.attendanceConfirmedBy,
+        hasLessonLink: !!progress.lessonLink,
+        hasHomework: !!progress.homework
+      });
+      
+      // Если урок завершен и это первый урок, отправляем email
+      if (attended && !wasAttended) {
+        console.log('First lesson completed, ready to send email');
+        // TODO: Добавить логику отправки email для первого урока
+      }
+      
+      await progress.save();
+      console.log('Progress saved successfully');
+      return res.json({ success: true, isNew });
+    }
+
+    console.error('Method not allowed:', req.method);
+    res.status(405).json({ error: 'Method not allowed' });
+  } catch (error) {
+    console.error('API error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      method: req.method,
+      studentId,
+      lessonId,
+      body: req.body
+    });
+    res.status(500).json({ 
+      error: error instanceof Error ? error.message : 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? error : undefined
+    });
+  }
 } 

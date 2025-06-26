@@ -3,13 +3,14 @@ import { useUserStore } from '@/store/userStore';
 import { AssignTeachersTab } from '@/components/admin/AssignTeachersTab';
 import { CreateLessonTab } from '@/components/admin/CreateLessonTab';
 import { EditLessonsTab } from '@/components/admin/EditLessonsTab';
+import { ScheduleTab } from '@/components/admin/ScheduleTab';
 
 interface AdminPanelModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-type AdminTab = 'assign' | 'create' | 'edit';
+type AdminTab = 'assign' | 'create' | 'edit' | 'schedule';
 
 export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClose }) => {
   const user = useUserStore(s => s.user);
@@ -25,6 +26,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
         return <CreateLessonTab />;
       case 'edit':
         return <EditLessonsTab />;
+      case 'schedule':
+        return <ScheduleTab />;
       default:
         return <AssignTeachersTab />;
     }
@@ -38,6 +41,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
         return 'Создание нового урока';
       case 'edit':
         return 'Редактирование уроков';
+      case 'schedule':
+        return 'Управление расписанием';
       default:
         return 'Админ-панель';
     }
@@ -51,6 +56,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
         return 'Заполните форму для создания нового урока';
       case 'edit':
         return 'Выберите урок для редактирования из списка';
+      case 'schedule':
+        return 'Настройте расписание уроков для автоматического планирования';
       default:
         return '';
     }
@@ -82,6 +89,12 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
               onClick={() => setActiveTab('edit')}
             >
               ✏️ Редактировать уроки
+            </button>
+            <button
+              className={`admin-nav__item ${activeTab === 'schedule' ? 'admin-nav__item--active' : ''}`}
+              onClick={() => setActiveTab('schedule')}
+            >
+              📅 Расписание уроков
             </button>
           </nav>
         </div>

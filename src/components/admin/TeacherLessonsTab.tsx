@@ -44,10 +44,13 @@ export const TeacherLessonsTab: React.FC<TeacherLessonsTabProps> = ({ selectedSt
     if (selectedStudent && selectedLesson) {
       fetchStudentLesson(selectedStudent._id, selectedLesson._id)
         .then(data => {
+          console.log('Loaded student lesson data:', data);
           setLessonLink(data.lessonLink || { title: '', url: '' });
           setHomeworkData({ homework: data.homework || [] });
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error('Error loading student lesson data:', error);
+          // Если данные не найдены, это нормально - устанавливаем пустые значения
           setLessonLink({ title: '', url: '' });
           setHomeworkData({ homework: [] });
         });
@@ -55,6 +58,7 @@ export const TeacherLessonsTab: React.FC<TeacherLessonsTabProps> = ({ selectedSt
   }, [selectedStudent, selectedLesson]);
 
   const handleEditHomework = (lesson: any) => {
+    console.log('Editing lesson for student:', { lesson, student: selectedStudent });
     setSelectedLesson(lesson);
     setHomeworkData({
       homework: lesson.homework || []
@@ -64,19 +68,32 @@ export const TeacherLessonsTab: React.FC<TeacherLessonsTabProps> = ({ selectedSt
 
   const handleSaveHomework = async () => {
     if (!selectedLesson) return;
+    
+    // Подготавливаем данные для сохранения
+    // Передаем данные даже если они пустые, чтобы можно было очистить поля
+    const lessonLinkToSave = lessonLink;
+    const homeworkToSave = homeworkData.homework;
+    
+    console.log('Saving student lesson data:', {
+      studentId: selectedStudent._id,
+      lessonId: selectedLesson._id,
+      lessonLink: lessonLinkToSave,
+      homework: homeworkToSave
+    });
+    
     try {
       await saveStudentLesson(
         selectedStudent._id,
         selectedLesson._id,
-        lessonLink,
-        homeworkData.homework
+        lessonLinkToSave,
+        homeworkToSave
       );
       setEditMode(false);
       setSelectedLesson(null);
       alert('Данные по ученику и уроку обновлены!');
     } catch (error) {
       console.error('Ошибка обновления:', error);
-      alert('Ошибка обновления данных');
+      alert(`Ошибка обновления данных: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
     }
   };
 

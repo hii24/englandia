@@ -23,6 +23,14 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    console.error('API Error:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+    
     if (error.response?.status === 401) {
       useUserStore.getState().logout();
     }
@@ -119,20 +127,47 @@ export async function assignTeacherToStudent(studentId: string, teacherId: strin
 
 // Получить индивидуальные lessonLink и homework
 export async function fetchStudentLesson(studentId: string, lessonId: string) {
-  const res = await fetch(`/api/progress/student-lesson?studentId=${studentId}&lessonId=${lessonId}`);
-  if (!res.ok) throw new Error('Не удалось получить данные');
-  return res.json();
+  const response = await api.get(`/progress/student-lesson?studentId=${studentId}&lessonId=${lessonId}`);
+  return response.data;
 }
 
 // Сохранить индивидуальные lessonLink и homework
 export async function saveStudentLesson(studentId: string, lessonId: string, lessonLink: any, homework: any[]) {
-  const res = await fetch('/api/progress/student-lesson', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ studentId, lessonId, lessonLink, homework }),
+  const response = await api.put('/progress/student-lesson', { 
+    studentId, 
+    lessonId, 
+    lessonLink, 
+    homework 
   });
-  if (!res.ok) throw new Error('Не удалось сохранить данные');
-  return res.json();
+  return response.data;
+}
+
+// Обновить посещение урока
+export async function updateAttendance(studentId: string, lessonId: string, attended: boolean, attendanceConfirmedBy: string) {
+  const response = await api.put('/progress/student-lesson', {
+    studentId, 
+    lessonId, 
+    attended, 
+    attendanceDate: attended ? new Date().toISOString() : null,
+    attendanceConfirmedBy: attended ? attendanceConfirmedBy : null
+  });
+  return response.data;
+}
+
+// Получить расписание урока
+export async function getLessonSchedule(lessonId: string) {
+  const response = await api.get(`/lessons/schedule?lessonId=${lessonId}`);
+  return response.data;
+}
+
+// Обновить расписание урока
+export async function updateLessonSchedule(lessonId: string, scheduleData: {
+  scheduledDate?: string;
+  scheduleEnabled?: boolean;
+  schedulePattern?: '4_per_month' | '8_per_month';
+}) {
+  const response = await api.post('/lessons/schedule', { lessonId, ...scheduleData });
+  return response.data;
 }
 
 // Экспортируем экземпляр api для использования в других местах

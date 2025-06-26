@@ -1,4 +1,4 @@
-import { Schema, model, Types } from 'mongoose';
+import { Schema, model, Types, models } from 'mongoose';
 
 const NoteSchema = new Schema({
   note: String,
@@ -14,6 +14,10 @@ const StudentProgressSchema = new Schema({
   sessionsAttended: { type: Number, default: 0 },
   attendedSessionIds: [{ type: Types.ObjectId, ref: 'LessonSession' }],
   teacherNotes: [NoteSchema],
+  attended: { type: Boolean, default: false },
+  attendanceDate: Date,
+  attendanceConfirmedBy: { type: Types.ObjectId, ref: 'User' },
+  scheduledDate: Date,
   lessonLink: {
     title: String,
     url: String,
@@ -29,4 +33,7 @@ const StudentProgressSchema = new Schema({
   ]
 }, { timestamps: true });
 
-export default model('StudentProgress', StudentProgressSchema); 
+// Используем паттерн singleton для избежания ошибки перезаписи модели
+const StudentProgress = models.StudentProgress || model('StudentProgress', StudentProgressSchema);
+
+export default StudentProgress; 
