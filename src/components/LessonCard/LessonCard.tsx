@@ -82,6 +82,25 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
   // Домашка
   const effectiveHomework = user?.role === 'student' && studentHomework ? studentHomework : homework;
 
+  // Функция для нормализации URL
+  const normalizeUrl = (url: string): string => {
+    if (!url) return '';
+    // Если URL уже абсолютный (начинается с http:// или https://), возвращаем как есть
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    // Если URL начинается с //, добавляем https:
+    if (url.startsWith('//')) {
+      return `https:${url}`;
+    }
+    // Если URL начинается с /, это относительный путь от корня домена
+    if (url.startsWith('/')) {
+      return url;
+    }
+    // Для остальных случаев добавляем https://
+    return `https://${url}`;
+  };
+
   return (
     <div className={`lesson-card${open ? ' lesson-card--open' : ''}`}>
       <div className="lesson-card__header">
@@ -108,10 +127,15 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
         <div className="lesson-card__body">
           {/* Ссылка на занятие */}
           {effectiveLessonLink && effectiveLessonLink.url && (effectiveLessonLink.forStudent !== false || user?.role !== 'student') && (
-            <div className="lesson-card__lesson-link bg-violet-50 border border-violet-200 rounded-lg p-3 mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 010 5.656m-3.656-3.656a4 4 0 015.656 0m-7.778 7.778a4 4 0 005.656 0l1.414-1.414a4 4 0 000-5.656m-7.778-7.778a4 4 0 015.656 0l1.414 1.414a4 4 0 010 5.656" /></svg>
-              <span className="font-semibold text-violet-800">Ссылка на занятие:</span>
-              <a href={effectiveLessonLink.url} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline font-medium ml-2">{effectiveLessonLink.title || effectiveLessonLink.url}</a>
+            <div className="lesson-card__materials-block mb-2">
+              <span className="font-semibold">Ссылка на занятие:</span>
+              <ul className="list-disc pl-5 mt-2 space-y-1">
+                <li key={`lesson-link-${effectiveLessonLink.url}`}>
+                  <a href={normalizeUrl(effectiveLessonLink.url)} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline font-medium">
+                    {effectiveLessonLink.title || effectiveLessonLink.url}
+                  </a>
+                </li>
+              </ul>
             </div>
           )}
           {/* Материалы */}
@@ -120,8 +144,8 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
               <span className="font-semibold">Учебные материалы урока:</span>
               <ul className="list-disc pl-5 mt-2 space-y-1">
                 {visibleMaterials.map((m, i) => (
-                  <li key={m.url || i}>
-                    <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline font-medium">{m.title || m.url}</a>
+                  <li key={`${m.url}-${i}`}>
+                    <a href={normalizeUrl(m.url)} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline font-medium">{m.title || m.url}</a>
                   </li>
                 ))}
               </ul>
@@ -133,8 +157,8 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
               <span className="font-semibold">Домашнее задание:</span>
               <ul className="list-disc pl-5 mt-2 space-y-1">
                 {effectiveHomework.map((m, i) => (
-                  <li key={m.url || i}>
-                    <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline font-medium">{m.title || m.url}</a>
+                  <li key={`${m.url}-${i}`}>
+                    <a href={normalizeUrl(m.url)} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline font-medium">{m.title || m.url}</a>
                   </li>
                 ))}
               </ul>
@@ -146,8 +170,8 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
               <span className="font-semibold">Дополнительные материалы:</span>
               <ul className="list-disc pl-5 mt-2 space-y-1">
                 {additionalMaterials.map((m, i) => (
-                  <li key={m.url || i}>
-                    <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline font-medium">{m.title || m.url}</a>
+                  <li key={`${m.url}-${i}`}>
+                    <a href={normalizeUrl(m.url)} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline font-medium">{m.title || m.url}</a>
                   </li>
                 ))}
               </ul>
