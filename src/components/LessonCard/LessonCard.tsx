@@ -1,79 +1,150 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { LessonCardProps } from './LessonCard.types';
-import { useUserStore } from '../../store/userStore';
-import { LessonSettingsModal } from '@/modals/LessonSettingsModal';
 import './LessonCard.scss';
 
 export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
-  const user = useUserStore((s) => s.user);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  // Деструктурируем поля с дефолтами
-  const { materials = [], additionalMaterials = [], homework = [] } = lesson;
   const [open, setOpen] = useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const { materials = [], additionalMaterials = [], homework = [] } = lesson;
+
+  // Статус урока
+  const status = progress?.status || 'not_started';
+  const statusMap: Record<string, { text: string; color: string; className: string }> = {
+    completed: { text: 'Завершён', color: '#22c55e', className: 'dot--completed' },
+    in_progress: { text: 'В процессе', color: '#facc15', className: 'dot--in_progress' },
+    skipped: { text: 'Пропущен', color: '#f87171', className: 'dot--skipped' },
+    not_started: { text: 'Не начат', color: '#d1d5db', className: 'dot--not_started' },
+  };
+  const statusObj = statusMap[status] || statusMap['not_started'];
+
+  const handleVideoPlay = () => {
+    setIsVideoPlaying(true);
+  };
+
+  const handleVideoEnd = () => {
+    setIsVideoPlaying(false);
+  };
+
+  // Функция для получения YouTube thumbnail
+  const getYouTubeThumbnail = (url: string) => {
+    const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+    return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : null;
+  };
+
+  // Функция для получения Vimeo thumbnail
+  const getVimeoThumbnail = (url: string) => {
+    const videoId = url.match(/vimeo\.com\/(\d+)/)?.[1];
+    return videoId ? `https://vumbnail.com/${videoId}.jpg` : null;
+  };
+
+  const getVideoThumbnail = (url: string) => {
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      return getYouTubeThumbnail(url);
+    }
+    if (url.includes('vimeo.com')) {
+      return getVimeoThumbnail(url);
+    }
+    return null;
+  };
+
+  const thumbnail = lesson.videoUrl ? getVideoThumbnail(lesson.videoUrl) : null;
 
   return (
-    <div className={`lesson-card${open ? ' lesson-card--open' : ''}`} style={{ position: 'relative' }}>
+    <div className={`lesson-card${open ? ' lesson-card--open' : ''}`}>
       <div className="lesson-card__header">
-        <div>
-          <span className="lesson-card__order">Урок {lesson.orderNumber}</span>
-          <span className="lesson-card__title">{lesson.title}</span>
-          <span className="lesson-card__desc">{lesson.description}</span>
+        <div className="lesson-card__order">Урок {lesson.orderNumber}</div>
+        <div className="lesson-card__content">
+          <div className="lesson-card__title">{lesson.title}</div>
+          <div className="lesson-card__desc">{lesson.description}</div>
         </div>
         <div className="lesson-card__status">
-          {progress && <span className={`dot dot--${progress.status || 'not_started'}`}></span>}
-          {progress && (progress.status === 'completed' ? 'Завершён' : progress.status === 'in_progress' ? 'В процессе' : progress.status === 'skipped' ? 'Пропущен' : 'Не начат')}
+          <span className={`dot ${statusObj.className}`}></span>
+          {statusObj.text}
         </div>
-        <button className="lesson-card__toggle" onClick={() => setOpen(v => !v)}>
-          {open ? '▲' : '▼'}
+        <button
+          className={`lesson-card__toggle${open ? ' lesson-card__toggle--open' : ''}`}
+          onClick={() => setOpen(v => !v)}
+          aria-label={open ? 'Свернуть' : 'Развернуть'}
+        >
+          <span className="lesson-card__toggle-icon">
+            <Image src="/roll-btn.svg" alt="roll-btn" width={50} height={50} />
+          </span>
         </button>
-        {(user?.role === 'admin' || user?.role === 'teacher') && (
-          <button
-            className="lesson-card__settings"
-            onClick={() => setSettingsOpen(true)}
-            style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer', fontSize: 22 }}
-            aria-label="Настройки урока"
-          >
-            ⚙️
-          </button>
-        )}
-        <LessonSettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} lesson={lesson} />
       </div>
       {open && (
         <div className="lesson-card__body">
           {lesson.videoUrl && (
             <div className="lesson-card__video">
-              <img src="/lesson-video-placeholder.jpg" alt="Видео" style={{ width: '100%', borderRadius: 16 }} />
+              {isVideoPlaying ? (
+                <video
+                  controls
+                  autoPlay
+                  onEnded={handleVideoEnd}
+                  className="lesson-card__video-player"
+                >
+                  <source src={lesson.videoUrl} type="video/mp4" />
+                  <source src={lesson.videoUrl} type="video/webm" />
+                  Ваш браузер не поддерживает видео.
+                </video>
+              ) : (
+                <>
+                  {thumbnail ? (
+                    <img src={thumbnail} alt="Превью видео" />
+                  ) : (
+                    <div className="lesson-card__video-placeholder">
+                      <div className="lesson-card__video-placeholder-text">Видео урок</div>
+                    </div>
+                  )}
+                  <button
+                    className="lesson-card__video-play"
+                    onClick={handleVideoPlay}
+                    aria-label="Воспроизвести видео"
+                  >
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                      <circle cx="16" cy="16" r="16" fill="none"/>
+                      <polygon points="13,10 24,16 13,22" fill="#fff"/>
+                    </svg>
+                  </button>
+                </>
+              )}
             </div>
           )}
           <div className="lesson-card__materials">
             {materials.length > 0 && (
               <div className="lesson-card__materials-block">
                 <span>Учебные материалы урока</span>
-                {materials.map((m) =>
-                  m.type === 'file' ? (
-                    <a key={m.url} href={m.url} download className="lesson-card__download">Скачать [PDF]</a>
-                  ) : null
-                )}
+                <div className="lesson-card__materials-links">
+                  {materials.map((m, i) =>
+                    m.type === 'file' ? (
+                      <a key={m.url || i} href={m.url} download className="lesson-card__download">Скачать [PDF]</a>
+                    ) : null
+                  )}
+                </div>
               </div>
             )}
             {additionalMaterials.length > 0 && (
               <div className="lesson-card__materials-block">
                 <span>Дополнительные материалы</span>
-                {additionalMaterials.map((m) =>
-                  m.type === 'file' ? (
-                    <a key={m.url} href={m.url} download className="lesson-card__download">Скачать [PDF]</a>
-                  ) : null
-                )}
+                <div className="lesson-card__materials-links">
+                  {additionalMaterials.map((m, i) =>
+                    m.type === 'file' ? (
+                      <a key={m.url || i} href={m.url} download className="lesson-card__download">Скачать [PDF]</a>
+                    ) : null
+                  )}
+                </div>
               </div>
             )}
             {homework.length > 0 && (
               <div className="lesson-card__materials-block">
                 <span>Домашнее задание</span>
-                {homework.map((m) =>
-                  m.type === 'file' ? (
-                    <a key={m.url} href={m.url} download className="lesson-card__download">Скачать [PDF]</a>
-                  ) : null
-                )}
+                <div className="lesson-card__materials-links">
+                  {homework.map((m, i) =>
+                    m.type === 'file' ? (
+                      <a key={m.url || i} href={m.url} download className="lesson-card__download">Скачать [PDF]</a>
+                    ) : null
+                  )}
+                </div>
               </div>
             )}
           </div>

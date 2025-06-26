@@ -5,21 +5,13 @@
   padding: 32px 24px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 25px;
   width: 100%;
-  max-width: 900px;
+  max-width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
   
-  @media (max-width: 600px) {
-    padding: 16px 4px;
-    gap: 20px;
-    border-radius: 16px;
-  }
-  
-  @media (min-width: 1200px) {
-    max-width: 1000px;
-  }
+
   
   // Анимация появления карточек
   .lesson-card {

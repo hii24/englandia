@@ -5,6 +5,7 @@ export const EditLessonsTab: React.FC = () => {
   const lessons = useLessonStore((s: any) => s.lessons);
   const loadLessons = useLessonStore((s: any) => s.loadLessons);
   const editLesson = useLessonStore((s: any) => s.editLesson);
+  const removeLesson = useLessonStore((s: any) => s.removeLesson);
   const [selectedLesson, setSelectedLesson] = useState<any>(null);
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState({
@@ -54,6 +55,22 @@ export const EditLessonsTab: React.FC = () => {
     }
   };
 
+  const handleDeleteLesson = async () => {
+    if (!selectedLesson) return;
+    if (!window.confirm('Удалить этот урок?')) return;
+    try {
+      const lessonId = selectedLesson._id || selectedLesson.id;
+      await removeLesson(lessonId);
+      setEditMode(false);
+      setSelectedLesson(null);
+      loadLessons();
+      alert('Урок удалён!');
+    } catch (error) {
+      console.error('Ошибка удаления урока:', error);
+      alert('Ошибка удаления урока');
+    }
+  };
+
   const handleCancelEdit = () => {
     setEditMode(false);
     setSelectedLesson(null);
@@ -82,7 +99,21 @@ export const EditLessonsTab: React.FC = () => {
           placeholder="Порядковый номер"
           style={{ width: '100%', marginBottom: 12, padding: 8, borderRadius: 8, border: '1px solid #ddd' }}
         />
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
+          <button 
+            onClick={handleDeleteLesson}
+            style={{ 
+              background: '#f87171', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: 8, 
+              padding: '8px 16px', 
+              cursor: 'pointer',
+              fontWeight: 600
+            }}
+          >
+            Удалить урок
+          </button>
           <button 
             onClick={handleCancelEdit}
             style={{ 

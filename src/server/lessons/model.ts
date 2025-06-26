@@ -10,6 +10,7 @@ const LessonSchema = new Schema({
   title: { type: String, required: true },
   description: String,
   orderNumber: { type: Number, required: true, unique: true },
+  videoUrl: String,
   materials: [MaterialSchema],
   additionalMaterials: [MaterialSchema],
   homework: [MaterialSchema],
