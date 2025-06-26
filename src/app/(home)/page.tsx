@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import { useUserStore } from "@/store/userStore";
 import { BurgerMenuDashboard } from "@/components/BurgerMenuDashboard";
 import { useBurgerMenu } from "@/hooks/useBurgerMenu";
+import { useModal } from "@/hooks/useModal";
+import { Button } from "@/components/ui";
 
 export default function HomePage() {
   const router = useRouter();
@@ -25,10 +27,23 @@ export default function HomePage() {
     }
   }, [isAuthenticated, router]);
 
+
+  const { openLoginModal, openRegistrationModal } = useModal();
+
+  const handleRegisterClick = () => {
+    // В бургер-меню:
+    openRegistrationModal();
+  };
+  const handleLoginClick = () => {
+    
+    openLoginModal();
+  };
   return (
     <div className="min-h-screen bg-white">
       <h1>Home</h1>
       <BurgerMenuDashboard isOpen={isOpen} onToggle={toggle} />
+      <Button onClick={handleRegisterClick}>Зарегистрироваться</Button>
+      <Button onClick={handleLoginClick}>Войти</Button>
       {/* <ComponentExamples /> */}
       {/* <ModalExamples /> */}
       {/* <BurgerMenuExamples /> */}

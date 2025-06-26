@@ -19,9 +19,7 @@ export default function DashboardLayout({
         <Header />
 
         {/* Контент страницы */}
-        <div className="flex-1 overflow-auto p-6">
-          {children}
-        </div>
+        <div className="flex-1 overflow-auto">{children}</div>
       </main>
     </div>
   );

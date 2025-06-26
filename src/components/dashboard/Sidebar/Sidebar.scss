@@ -107,4 +107,65 @@
     
   }
  
+}
+
+.profile-info-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px 0 0 0;
+  text-align: center;
+
+  &__avatar {
+    margin-bottom: 8px;
+    img {
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  }
+  &__name {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+  &__label {
+    color: #888;
+    font-size: 14px;
+    margin-top: 8px;
+  }
+  &__value {
+    font-size: 16px;
+    margin-bottom: 2px;
+    &--bold {
+      font-weight: 700;
+      color: #000;
+    }
+  }
+  &__logout {
+    margin-top: 24px;
+    background: none;
+    border: 1.5px solid #7c3aed;
+    color: #7c3aed;
+    border-radius: 50px;
+    padding: 8px 24px;
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    &:hover {
+      background: #f5f3ff;
+      color: #440693;
+      border-color: #440693;
+    }
+  }
+  &__logout-icon {
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+  }
 } 

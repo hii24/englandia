@@ -75,7 +75,6 @@ export const LessonList: React.FC<LessonListProps> = ({
 
   return (
     <div className="lesson-list">
-       <div>Текущая роль: {user?.role}</div>
       {filteredLessons.map((lesson) => (
         <div key={lesson._id} style={{ position: 'relative' }}>
           <LessonCard lesson={lesson} progress={filteredProgresses?.find(p => p.lessonId === lesson._id)} />

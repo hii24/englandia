@@ -59,31 +59,37 @@ export const Sidebar: React.FC = () => {
           className="dashboard-sidebar__avatar"
         />
         <span className="dashboard-sidebar__name">{user?.firstName || 'Имя'}</span>
-        <button
-          className="dashboard-sidebar__settings-btn"
-          onClick={handleSettingsClick}
-          title={
-            user?.role === 'admin' ? 'Админ-панель' : 
-            user?.role === 'teacher' ? 'Панель учителя' : 
-            'Настройки'
-          }
-          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22 }}
-        >
-          {user?.role === 'admin' ? '⚙️' : user?.role === 'teacher' ? '📚' : '⚙️'}
-        </button>
+        {(user?.role === 'teacher' || user?.role === 'admin') && (
+          <button
+            className="dashboard-sidebar__settings-btn"
+            onClick={handleSettingsClick}
+            title={
+              user?.role === 'admin' ? 'Админ-панель' : 
+              user?.role === 'teacher' ? 'Панель учителя' : 
+              'Настройки'
+            }
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22 }}
+          >
+            {user?.role === 'admin' ? '⚙️' : user?.role === 'teacher' ? '📚' : '⚙️'}
+          </button>
+        )}
       </div>
       <div className="dashboard-sidebar__search">
         <SearchInput placeholder="Поиск" />
       </div>
       <div className="dashboard-sidebar__info">
-        <div className="dashboard-sidebar__info-block">
-          <span className="dashboard-sidebar__info-label">Возраст ребёнка</span>
-          <span className="dashboard-sidebar__info-value">{age}</span>
-        </div>
-        <div className="dashboard-sidebar__info-block">
-          <span className="dashboard-sidebar__info-label">Пакет</span>
-          <span className="dashboard-sidebar__info-value">{packageName}</span>
-        </div>
+        {(user?.role === 'student' || user?.role === 'guest') && (
+          <>
+            <div className="dashboard-sidebar__info-block">
+              <span className="dashboard-sidebar__info-label">Возраст ребёнка</span>
+              <span className="dashboard-sidebar__info-value">{age}</span>
+            </div>
+            <div className="dashboard-sidebar__info-block">
+              <span className="dashboard-sidebar__info-label">Пакет</span>
+              <span className="dashboard-sidebar__info-value">{packageName}</span>
+            </div>
+          </>
+        )}
         <div className="dashboard-sidebar__info-block">
           <span className="dashboard-sidebar__info-label">Email</span>
           <span className="dashboard-sidebar__info-value">{email}</span>

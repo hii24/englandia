@@ -8,7 +8,7 @@
   &__header {
     display: flex;
     align-items: center;
-    padding: 32px 40px 24px 40px;
+    padding: 15px 20px 15px 40px;
     position: relative;
     gap: 24px;
   }
@@ -17,27 +17,30 @@
     font-size: 16px;
     font-weight: 500;
     min-width: fit-content;
+    display: flex;
+  
+    align-self: start;
+    margin-top: 6px;
   }
   &__content {
     flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
   }
   &__title {
     font-weight: 700;
     font-size: 28px;
     color: #18181b;
     line-height: 1.2;
-    white-space: pre-line;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   &__desc {
     color: #64748b;
     font-size: 16px;
-    white-space: pre-line;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
