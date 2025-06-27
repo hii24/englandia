@@ -131,6 +131,12 @@ export async function fetchStudentLesson(studentId: string, lessonId: string) {
   return response.data;
 }
 
+// Получить прогресс всех уроков ученика
+export async function fetchStudentProgress(studentId: string) {
+  const response = await api.get(`/progress/student?studentId=${studentId}`);
+  return response.data;
+}
+
 // Сохранить индивидуальные lessonLink и homework
 export async function saveStudentLesson(studentId: string, lessonId: string, lessonLink: any, homework: any[]) {
   const response = await api.put('/progress/student-lesson', { 
@@ -150,6 +156,17 @@ export async function updateAttendance(studentId: string, lessonId: string, atte
     attended, 
     attendanceDate: attended ? new Date().toISOString() : null,
     attendanceConfirmedBy: attended ? attendanceConfirmedBy : null
+  });
+  return response.data;
+}
+
+// Обновить статус урока
+export async function updateLessonStatus(studentId: string, lessonId: string, status: 'not_started' | 'in_progress' | 'completed', confirmedBy: string) {
+  const response = await api.put('/progress/student-lesson', {
+    studentId, 
+    lessonId, 
+    status,
+    attendanceConfirmedBy: confirmedBy
   });
   return response.data;
 }

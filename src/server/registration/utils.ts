@@ -7,7 +7,8 @@ export function generatePassword(length = 8) {
     password += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   //TODO
-  return 'password';
+  // return 'password';
+  return password;
 }
 
 export async function hashPassword(password: string): Promise<string> {

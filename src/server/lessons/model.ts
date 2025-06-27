@@ -1,4 +1,4 @@
-import { Schema, model, Types } from 'mongoose';
+import { Schema, model, Types, models } from 'mongoose';
 
 const MaterialSchema = new Schema({
   title: String,
@@ -28,4 +28,7 @@ const LessonSchema = new Schema({
   schedulePattern: { type: String, enum: ['4_per_month', '8_per_month'], default: '4_per_month' },
 }, { timestamps: true });
 
-export default model('Lesson', LessonSchema); 
+// Используем паттерн singleton для избежания ошибки перезаписи модели
+const Lesson = models.Lesson || model('Lesson', LessonSchema);
+
+export default Lesson; 

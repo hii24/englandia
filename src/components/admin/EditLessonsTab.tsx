@@ -55,9 +55,14 @@ export const EditLessonsTab: React.FC = () => {
       const lessonId = selectedLesson._id || selectedLesson.id;
       console.log('Редактирование урока:', {
         lessonId,
+        lessonIdType: typeof lessonId,
         selectedLesson,
         editData
       });
+      
+      if (!lessonId) {
+        throw new Error('ID урока не найден');
+      }
       
       await editLesson(lessonId, editData);
       setEditMode(false);
@@ -66,7 +71,7 @@ export const EditLessonsTab: React.FC = () => {
       alert('Урок успешно обновлен!');
     } catch (error) {
       console.error('Ошибка обновления урока:', error);
-      alert('Ошибка обновления урока');
+      alert(`Ошибка обновления урока: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
     }
   };
 

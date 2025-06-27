@@ -17,7 +17,7 @@ export const Header: React.FC = () => {
         <div>
           <div className="dashboard-header__top-right">
             <Image
-              src={"/avatar.png"}
+              src={"/default-avatar.png"}
               alt="Аватар"
               width={50}
               height={50}

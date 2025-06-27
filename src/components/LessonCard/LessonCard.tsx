@@ -13,6 +13,15 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
   const { materials = [], additionalMaterials = [], homework = [] } = lesson;
   const user = useUserStore(s => s.user);
 
+  // Отладочная информация
+  console.log('LessonCard render:', {
+    lessonId: lesson._id,
+    lessonTitle: lesson.title,
+    progress: JSON.stringify(progress, null, 2), // Полное содержимое progress
+    userRole: user?.role,
+    userId: user?._id
+  });
+
   // Загружаем индивидуальные lessonLink и homework для студента
   useEffect(() => {
     if (open && user?.role === 'student' && user._id && lesson._id) {
@@ -31,15 +40,34 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
     }
   }, [open, user?._id, user?.role, lesson._id]);
 
-  // Статус урока
-  const status = progress?.status || 'not_started';
+  // Статус урока - определяем на основе посещения и статуса
+  const status = progress?.attended ? 'completed' : 'not_started';
   const statusMap: Record<string, { text: string; color: string; className: string }> = {
     completed: { text: 'Завершён', color: '#22c55e', className: 'dot--completed' },
     in_progress: { text: 'В процессе', color: '#facc15', className: 'dot--in_progress' },
-    skipped: { text: 'Пропущен', color: '#f87171', className: 'dot--skipped' },
     not_started: { text: 'Не начат', color: '#d1d5db', className: 'dot--not_started' },
   };
   const statusObj = statusMap[status] || statusMap['not_started'];
+
+  // Добавляем информацию о дате посещения
+  const attendanceInfo = progress?.attendanceDate ? (
+    <div className="text-xs text-gray-500 mt-1">
+      Посещён: {new Date(progress.attendanceDate).toLocaleDateString('ru-RU')}
+    </div>
+  ) : null;
+
+  console.log('LessonCard Status Debug:', {
+    lessonId: lesson._id,
+    lessonTitle: lesson.title,
+    progress: progress,
+    status,
+    statusObj,
+    hasProgress: !!progress,
+    attendanceInfo: !!attendanceInfo,
+    statusText: statusObj.text,
+    statusColor: statusObj.color,
+    statusClassName: statusObj.className
+  });
 
   const handleVideoPlay = () => {
     setIsVideoPlaying(true);
@@ -181,4 +209,4 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
       )}
     </div>
   );
-}; 
+};

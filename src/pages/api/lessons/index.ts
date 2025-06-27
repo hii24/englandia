@@ -1,24 +1,36 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getLessons, createLesson } from '@/server/lessons/service';
+import { dbConnect } from '@/server/db';
+import Lesson from '@/server/lessons/model';
 // import { getSession } from 'next-auth/react'; // если используешь next-auth
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
+    await dbConnect();
+    
     // const session = await getSession({ req });
     // const user = session?.user;
     // if (!user) return res.status(401).json({ error: 'Not authenticated' });
 
     if (req.method === 'GET') {
-      const lessons = await getLessons();
+      const lessons = await Lesson.find({ isArchived: { $ne: true } }).sort({ orderNumber: 1 });
+      console.log('API /lessons: Found', lessons.length, 'lessons');
       return res.status(200).json(lessons);
     }
 
     if (req.method === 'POST') {
       // TODO: Проверка роли (admin)
       try {
-        const lesson = await createLesson(req.body);
+        console.log('Creating lesson with data:', req.body);
+        const lesson = new Lesson({
+          ...req.body,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+        await lesson.save();
+        console.log('Lesson created successfully:', lesson._id);
         return res.status(201).json(lesson);
       } catch (e: any) {
+        console.error('Error creating lesson:', e);
         return res.status(400).json({ error: e.message });
       }
     }

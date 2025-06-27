@@ -23,8 +23,12 @@ export interface Lesson {
 
 export interface LessonProgress {
   lessonId: string;
-  status: 'completed' | 'in_progress' | 'skipped' | 'not_started';
-  completedAt?: string;
+  attended: boolean;
+  attendanceDate?: string;
+  attendanceConfirmedBy?: string;
+  lessonLink?: { title: string; url: string; forStudent?: boolean };
+  homework?: Array<{ title: string; url: string; type: 'file' | 'link' }>;
+  status?: 'not_started' | 'in_progress' | 'completed';
 }
 
 export interface LessonCardProps {

@@ -54,7 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === 'PUT') {
-      const { lessonLink, homework, attended, attendanceDate, attendanceConfirmedBy, scheduledDate } = req.body;
+      const { lessonLink, homework, attended, attendanceDate, attendanceConfirmedBy, scheduledDate, status } = req.body;
       
       console.log('PUT request data:', {
         studentId,
@@ -64,7 +64,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         attended,
         attendanceDate,
         attendanceConfirmedBy,
-        scheduledDate
+        scheduledDate,
+        status
       });
 
       let progress = await StudentProgress.findOne({ 
@@ -83,6 +84,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log('Found existing progress:', {
           attended: progress.attended,
           attendanceDate: progress.attendanceDate,
+          status: progress.status,
           hasLessonLink: !!progress.lessonLink,
           hasHomework: !!progress.homework
         });
@@ -90,6 +92,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Сохраняем предыдущее состояние для проверки изменений
       const wasAttended = progress.attended;
+      const wasCompleted = progress.status === 'completed';
 
       // Обновляем поля только если они переданы (включая null, но не undefined)
       if (lessonLink !== undefined) {
@@ -120,11 +123,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log('Updating scheduledDate:', scheduledDate);
         progress.scheduledDate = scheduledDate;
       }
+      if (status !== undefined) {
+        console.log('Updating status:', status);
+        progress.status = status;
+        // Если урок помечен как завершенный, устанавливаем дату завершения
+        if (status === 'completed' && !wasCompleted) {
+          progress.completedAt = new Date();
+        }
+      }
       
       console.log('Saving progress with data:', {
         attended: progress.attended,
         attendanceDate: progress.attendanceDate,
         attendanceConfirmedBy: progress.attendanceConfirmedBy,
+        status: progress.status,
+        completedAt: progress.completedAt,
         hasLessonLink: !!progress.lessonLink,
         hasHomework: !!progress.homework
       });

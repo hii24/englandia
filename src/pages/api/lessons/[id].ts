@@ -1,30 +1,54 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getLessonById, updateLesson, archiveLesson } from '@/server/lessons/service';
+import { dbConnect } from '@/server/db';
+import Lesson from '@/server/lessons/model';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { id } = req.query;
-  if (typeof id !== 'string') return res.status(400).json({ error: 'Invalid id' });
+  try {
+    await dbConnect();
+    const { id } = req.query;
+    if (typeof id !== 'string') return res.status(400).json({ error: 'Invalid id' });
 
-  if (req.method === 'GET') {
-    const lesson = await getLessonById(id);
-    if (!lesson) return res.status(404).json({ error: 'Lesson not found' });
-    return res.status(200).json(lesson);
-  }
-  if (req.method === 'PUT') {
-    try {
-      const updated = await updateLesson(id, req.body);
-      return res.status(200).json(updated);
-    } catch (e: any) {
-      return res.status(400).json({ error: e.message });
+    if (req.method === 'GET') {
+      const lesson = await Lesson.findById(id);
+      if (!lesson) return res.status(404).json({ error: 'Lesson not found' });
+      return res.status(200).json(lesson);
     }
-  }
-  if (req.method === 'DELETE') {
-    try {
-      const archived = await archiveLesson(id);
-      return res.status(200).json(archived);
-    } catch (e: any) {
-      return res.status(400).json({ error: e.message });
+    
+    if (req.method === 'PUT') {
+      try {
+        console.log('PUT /api/lessons/[id]:', { id, body: req.body });
+        const updated = await Lesson.findByIdAndUpdate(
+          id, 
+          { ...req.body, updatedAt: new Date() },
+          { new: true, runValidators: true }
+        );
+        if (!updated) return res.status(404).json({ error: 'Lesson not found' });
+        console.log('PUT /api/lessons/[id] result:', updated);
+        return res.status(200).json(updated);
+      } catch (e: any) {
+        console.error('PUT /api/lessons/[id] error:', e);
+        return res.status(400).json({ error: e.message });
+      }
     }
+    
+    if (req.method === 'DELETE') {
+      try {
+        const archived = await Lesson.findByIdAndUpdate(
+          id,
+          { isArchived: true, updatedAt: new Date() },
+          { new: true }
+        );
+        if (!archived) return res.status(404).json({ error: 'Lesson not found' });
+        return res.status(200).json(archived);
+      } catch (e: any) {
+        console.error('DELETE /api/lessons/[id] error:', e);
+        return res.status(400).json({ error: e.message });
+      }
+    }
+    
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  } catch (e: any) {
+    console.error('API /lessons/[id] error:', e);
+    return res.status(500).json({ error: e.message || 'Internal Server Error' });
   }
-  return res.status(405).json({ error: 'Method Not Allowed' });
 } 

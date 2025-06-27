@@ -1,14 +1,25 @@
-import React, { useState } from 'react';
-import { Lesson, LessonProgress, LessonCard } from '../LessonCard';
-import './LessonList.scss';
+import React, { useState, useEffect } from 'react';
+import { LessonCard } from '@/components/LessonCard';
 import { useUserStore } from '@/store/userStore';
 import { useLessonStore } from '@/store/lessonStore';
+import { fetchStudentProgress } from '@/lib/api';
+import './LessonList.scss';
 
 interface LessonListProps {
-  lessons: Lesson[];
-  progresses?: LessonProgress[];
+  lessons?: any[];
+  progresses?: any[];
   isLoading?: boolean;
-  error?: string;
+  error?: string | null;
+}
+
+interface StudentProgress {
+  _id: string;
+  lessonId: string;
+  attended: boolean;
+  attendanceDate?: string;
+  attendanceConfirmedBy?: string;
+  lessonLink?: { title: string; url: string; forStudent?: boolean };
+  homework?: Array<{ title: string; url: string; type: 'file' | 'link' }>;
 }
 
 export const LessonList: React.FC<LessonListProps> = ({ 
@@ -21,19 +32,78 @@ export const LessonList: React.FC<LessonListProps> = ({
   const selectedStudentId = useUserStore(s => s.selectedStudentId);
   const removeLesson = useLessonStore((s: any) => s.removeLesson);
   const [editId, setEditId] = useState<string | null>(null);
+  const [studentProgresses, setStudentProgresses] = useState<StudentProgress[]>([]);
+  const [loadingProgresses, setLoadingProgresses] = useState(false);
+
+  // Загружаем прогресс ученика
+  useEffect(() => {
+    if (user?.role === 'student' && user._id) {
+      console.log('Loading progress for student:', user._id);
+      loadStudentProgresses();
+    }
+  }, [user?._id, user?.role]);
+
+  const loadStudentProgresses = async () => {
+    if (!user?._id) return;
+    
+    console.log('Starting to load student progresses...');
+    setLoadingProgresses(true);
+    try {
+      const data = await fetchStudentProgress(user._id);
+      console.log('Loaded student progresses:', data);
+      
+      // Если прогресс пустой, создаем записи по умолчанию для всех уроков
+      if (data.length === 0 && lessons && lessons.length > 0) {
+        console.log('No progress found, creating default progress for lessons');
+        const defaultProgresses = lessons.map(lesson => ({
+          _id: `${user._id}-${lesson._id}`,
+          lessonId: lesson._id,
+          attended: false
+        }));
+        setStudentProgresses(defaultProgresses);
+      } else {
+        setStudentProgresses(data);
+      }
+    } catch (error) {
+      console.error('Error loading student progresses:', error);
+      // В случае ошибки создаем записи по умолчанию
+      if (lessons && lessons.length > 0) {
+        const defaultProgresses = lessons.map(lesson => ({
+          _id: `${user._id}-${lesson._id}`,
+          lessonId: lesson._id,
+          attended: false
+        }));
+        setStudentProgresses(defaultProgresses);
+      } else {
+        setStudentProgresses([]);
+      }
+    } finally {
+      setLoadingProgresses(false);
+    }
+  };
 
   // Фильтрация по ролям
   let filteredLessons = lessons;
   let filteredProgresses = progresses;
   if (user?.role === 'guest') {
-    filteredLessons = lessons.filter(l => l.orderNumber === 1);
+    filteredLessons = lessons?.filter(l => l.orderNumber === 1) || [];
   } else if (user?.role === 'student') {
-    // TODO: фильтрация по прогрессу (текущий + следующий)
-    filteredLessons = lessons.slice(0, 2); // пример
+    // Для студентов используем их собственный прогресс
+    filteredProgresses = studentProgresses;
   } else if (user?.role === 'teacher' && selectedStudentId) {
     // teacher: показываем прогресс выбранного ученика
     filteredProgresses = progresses.filter(p => p.lessonId === selectedStudentId);
   }
+
+  // Отладочная информация
+  console.log('LessonList render:', {
+    userRole: user?.role,
+    userId: user?._id,
+    lessonsCount: lessons?.length,
+    studentProgressesCount: studentProgresses.length,
+    filteredProgressesCount: filteredProgresses.length,
+    loadingProgresses
+  });
 
   if (error) {
     return (
@@ -44,7 +114,7 @@ export const LessonList: React.FC<LessonListProps> = ({
     );
   }
 
-  if (isLoading) {
+  if (isLoading || loadingProgresses) {
     return (
       
       <div className="lesson-list lesson-list--loading">
@@ -64,7 +134,7 @@ export const LessonList: React.FC<LessonListProps> = ({
     );
   }
 
-  if (!lessons || lessons.length === 0) {
+  if (!filteredLessons || filteredLessons.length === 0) {
     return (
       <div className="lesson-list lesson-list--empty">
         <h3>Уроки не найдены</h3>
@@ -75,11 +145,31 @@ export const LessonList: React.FC<LessonListProps> = ({
 
   return (
     <div className="lesson-list">
-      {filteredLessons.map((lesson) => (
-        <div key={lesson._id} style={{ position: 'relative' }}>
-          <LessonCard lesson={lesson} progress={filteredProgresses?.find(p => p.lessonId === lesson._id)} />
-        </div>
-      ))}
+      {filteredLessons?.map((lesson) => {
+        const progress = filteredProgresses?.find(p => {
+          // lessonId может быть строкой, объектом с _id или null
+          if (!p.lessonId) return false;
+          const progressLessonId = typeof p.lessonId === 'object' ? p.lessonId._id : p.lessonId;
+          return progressLessonId === lesson._id;
+        });
+        
+        console.log('Lesson mapping:', {
+          lessonId: lesson._id,
+          lessonTitle: lesson.title,
+          foundProgress: !!progress,
+          progressData: progress,
+          allProgresses: filteredProgresses?.map(p => ({ 
+            lessonId: p.lessonId ? (typeof p.lessonId === 'object' ? p.lessonId._id : p.lessonId) : null, 
+            attended: p.attended 
+          }))
+        });
+        
+        return (
+          <div key={lesson._id} style={{ position: 'relative' }}>
+            <LessonCard lesson={lesson} progress={progress} />
+          </div>
+        );
+      })}
     </div>
   );
 }; 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLessonStore } from '@/store/lessonStore';
-import { fetchStudentLesson, saveStudentLesson } from '@/lib/api';
+import { fetchStudentLesson, saveStudentLesson, updateAttendance } from '@/lib/api';
+import { useUserStore } from '@/store/userStore';
 
 interface TeacherLessonsTabProps {
   selectedStudent: any;
@@ -20,9 +21,20 @@ interface EditData {
   }>;
 }
 
+interface LessonProgress {
+  _id: string;
+  lessonId: string;
+  attended: boolean;
+  attendanceDate?: string;
+  attendanceConfirmedBy?: string;
+  lessonLink?: { title: string; url: string; forStudent?: boolean };
+  homework?: Array<{ title: string; url: string; type: 'file' | 'link' }>;
+}
+
 export const TeacherLessonsTab: React.FC<TeacherLessonsTabProps> = ({ selectedStudent }) => {
   const lessons = useLessonStore((s: any) => s.lessons);
   const loadLessons = useLessonStore((s: any) => s.loadLessons);
+  const user = useUserStore(s => s.user);
   const [selectedLesson, setSelectedLesson] = useState<any>(null);
   const [editMode, setEditMode] = useState(false);
   const [homeworkData, setHomeworkData] = useState<{ homework: HomeworkItem[] }>({
@@ -33,10 +45,13 @@ export const TeacherLessonsTab: React.FC<TeacherLessonsTabProps> = ({ selectedSt
   });
   const [activeTab, setActiveTab] = useState<'main' | 'lessonLink' | 'homework' | 'materials'>('main');
   const [lessonLink, setLessonLink] = useState<{ title: string; url: string }>({ title: '', url: '' });
+  const [lessonProgresses, setLessonProgresses] = useState<LessonProgress[]>([]);
+  const [loadingProgresses, setLoadingProgresses] = useState(false);
 
   useEffect(() => {
     if (selectedStudent) {
       loadLessons();
+      loadStudentProgresses();
     }
   }, [selectedStudent, loadLessons]);
 
@@ -56,6 +71,79 @@ export const TeacherLessonsTab: React.FC<TeacherLessonsTabProps> = ({ selectedSt
         });
     }
   }, [selectedStudent, selectedLesson]);
+
+  const loadStudentProgresses = async () => {
+    if (!selectedStudent?._id) return;
+    
+    setLoadingProgresses(true);
+    try {
+      const progresses: LessonProgress[] = [];
+      
+      // Загружаем прогресс для каждого урока
+      for (const lesson of lessons) {
+        try {
+          const data = await fetchStudentLesson(selectedStudent._id, lesson._id);
+          progresses.push({
+            _id: data._id || `${selectedStudent._id}-${lesson._id}`,
+            lessonId: lesson._id,
+            attended: data.attended || false,
+            attendanceDate: data.attendanceDate,
+            attendanceConfirmedBy: data.attendanceConfirmedBy,
+            lessonLink: data.lessonLink,
+            homework: data.homework
+          });
+        } catch (error) {
+          // Если прогресс не найден, создаем запись по умолчанию
+          progresses.push({
+            _id: `${selectedStudent._id}-${lesson._id}`,
+            lessonId: lesson._id,
+            attended: false
+          });
+        }
+      }
+      
+      setLessonProgresses(progresses);
+    } catch (error) {
+      console.error('Error loading student progresses:', error);
+    } finally {
+      setLoadingProgresses(false);
+    }
+  };
+
+  const handleAttendanceChange = async (lessonId: string, attended: boolean) => {
+    if (!user?._id || !selectedStudent?._id) return;
+    
+    console.log('Teacher marking attendance:', {
+      studentId: selectedStudent._id,
+      lessonId,
+      attended,
+      teacherId: user._id
+    });
+    
+    try {
+      await updateAttendance(selectedStudent._id, lessonId, attended, user._id);
+      
+      // Обновляем локальное состояние
+      setLessonProgresses(prev => prev.map(progress => 
+        progress.lessonId === lessonId 
+          ? { ...progress, attended, attendanceDate: attended ? new Date().toISOString() : undefined }
+          : progress
+      ));
+      
+      console.log(`Attendance updated for lesson ${lessonId} to ${attended}`);
+    } catch (error) {
+      console.error('Error updating attendance:', error);
+      alert('Ошибка обновления посещения');
+    }
+  };
+
+  const getAttendanceColor = (attended: boolean) => {
+    return attended ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+  };
+
+  const getAttendanceText = (attended: boolean) => {
+    return attended ? 'Посетил' : 'Не посетил';
+  };
 
   const handleEditHomework = (lesson: any) => {
     console.log('Editing lesson for student:', { lesson, student: selectedStudent });
@@ -286,24 +374,74 @@ export const TeacherLessonsTab: React.FC<TeacherLessonsTabProps> = ({ selectedSt
   return (
     <div>
       <h4>Уроки ученика: {selectedStudent.firstName} {selectedStudent.lastName}</h4>
+      {loadingProgresses && (
+        <div className="text-center py-4 text-gray-600">
+          Загрузка прогресса...
+        </div>
+      )}
       <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto">
-        {lessons.map((lesson: any) => (
-          <div 
-            key={lesson._id} 
-            className="bg-white rounded-xl shadow p-4 flex flex-col md:flex-row md:items-center justify-between border border-gray-200"
-          >
-            <div>
-              <div className="font-bold text-lg">Урок {lesson.orderNumber}: {lesson.title}</div>
-              <div className="text-gray-500 text-sm">{lesson.description}</div>
-            </div>
-            <button
-              onClick={() => handleEditHomework(lesson)}
-              className="ml-4 px-4 py-2 rounded bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow transition"
+        {lessons.map((lesson: any) => {
+          const progress = lessonProgresses.find(p => p.lessonId === lesson._id);
+          const isAttended = progress?.attended || false;
+          
+          return (
+            <div 
+              key={lesson._id} 
+              className="bg-white rounded-xl shadow p-4 flex flex-col md:flex-row md:items-center justify-between border border-gray-200"
             >
-              Редактировать
-            </button>
-          </div>
-        ))}
+              <div className="flex-1">
+                <div className="font-bold text-lg">Урок {lesson.orderNumber}: {lesson.title}</div>
+                <div className="text-gray-500 text-sm mb-2">{lesson.description}</div>
+                
+                {/* Статус посещения */}
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-sm font-medium text-gray-700">Статус:</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getAttendanceColor(isAttended)}`}>
+                    {getAttendanceText(isAttended)}
+                  </span>
+                  {progress?.attendanceDate && (
+                    <span className="text-xs text-gray-500">
+                      Посещён: {new Date(progress.attendanceDate).toLocaleDateString('ru-RU')}
+                    </span>
+                  )}
+                </div>
+                
+                {/* Кнопки изменения посещения */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleAttendanceChange(lesson._id, false)}
+                    className={`px-3 py-1 rounded text-xs font-medium transition ${
+                      !isAttended 
+                        ? 'bg-gray-200 text-gray-800' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Не посетил
+                  </button>
+                  <button
+                    onClick={() => handleAttendanceChange(lesson._id, true)}
+                    className={`px-3 py-1 rounded text-xs font-medium transition ${
+                      isAttended 
+                        ? 'bg-green-200 text-green-800' 
+                        : 'bg-green-100 text-green-600 hover:bg-green-200'
+                    }`}
+                  >
+                    Посетил
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 mt-4 md:mt-0">
+                <button
+                  onClick={() => handleEditHomework(lesson)}
+                  className="px-4 py-2 rounded bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow transition"
+                >
+                  Редактировать
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

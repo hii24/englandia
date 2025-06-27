@@ -26,13 +26,43 @@ export async function createLesson(data: any) {
 }
 
 export async function updateLesson(id: string, updates: any) {
-  const db = await getDb();
-  const result = await db.collection('lessons').findOneAndUpdate(
-    { _id: new ObjectId(id) },
-    { $set: { ...updates, updatedAt: new Date() } },
-    { returnDocument: 'after' }
-  );
-  return result?.value || null;
+  try {
+    const db = await getDb();
+    console.log('Updating lesson:', { id, updates });
+    
+    // Проверяем, что урок существует
+    const existingLesson = await db.collection('lessons').findOne({ _id: new ObjectId(id) });
+    if (!existingLesson) {
+      throw new Error(`Урок с ID ${id} не найден`);
+    }
+    
+    console.log('Existing lesson:', existingLesson);
+    
+    // Сначала обновляем документ
+    const updateResult = await db.collection('lessons').updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { ...updates, updatedAt: new Date() } }
+    );
+    
+    console.log('Update result:', updateResult);
+    
+    if (updateResult.matchedCount === 0) {
+      throw new Error('Урок не найден');
+    }
+    
+    if (updateResult.modifiedCount === 0) {
+      console.log('No changes made to lesson');
+    }
+    
+    // Затем получаем обновленный документ
+    const updatedLesson = await db.collection('lessons').findOne({ _id: new ObjectId(id) });
+    console.log('Updated lesson:', updatedLesson);
+    
+    return updatedLesson;
+  } catch (error) {
+    console.error('Error in updateLesson:', error);
+    throw error;
+  }
 }
 
 export async function archiveLesson(id: string) {

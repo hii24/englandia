@@ -83,12 +83,7 @@ export async function sendRegistrationEmail(data: EmailData): Promise<void> {
               <p style="margin: 10px 0;"><strong>Логин:</strong> ${data.email}</p>
               <p style="margin: 10px 0;"><strong>Пароль:</strong> ${data.password}</p>
             </div>
-            
-            <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 20px 0;">
-              <p style="margin: 0; color: #856404;">
-                <strong>Важно:</strong> Рекомендуем сменить пароль после первого входа в систему.
-              </p>
-            </div>
+          
             
             <p style="color: #666; line-height: 1.6;">
               Если у вас возникнут вопросы, не стесняйтесь обращаться к нам. 

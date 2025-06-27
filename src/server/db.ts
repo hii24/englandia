@@ -1,15 +1,22 @@
 import { MongoClient, ObjectId } from 'mongodb';
 import mongoose from 'mongoose';
 import type { User, CreateUserData } from '@/types/registration';
+
 const uri = process.env.MONGODB_URI || '';
 const dbName = process.env.MONGODB_DB || 'englandia';
 
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
+console.log('Database configuration:', {
+  hasUri: !!uri,
+  uri: uri ? `${uri.substring(0, 20)}...` : 'not set',
+  dbName
+});
 
 if (!uri) {
   throw new Error('MONGODB_URI не задан в переменных окружения');
 }
+
+let client: MongoClient;
+let clientPromise: Promise<MongoClient>;
 
 if (!global._mongoClientPromise) {
   client = new MongoClient(uri);
@@ -93,8 +100,16 @@ export async function saveRegistration(data: any) {
 }
 
 export async function getDb() {
-  const client = await clientPromise;
-  return client.db(dbName);
+  try {
+    console.log('Connecting to MongoDB...');
+    const client = await clientPromise;
+    const db = client.db(dbName);
+    console.log('Connected to database:', dbName);
+    return db;
+  } catch (error) {
+    console.error('Error connecting to database:', error);
+    throw error;
+  }
 }
 
 // Функция для подключения к mongoose
