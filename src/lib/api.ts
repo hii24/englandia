@@ -40,7 +40,7 @@ api.interceptors.response.use(
 
 export async function sendRegistration(data: RegistrationData) {
   try {
-    const response = await api.post('/registration', data);
+    const response = await api.post('/auth/registration', data);
     return response.data;
   } catch (error: any) {
     const errorMessage = error.response?.data?.error || "Ошибка регистрации";

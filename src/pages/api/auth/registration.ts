@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { handleRegistration } from '@/server/registration/service';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log('Register-new endpoint called:', {
+  console.log('Auth registration endpoint called:', {
     method: req.method,
     body: req.body ? 'present' : 'missing'
   });
