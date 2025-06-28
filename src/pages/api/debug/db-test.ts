@@ -1,37 +1,29 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { dbConnect } from '@/server/db';
-import Lesson from '@/server/lessons/model';
+import { getDb } from '@/server/db';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     console.log('Testing database connection...');
-    await dbConnect();
-    console.log('Database connected successfully');
     
-    // Проверяем количество уроков
-    const lessonCount = await Lesson.countDocuments();
-    console.log('Lesson count:', lessonCount);
+    const db = await getDb();
+    const collections = await db.listCollections().toArray();
     
-    // Получаем один урок для теста
-    const testLesson = await Lesson.findOne();
-    console.log('Test lesson:', testLesson);
+    console.log('Database connection successful');
+    console.log('Available collections:', collections.map(c => c.name));
     
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: 'Database connection successful',
-      lessonCount,
-      testLesson: testLesson ? {
-        id: testLesson._id,
-        title: testLesson.title,
-        orderNumber: testLesson.orderNumber
-      } : null
+      collections: collections.map(c => c.name),
+      timestamp: new Date().toISOString()
     });
-  } catch (error: any) {
-    console.error('Database test error:', error);
-    return res.status(500).json({
+  } catch (error) {
+    console.error('Database connection error:', error);
+    res.status(500).json({
       success: false,
-      error: error.message,
-      stack: error.stack
+      error: 'Database connection failed',
+      details: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
     });
   }
 } 
