@@ -19,7 +19,11 @@ let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
 if (!global._mongoClientPromise) {
-  client = new MongoClient(uri);
+  client = new MongoClient(uri, {
+    maxPoolSize: 10,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+  });
   global._mongoClientPromise = client.connect();
 }
 clientPromise = global._mongoClientPromise;
