@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Базовый middleware — не проверяет авторизацию, просто пропускает все запросы
+// Временно отключен для тестирования
 export function middleware(request: NextRequest) {
   console.log('Middleware called:', {
     url: request.url,
@@ -9,13 +9,13 @@ export function middleware(request: NextRequest) {
     pathname: request.nextUrl.pathname
   });
 
-  // Можно добавить другие проверки или редиректы, если потребуется
+  // Просто пропускаем все запросы
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    // Оставляем шаблон для будущих целей (например, локализация, A/B тесты и т.д.)
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    // Временно отключаем все матчеры
+    // '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 }; 
