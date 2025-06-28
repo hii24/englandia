@@ -73,7 +73,7 @@ export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, on
 
   return (
     <div className="modal-overlay">
-      <div className="modal modal--teacher w-full max-w-4xl min-h-[500px] min-w-[700px] max-h-[90vh]">
+      <div className="modal modal--teacher">
         <button className="modal__close" onClick={onClose}>×</button>
         
         {/* Сайдбар */}
@@ -105,12 +105,7 @@ export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, on
           {selectedStudent && (
             <div className="selected-student">
               <h4>Выбранный ученик:</h4>
-              <div style={{ 
-                padding: 8, 
-                background: '#ede9fe', 
-                borderRadius: 6, 
-                fontSize: 14 
-              }}>
+              <div className="selected-student-info">
                 {selectedStudent.firstName} {selectedStudent.lastName}
               </div>
             </div>
@@ -149,10 +144,10 @@ export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, on
           box-shadow: 0 4px 32px rgba(0,0,0,0.12); 
           position: relative; 
           display: flex;
-          min-width: 800px;
-          max-width: 90vw;
-          height: 600px;
-          max-height: 90vh;
+          width: 95vw;
+          height: 95vh;
+          max-width: 95vw;
+          max-height: 95vh;
         }
         .modal--teacher {
           overflow: hidden;
@@ -166,14 +161,20 @@ export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, on
           font-size: 28px; 
           cursor: pointer;
           z-index: 10;
+          color: #64748b;
+          transition: color 0.2s;
+        }
+        .modal__close:hover {
+          color: #1e293b;
         }
         .teacher-sidebar {
-          width: 280px;
+          width: 320px;
           background: #f8fafc;
           border-right: 1px solid #e2e8f0;
           padding: 24px;
           display: flex;
           flex-direction: column;
+          overflow-y: auto;
         }
         .teacher-sidebar h3 {
           margin: 0 0 24px 0;
@@ -213,11 +214,22 @@ export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, on
         }
         .selected-student {
           margin-top: auto;
+          padding-top: 16px;
+          border-top: 1px solid #e2e8f0;
         }
         .selected-student h4 {
           margin: 0 0 8px 0;
           font-size: 14px;
-          color: #64748b;
+          font-weight: 600;
+          color: #475569;
+        }
+        .selected-student-info {
+          padding: 8px 12px;
+          background: #ede9fe;
+          border-radius: 8px;
+          font-size: 14px;
+          color: #7c3aed;
+          font-weight: 500;
         }
         .teacher-content {
           flex: 1;

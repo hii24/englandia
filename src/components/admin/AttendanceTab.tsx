@@ -108,72 +108,48 @@ export const AttendanceTab: React.FC<AttendanceTabProps> = ({ selectedStudent })
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h3 className="text-xl font-bold mb-2">Управление посещениями</h3>
-        <p className="text-gray-600">
-          Ученик: <span className="font-semibold">{selectedStudent.firstName} {selectedStudent.lastName}</span>
+    <div className="attendance-container">
+      <div className="attendance-header">
+        <h3 className="attendance-title">Управление посещениями</h3>
+        <p className="student-info">
+          Ученик: <span className="student-name">{selectedStudent.firstName} {selectedStudent.lastName}</span>
         </p>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+      <div className="attendance-content">
+        <div className="table-container">
+          <table className="attendance-table">
+            <thead className="table-header">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Урок
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Название
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Статус посещения
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Действия
-                </th>
+                <th className="table-header-cell">Урок</th>
+                <th className="table-header-cell">Название</th>
+                <th className="table-header-cell">Статус посещения</th>
+                <th className="table-header-cell">Действия</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="table-body">
               {lessons.map((lesson: any) => (
-                <tr key={lesson._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    Урок {lesson.orderNumber}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {lesson.title}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      attendanceData[lesson._id] 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
+                <tr key={lesson._id} className="table-row">
+                  <td className="table-cell lesson-number">Урок {lesson.orderNumber}</td>
+                  <td className="table-cell lesson-title">{lesson.title}</td>
+                  <td className="table-cell">
+                    <span className={`status-badge ${attendanceData[lesson._id] ? 'attended' : 'not-attended'}`}>
                       {attendanceData[lesson._id] ? 'Посетил' : 'Не посетил'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex gap-2">
+                  <td className="table-cell">
+                    <div className="action-buttons">
                       <button
                         onClick={() => handleAttendanceChange(lesson._id, true)}
                         disabled={loading[lesson._id]}
-                        className={`px-3 py-1 rounded text-sm font-medium ${
-                          attendanceData[lesson._id]
-                            ? 'bg-green-500 text-white'
-                            : 'bg-gray-200 text-gray-700 hover:bg-green-500 hover:text-white'
-                        } transition-colors disabled:opacity-50`}
+                        className={`action-button attend ${attendanceData[lesson._id] ? 'active' : ''}`}
                       >
                         {loading[lesson._id] ? 'Сохранение...' : 'Отметить посещение'}
                       </button>
                       <button
                         onClick={() => handleAttendanceChange(lesson._id, false)}
                         disabled={loading[lesson._id]}
-                        className={`px-3 py-1 rounded text-sm font-medium ${
-                          !attendanceData[lesson._id]
-                            ? 'bg-red-500 text-white'
-                            : 'bg-gray-200 text-gray-700 hover:bg-red-500 hover:text-white'
-                        } transition-colors disabled:opacity-50`}
+                        className={`action-button absent ${!attendanceData[lesson._id] ? 'active' : ''}`}
                       >
                         {loading[lesson._id] ? 'Сохранение...' : 'Отметить отсутствие'}
                       </button>
@@ -186,14 +162,181 @@ export const AttendanceTab: React.FC<AttendanceTabProps> = ({ selectedStudent })
         </div>
       </div>
 
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-        <h4 className="font-semibold text-blue-900 mb-2">Информация:</h4>
-        <ul className="text-sm text-blue-800 space-y-1">
+      <div className="info-panel">
+        <h4 className="info-title">Информация:</h4>
+        <ul className="info-list">
           <li>• Отмечайте посещения учеников после каждого урока</li>
           <li>• При посещении первого урока система предложит отправить email с предложением курса</li>
           <li>• Статус посещения сохраняется автоматически</li>
         </ul>
       </div>
+
+      <style jsx>{`
+        .attendance-container {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          padding: 20px;
+        }
+        .attendance-header {
+          margin-bottom: 24px;
+        }
+        .attendance-title {
+          font-size: 20px;
+          font-weight: 600;
+          color: #1e293b;
+          margin: 0 0 8px 0;
+        }
+        .student-info {
+          color: #64748b;
+          margin: 0;
+        }
+        .student-name {
+          font-weight: 600;
+          color: #1e293b;
+        }
+        .attendance-content {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          min-height: 0;
+        }
+        .table-container {
+          flex: 1;
+          overflow: auto;
+          background: white;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .attendance-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        .table-header {
+          background: #f8fafc;
+          position: sticky;
+          top: 0;
+          z-index: 10;
+        }
+        .table-header-cell {
+          padding: 16px;
+          text-align: left;
+          font-size: 12px;
+          font-weight: 600;
+          color: #64748b;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        .table-body {
+          background: white;
+        }
+        .table-row {
+          transition: background-color 0.2s;
+        }
+        .table-row:hover {
+          background: #f8fafc;
+        }
+        .table-cell {
+          padding: 16px;
+          font-size: 14px;
+          color: #1e293b;
+          border-bottom: 1px solid #f1f5f9;
+        }
+        .lesson-number {
+          font-weight: 600;
+          color: #7c3aed;
+        }
+        .lesson-title {
+          font-weight: 500;
+        }
+        .status-badge {
+          display: inline-flex;
+          padding: 6px 12px;
+          font-size: 12px;
+          font-weight: 600;
+          border-radius: 20px;
+        }
+        .status-badge.attended {
+          background: #dcfce7;
+          color: #166534;
+        }
+        .status-badge.not-attended {
+          background: #f1f5f9;
+          color: #475569;
+        }
+        .action-buttons {
+          display: flex;
+          gap: 8px;
+        }
+        .action-button {
+          padding: 8px 12px;
+          border: none;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+          white-space: nowrap;
+        }
+        .action-button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .action-button.attend {
+          background: #f0fdf4;
+          color: #166534;
+          border: 1px solid #bbf7d0;
+        }
+        .action-button.attend:hover:not(:disabled) {
+          background: #22c55e;
+          color: white;
+          border-color: #22c55e;
+        }
+        .action-button.attend.active {
+          background: #22c55e;
+          color: white;
+          border-color: #22c55e;
+        }
+        .action-button.absent {
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+        }
+        .action-button.absent:hover:not(:disabled) {
+          background: #ef4444;
+          color: white;
+          border-color: #ef4444;
+        }
+        .action-button.absent.active {
+          background: #ef4444;
+          color: white;
+          border-color: #ef4444;
+        }
+        .info-panel {
+          margin-top: 20px;
+          padding: 16px;
+          background: #eff6ff;
+          border-radius: 8px;
+          border: 1px solid #bfdbfe;
+        }
+        .info-title {
+          font-weight: 600;
+          color: #1e40af;
+          margin: 0 0 8px 0;
+          font-size: 14px;
+        }
+        .info-list {
+          margin: 0;
+          padding-left: 16px;
+          font-size: 13px;
+          color: #1e40af;
+        }
+        .info-list li {
+          margin-bottom: 4px;
+        }
+      `}</style>
     </div>
   );
 }; 

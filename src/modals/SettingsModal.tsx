@@ -310,30 +310,165 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   return (
     <div className="modal-overlay">
-      <div className="modal modal--wide">
+      <div className="modal modal--settings">
         <button className="modal__close" onClick={onClose}>×</button>
-        <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
-          {tabs.map((t, i) => (
-            <button
-              key={t.label}
-              onClick={() => setTab(i)}
-              style={{
-                background: tab === i ? '#ede9fe' : 'transparent',
-                color: tab === i ? '#7c3aed' : '#222',
-                border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 600, cursor: 'pointer'
-              }}
-            >
-              {t.label}
-            </button>
-          ))}
+        
+        <div className="settings-content">
+          <div className="settings-header">
+            <h2>Настройки системы</h2>
+            <p>Управление уроками, пользователями и системными настройками</p>
+          </div>
+          
+          <div className="settings-body">
+            {user?.role === 'admin' ? (
+              <div className="admin-settings">
+                <div className="settings-tabs">
+                  {adminTabs.map((tabItem, index) => (
+                    <button
+                      key={index}
+                      className={`settings-tab ${tab === index ? 'settings-tab--active' : ''}`}
+                      onClick={() => setTab(index)}
+                    >
+                      {tabItem.label}
+                    </button>
+                  ))}
+                </div>
+                
+                <div className="settings-panel">
+                  {adminTabs[tab].content}
+                </div>
+              </div>
+            ) : (
+              <div className="user-settings">
+                <h3>Настройки пользователя</h3>
+                <p>Здесь будут настройки для обычных пользователей</p>
+              </div>
+            )}
+          </div>
         </div>
-        <div style={{ minHeight: 200 }}>{tabs[tab]?.content}</div>
       </div>
+
       <style jsx>{`
-        .modal-overlay { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .modal { background: #fff; border-radius: 16px; padding: 32px 24px; min-width: 420px; max-width: 90vw; box-shadow: 0 4px 32px rgba(0,0,0,0.12); position: relative; }
-        .modal--wide { min-width: 600px; }
-        .modal__close { position: absolute; right: 16px; top: 16px; background: none; border: none; font-size: 28px; cursor: pointer; }
+        .modal-overlay { 
+          position: fixed; 
+          left: 0; 
+          top: 0; 
+          width: 100vw; 
+          height: 100vh; 
+          background: rgba(0,0,0,0.25); 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          z-index: 1000; 
+        }
+        .modal { 
+          background: #fff; 
+          border-radius: 16px; 
+          box-shadow: 0 4px 32px rgba(0,0,0,0.12); 
+          position: relative; 
+          display: flex;
+          width: 95vw;
+          height: 95vh;
+          max-width: 95vw;
+          max-height: 95vh;
+          overflow: hidden;
+        }
+        .modal--settings {
+          flex-direction: column;
+        }
+        .modal__close { 
+          position: absolute; 
+          right: 16px; 
+          top: 16px; 
+          background: none; 
+          border: none; 
+          font-size: 28px; 
+          cursor: pointer;
+          z-index: 10;
+          color: #64748b;
+          transition: color 0.2s;
+        }
+        .modal__close:hover {
+          color: #1e293b;
+        }
+        .settings-content {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .settings-header {
+          padding: 32px 32px 24px 32px;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        .settings-header h2 {
+          margin: 0 0 8px 0;
+          font-size: 24px;
+          font-weight: 700;
+          color: #1e293b;
+        }
+        .settings-header p {
+          margin: 0;
+          color: #64748b;
+          font-size: 14px;
+        }
+        .settings-body {
+          flex: 1;
+          padding: 32px;
+          overflow: hidden;
+        }
+        .admin-settings {
+          display: flex;
+          height: 100%;
+          gap: 32px;
+        }
+        .settings-tabs {
+          width: 280px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .settings-tab {
+          background: none;
+          border: none;
+          padding: 12px 16px;
+          border-radius: 8px;
+          text-align: left;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 500;
+          color: #64748b;
+          transition: all 0.2s;
+        }
+        .settings-tab:hover {
+          background: #e2e8f0;
+          color: #475569;
+        }
+        .settings-tab--active {
+          background: #7c3aed;
+          color: white;
+        }
+        .settings-panel {
+          flex: 1;
+          overflow-y: auto;
+          padding: 24px;
+          background: #f8fafc;
+          border-radius: 12px;
+        }
+        .user-settings {
+          text-align: center;
+          padding: 48px;
+        }
+        .user-settings h3 {
+          margin: 0 0 16px 0;
+          font-size: 20px;
+          font-weight: 600;
+          color: #1e293b;
+        }
+        .user-settings p {
+          margin: 0;
+          color: #64748b;
+        }
       `}</style>
     </div>
   );

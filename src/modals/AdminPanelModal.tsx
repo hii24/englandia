@@ -131,10 +131,10 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
           box-shadow: 0 4px 32px rgba(0,0,0,0.12); 
           position: relative; 
           display: flex;
-          min-width: 800px;
-          max-width: 90vw;
-          height: 600px;
-          max-height: 90vh;
+          width: 95vw;
+          height: 95vh;
+          max-width: 95vw;
+          max-height: 95vh;
         }
         .modal--admin {
           overflow: hidden;
@@ -148,14 +148,20 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
           font-size: 28px; 
           cursor: pointer;
           z-index: 10;
+          color: #64748b;
+          transition: color 0.2s;
+        }
+        .modal__close:hover {
+          color: #1e293b;
         }
         .admin-sidebar {
-          width: 280px;
+          width: 320px;
           background: #f8fafc;
           border-right: 1px solid #e2e8f0;
           padding: 24px;
           display: flex;
           flex-direction: column;
+          overflow-y: auto;
         }
         .admin-sidebar h3 {
           margin: 0 0 24px 0;

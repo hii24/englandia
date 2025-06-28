@@ -233,153 +233,316 @@ export const TeacherLessonsTab: React.FC<TeacherLessonsTabProps> = ({ selectedSt
 
   if (editMode) {
     return (
-      <div className="w-full max-w-2xl mx-auto">
-        <h4 className="text-xl font-bold mb-2">Редактирование урока</h4>
-        <p className="mb-2 text-gray-600">Урок: <span className="font-semibold">{selectedLesson?.title}</span></p>
-        <p className="mb-4 text-gray-600">Ученик: <span className="font-semibold">{selectedStudent.firstName} {selectedStudent.lastName}</span></p>
-        <div className="mb-6 border-b border-gray-200 flex gap-2">
-          <button className={`px-4 py-2 font-semibold rounded-t transition ${activeTab==='main' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700'}`} onClick={()=>setActiveTab('main')}>Основное</button>
-          <button className={`px-4 py-2 font-semibold rounded-t transition ${activeTab==='lessonLink' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700'}`} onClick={()=>setActiveTab('lessonLink')}>Ссылка на занятие</button>
-          <button className={`px-4 py-2 font-semibold rounded-t transition ${activeTab==='homework' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700'}`} onClick={()=>setActiveTab('homework')}>Домашка</button>
-          <button className={`px-4 py-2 font-semibold rounded-t transition ${activeTab==='materials' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700'}`} onClick={()=>setActiveTab('materials')}>Материалы</button>
+      <div className="edit-lesson-container">
+        <h4 className="edit-title">Редактирование урока</h4>
+        <p className="edit-subtitle">Урок: <span className="lesson-name">{selectedLesson?.title}</span></p>
+        <p className="edit-subtitle">Ученик: <span className="student-name">{selectedStudent.firstName} {selectedStudent.lastName}</span></p>
+        
+        <div className="edit-tabs">
+          <button className={`edit-tab ${activeTab==='main' ? 'active' : ''}`} onClick={()=>setActiveTab('main')}>Основное</button>
+          <button className={`edit-tab ${activeTab==='lessonLink' ? 'active' : ''}`} onClick={()=>setActiveTab('lessonLink')}>Ссылка на занятие</button>
+          <button className={`edit-tab ${activeTab==='homework' ? 'active' : ''}`} onClick={()=>setActiveTab('homework')}>Домашка</button>
+          <button className={`edit-tab ${activeTab==='materials' ? 'active' : ''}`} onClick={()=>setActiveTab('materials')}>Материалы</button>
         </div>
-        {activeTab === 'main' && (
-          <div className="py-4">
-            <input
-              value={selectedLesson?.title || ''}
-              disabled
-              className="w-full mb-3 px-3 py-2 rounded border border-gray-300 bg-gray-100 text-base"
-              placeholder="Название урока"
-            />
-            <textarea
-              value={selectedLesson?.description || ''}
-              disabled
-              className="w-full mb-3 px-3 py-2 rounded border border-gray-300 bg-gray-100 text-base"
-              placeholder="Описание урока"
-              rows={3}
-            />
-          </div>
-        )}
-        {activeTab === 'lessonLink' && (
-          <div className="py-4">
-            <h5 className="text-lg font-semibold mb-2">Ссылка на занятие:</h5>
-            <div className="flex flex-col gap-4">
+        
+        <div className="edit-content">
+          {activeTab === 'main' && (
+            <div className="tab-content">
               <input
-                value={lessonLink.title}
-                onChange={e => setLessonLink(l => ({ ...l, title: e.target.value }))}
-                placeholder="Название ссылки"
-                className="flex-1 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-300 text-base"
+                value={selectedLesson?.title || ''}
+                disabled
+                className="form-input disabled"
+                placeholder="Название урока"
               />
-              <input
-                value={lessonLink.url}
-                onChange={e => setLessonLink(l => ({ ...l, url: e.target.value }))}
-                placeholder="URL занятия"
-                className="flex-1 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-300 text-base"
+              <textarea
+                value={selectedLesson?.description || ''}
+                disabled
+                className="form-textarea disabled"
+                placeholder="Описание урока"
+                rows={3}
               />
             </div>
-          </div>
-        )}
-        {activeTab === 'homework' && (
-          <div className="py-4">
-            <h5 className="text-lg font-semibold mb-2">Домашние задания:</h5>
-            <div className="flex flex-col gap-4">
-              {homeworkData.homework.map((item: any, index: number) => (
-                <div key={index} className="bg-white rounded-xl shadow p-4 flex flex-col md:flex-row md:items-center gap-3 border border-gray-200">
-                  <input
-                    value={item.title || ''}
-                    onChange={e => updateHomeworkItem(index, 'title', e.target.value)}
-                    placeholder="Название задания"
-                    className="flex-1 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-300 text-base"
-                  />
-                  <input
-                    value={item.url}
-                    onChange={e => updateHomeworkItem(index, 'url', e.target.value)}
-                    placeholder="Ссылка"
-                    className="flex-1 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-300 text-base"
-                  />
-                  <button
-                    onClick={() => removeHomeworkItem(index)}
-                    className="ml-2 px-3 py-2 rounded bg-red-100 hover:bg-red-200 text-red-700 font-semibold flex items-center gap-1"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                    Удалить
-                  </button>
-                </div>
-              ))}
+          )}
+          {activeTab === 'lessonLink' && (
+            <div className="tab-content">
+              <h5 className="tab-title">Ссылка на занятие:</h5>
+              <div className="form-group">
+                <input
+                  value={lessonLink.title}
+                  onChange={e => setLessonLink(l => ({ ...l, title: e.target.value }))}
+                  placeholder="Название ссылки"
+                  className="form-input"
+                />
+                <input
+                  value={lessonLink.url}
+                  onChange={e => setLessonLink(l => ({ ...l, url: e.target.value }))}
+                  placeholder="URL занятия"
+                  className="form-input"
+                />
+              </div>
             </div>
-            <button
-              onClick={addHomeworkItem}
-              className="mt-4 px-5 py-2 rounded bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow transition"
-            >
-              + Добавить задание
-            </button>
-          </div>
-        )}
-        {activeTab === 'materials' && (
-          <div className="py-4">
-            <h5 className="text-lg font-semibold mb-2">Материалы:</h5>
-            <div className="flex flex-col gap-4">
-              {(editData.materials || []).map((mat, idx) => (
-                <div key={idx} className="bg-white rounded-xl shadow p-4 flex flex-col md:flex-row md:items-center gap-3 border border-gray-200">
-                  <input
-                    value={mat.title}
-                    onChange={e => updateMaterial(idx, { title: e.target.value })}
-                    placeholder="Название"
-                    className="flex-1 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-300 text-base"
-                  />
-                  <input
-                    value={mat.url}
-                    onChange={e => updateMaterial(idx, { url: e.target.value })}
-                    placeholder="Ссылка"
-                    className="flex-1 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-300 text-base"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeMaterial(idx)}
-                    className="ml-2 px-3 py-2 rounded bg-red-100 hover:bg-red-200 text-red-700 font-semibold flex items-center gap-1"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                    Удалить
-                  </button>
-                </div>
-              ))}
+          )}
+          {activeTab === 'homework' && (
+            <div className="tab-content">
+              <h5 className="tab-title">Домашние задания:</h5>
+              <div className="homework-list">
+                {homeworkData.homework.map((item: any, index: number) => (
+                  <div key={index} className="homework-item">
+                    <input
+                      value={item.title || ''}
+                      onChange={e => updateHomeworkItem(index, 'title', e.target.value)}
+                      placeholder="Название задания"
+                      className="form-input"
+                    />
+                    <input
+                      value={item.url}
+                      onChange={e => updateHomeworkItem(index, 'url', e.target.value)}
+                      placeholder="Ссылка"
+                      className="form-input"
+                    />
+                    <button
+                      onClick={() => removeHomeworkItem(index)}
+                      className="remove-button"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                      Удалить
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={addHomeworkItem}
+                className="add-button"
+              >
+                + Добавить задание
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={addMaterial}
-              className="mt-4 px-5 py-2 rounded bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow transition"
-            >
-              + Добавить материал
-            </button>
-          </div>
-        )}
-        <div className="flex gap-4 justify-end mt-8">
+          )}
+          {activeTab === 'materials' && (
+            <div className="tab-content">
+              <h5 className="tab-title">Материалы:</h5>
+              <div className="materials-list">
+                {(editData.materials || []).map((mat, idx) => (
+                  <div key={idx} className="material-item">
+                    <input
+                      value={mat.title}
+                      onChange={e => updateMaterial(idx, { title: e.target.value })}
+                      placeholder="Название"
+                      className="form-input"
+                    />
+                    <input
+                      value={mat.url}
+                      onChange={e => updateMaterial(idx, { url: e.target.value })}
+                      placeholder="Ссылка"
+                      className="form-input"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeMaterial(idx)}
+                      className="remove-button"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                      Удалить
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={addMaterial}
+                className="add-button"
+              >
+                + Добавить материал
+              </button>
+            </div>
+          )}
+        </div>
+        
+        <div className="edit-actions">
           <button
             onClick={handleCancelEdit}
-            className="px-5 py-2 rounded bg-gray-400 hover:bg-gray-500 text-white font-semibold shadow transition"
+            className="cancel-button"
           >
             Отмена
           </button>
           <button
             onClick={handleSaveHomework}
-            className="px-5 py-2 rounded bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow transition"
+            className="save-button"
           >
             Сохранить
           </button>
         </div>
+
+        <style jsx>{`
+          .edit-lesson-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+          }
+          .edit-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0 0 8px 0;
+          }
+          .edit-subtitle {
+            color: #64748b;
+            margin: 0 0 4px 0;
+            font-size: 14px;
+          }
+          .lesson-name, .student-name {
+            font-weight: 600;
+            color: #1e293b;
+          }
+          .edit-tabs {
+            display: flex;
+            gap: 2px;
+            margin: 24px 0;
+            border-bottom: 1px solid #e2e8f0;
+          }
+          .edit-tab {
+            padding: 12px 16px;
+            border: none;
+            background: #f1f5f9;
+            color: #64748b;
+            font-weight: 600;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: all 0.2s;
+          }
+          .edit-tab.active {
+            background: #7c3aed;
+            color: white;
+          }
+          .edit-content {
+            flex: 1;
+            overflow-y: auto;
+          }
+          .tab-content {
+            padding: 20px 0;
+          }
+          .tab-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0 0 16px 0;
+          }
+          .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          }
+          .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: all 0.2s;
+          }
+          .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+          }
+          .form-input.disabled, .form-textarea.disabled {
+            background: #f8fafc;
+            color: #64748b;
+          }
+          .homework-list, .materials-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 16px;
+          }
+          .homework-item, .material-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+          }
+          .remove-button {
+            padding: 8px 12px;
+            background: #fef2f2;
+            color: #dc2626;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+          }
+          .remove-button:hover {
+            background: #fee2e2;
+          }
+          .add-button {
+            padding: 12px 20px;
+            background: #7c3aed;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+          }
+          .add-button:hover {
+            background: #6d28d9;
+          }
+          .edit-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+          }
+          .cancel-button {
+            padding: 10px 20px;
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+          }
+          .cancel-button:hover {
+            background: #4b5563;
+          }
+          .save-button {
+            padding: 10px 20px;
+            background: #7c3aed;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+          }
+          .save-button:hover {
+            background: #6d28d9;
+          }
+        `}</style>
       </div>
     );
   }
 
   return (
-    <div>
-      <h4>Уроки ученика: {selectedStudent.firstName} {selectedStudent.lastName}</h4>
+    <div className="teacher-lessons-container">
+      <h4 className="section-title">Уроки ученика: {selectedStudent.firstName} {selectedStudent.lastName}</h4>
       {loadingProgresses && (
-        <div className="text-center py-4 text-gray-600">
+        <div className="loading-indicator">
           Загрузка прогресса...
         </div>
       )}
-      <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto">
+      <div className="lessons-list">
         {lessons.map((lesson: any) => {
           const progress = lessonProgresses.find(p => p.lessonId === lesson._id);
           const isAttended = progress?.attended || false;
@@ -387,54 +550,48 @@ export const TeacherLessonsTab: React.FC<TeacherLessonsTabProps> = ({ selectedSt
           return (
             <div 
               key={lesson._id} 
-              className="bg-white rounded-xl shadow p-4 flex flex-col md:flex-row md:items-center justify-between border border-gray-200"
+              className="lesson-card"
             >
-              <div className="flex-1">
-                <div className="font-bold text-lg">Урок {lesson.orderNumber}: {lesson.title}</div>
-                <div className="text-gray-500 text-sm mb-2">{lesson.description}</div>
+              <div className="lesson-content">
+                <div className="lesson-header">
+                  <div className="lesson-title">Урок {lesson.orderNumber}: {lesson.title}</div>
+                  <div className="lesson-description">{lesson.description}</div>
+                </div>
                 
                 {/* Статус посещения */}
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-sm font-medium text-gray-700">Статус:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getAttendanceColor(isAttended)}`}>
+                <div className="attendance-section">
+                  <span className="attendance-label">Статус:</span>
+                  <span className={`attendance-badge ${isAttended ? 'attended' : 'not-attended'}`}>
                     {getAttendanceText(isAttended)}
                   </span>
                   {progress?.attendanceDate && (
-                    <span className="text-xs text-gray-500">
+                    <span className="attendance-date">
                       Посещён: {new Date(progress.attendanceDate).toLocaleDateString('ru-RU')}
                     </span>
                   )}
                 </div>
                 
                 {/* Кнопки изменения посещения */}
-                <div className="flex gap-2">
+                <div className="attendance-buttons">
                   <button
                     onClick={() => handleAttendanceChange(lesson._id, false)}
-                    className={`px-3 py-1 rounded text-xs font-medium transition ${
-                      !isAttended 
-                        ? 'bg-gray-200 text-gray-800' 
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
+                    className={`attendance-button not-attended ${!isAttended ? 'active' : ''}`}
                   >
                     Не посетил
                   </button>
                   <button
                     onClick={() => handleAttendanceChange(lesson._id, true)}
-                    className={`px-3 py-1 rounded text-xs font-medium transition ${
-                      isAttended 
-                        ? 'bg-green-200 text-green-800' 
-                        : 'bg-green-100 text-green-600 hover:bg-green-200'
-                    }`}
+                    className={`attendance-button attended ${isAttended ? 'active' : ''}`}
                   >
                     Посетил
                   </button>
                 </div>
               </div>
               
-              <div className="flex gap-2 mt-4 md:mt-0">
+              <div className="lesson-actions">
                 <button
                   onClick={() => handleEditHomework(lesson)}
-                  className="px-4 py-2 rounded bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow transition"
+                  className="edit-button"
                 >
                   Редактировать
                 </button>
@@ -443,6 +600,145 @@ export const TeacherLessonsTab: React.FC<TeacherLessonsTabProps> = ({ selectedSt
           );
         })}
       </div>
+
+      <style jsx>{`
+        .teacher-lessons-container {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          padding: 20px;
+        }
+        .section-title {
+          font-size: 20px;
+          font-weight: 600;
+          color: #1e293b;
+          margin: 0 0 20px 0;
+        }
+        .loading-indicator {
+          text-align: center;
+          padding: 20px;
+          color: #64748b;
+        }
+        .lessons-list {
+          flex: 1;
+          overflow-y: auto;
+          padding-right: 8px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .lesson-card {
+          background: white;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          padding: 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          transition: all 0.2s;
+        }
+        .lesson-card:hover {
+          border-color: #7c3aed;
+          box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
+        }
+        .lesson-content {
+          flex: 1;
+        }
+        .lesson-header {
+          margin-bottom: 16px;
+        }
+        .lesson-title {
+          font-weight: 600;
+          font-size: 18px;
+          color: #1e293b;
+          margin-bottom: 4px;
+        }
+        .lesson-description {
+          color: #64748b;
+          font-size: 14px;
+        }
+        .attendance-section {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 12px;
+        }
+        .attendance-label {
+          font-size: 14px;
+          font-weight: 500;
+          color: #374151;
+        }
+        .attendance-badge {
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 600;
+        }
+        .attendance-badge.attended {
+          background: #dcfce7;
+          color: #166534;
+        }
+        .attendance-badge.not-attended {
+          background: #f1f5f9;
+          color: #475569;
+        }
+        .attendance-date {
+          font-size: 12px;
+          color: #64748b;
+        }
+        .attendance-buttons {
+          display: flex;
+          gap: 8px;
+        }
+        .attendance-button {
+          padding: 6px 12px;
+          border: none;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .attendance-button.not-attended {
+          background: #f1f5f9;
+          color: #475569;
+        }
+        .attendance-button.not-attended:hover {
+          background: #e2e8f0;
+        }
+        .attendance-button.not-attended.active {
+          background: #e2e8f0;
+          color: #1e293b;
+        }
+        .attendance-button.attended {
+          background: #f0fdf4;
+          color: #166534;
+        }
+        .attendance-button.attended:hover {
+          background: #dcfce7;
+        }
+        .attendance-button.attended.active {
+          background: #dcfce7;
+          color: #166534;
+        }
+        .lesson-actions {
+          margin-left: 20px;
+        }
+        .edit-button {
+          background: #7c3aed;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          padding: 8px 16px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 14px;
+          transition: background-color 0.2s;
+        }
+        .edit-button:hover {
+          background: #6d28d9;
+        }
+      `}</style>
     </div>
   );
 }; 

@@ -113,145 +113,389 @@ export const EditLessonsTab: React.FC = () => {
 
   if (editMode) {
     return (
-      <div className="w-full max-w-2xl mx-auto">
-        <h4 className="text-xl font-bold mb-2">Редактирование урока</h4>
-        <div className="mb-6 border-b border-gray-200 flex gap-2">
-          <button className={`px-4 py-2 font-semibold rounded-t transition ${activeTab==='main' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700'}`} onClick={()=>setActiveTab('main')}>Основное</button>
-          <button className={`px-4 py-2 font-semibold rounded-t transition ${activeTab==='materials' ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700'}`} onClick={()=>setActiveTab('materials')}>Материалы</button>
+      <div className="edit-lesson-container">
+        <h4 className="edit-title">Редактирование урока</h4>
+        
+        <div className="edit-tabs">
+          <button className={`edit-tab ${activeTab==='main' ? 'active' : ''}`} onClick={()=>setActiveTab('main')}>Основное</button>
+          <button className={`edit-tab ${activeTab==='materials' ? 'active' : ''}`} onClick={()=>setActiveTab('materials')}>Материалы</button>
         </div>
-        {activeTab === 'main' && (
-          <div className="py-4">
-            <input
-              value={editData.title}
-              onChange={e => setEditData({...editData, title: e.target.value})}
-              placeholder="Название урока"
-              className="w-full mb-3 px-3 py-2 rounded border border-gray-300 text-base"
-            />
-            <textarea
-              value={editData.description}
-              onChange={e => setEditData({...editData, description: e.target.value})}
-              placeholder="Описание урока"
-              className="w-full mb-3 px-3 py-2 rounded border border-gray-300 text-base"
-              rows={3}
-            />
-            <input
-              type="number"
-              value={editData.orderNumber}
-              onChange={e => setEditData({...editData, orderNumber: Number(e.target.value)})}
-              placeholder="Порядковый номер"
-              className="w-full mb-3 px-3 py-2 rounded border border-gray-300 text-base"
-              min={1}
-            />
-          </div>
-        )}
-        {activeTab === 'materials' && (
-          <div className="py-4">
-            <h5 className="text-lg font-semibold mb-2">Материалы:</h5>
-            <div className="flex flex-col gap-4">
-              {(editData.materials || []).map((mat, idx) => (
-                <div key={idx} className="bg-white rounded-xl shadow p-4 flex flex-col md:flex-row md:items-center gap-3 border border-gray-200">
-                  <input
-                    value={mat.title}
-                    onChange={e => updateMaterial(idx, { title: e.target.value })}
-                    placeholder="Название"
-                    className="flex-1 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-300 text-base"
-                  />
-                  <input
-                    value={mat.url}
-                    onChange={e => updateMaterial(idx, { url: e.target.value })}
-                    placeholder="Ссылка"
-                    className="flex-1 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-300 text-base"
-                  />
-                  <label className="flex items-center gap-2 select-none cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={!!mat.forStudent}
-                      onChange={e => updateMaterial(idx, { forStudent: e.target.checked })}
-                      className="accent-violet-600 w-5 h-5 rounded border-gray-300"
-                    />
-                    <span className="text-sm text-gray-700">Показывать ученику</span>
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => removeMaterial(idx)}
-                    className="ml-2 px-3 py-2 rounded bg-red-100 hover:bg-red-200 text-red-700 font-semibold flex items-center gap-1"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                    Удалить
-                  </button>
-                </div>
-              ))}
+        
+        <div className="edit-content">
+          {activeTab === 'main' && (
+            <div className="tab-content">
+              <div className="form-group">
+                <label className="form-label">Название урока</label>
+                <input
+                  value={editData.title}
+                  onChange={e => setEditData({...editData, title: e.target.value})}
+                  placeholder="Введите название урока"
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Описание урока</label>
+                <textarea
+                  value={editData.description}
+                  onChange={e => setEditData({...editData, description: e.target.value})}
+                  placeholder="Введите описание урока"
+                  className="form-textarea"
+                  rows={4}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Порядковый номер</label>
+                <input
+                  type="number"
+                  value={editData.orderNumber}
+                  onChange={e => setEditData({...editData, orderNumber: Number(e.target.value)})}
+                  placeholder="1"
+                  className="form-input"
+                  min={1}
+                />
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={addMaterial}
-              className="mt-4 px-5 py-2 rounded bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow transition"
-            >
-              + Добавить материал
-            </button>
-          </div>
-        )}
-        <div className="flex gap-4 justify-end mt-8">
+          )}
+          {activeTab === 'materials' && (
+            <div className="tab-content">
+              <h5 className="tab-title">Материалы:</h5>
+              <div className="materials-list">
+                {(editData.materials || []).map((mat, idx) => (
+                  <div key={idx} className="material-item">
+                    <input
+                      value={mat.title}
+                      onChange={e => updateMaterial(idx, { title: e.target.value })}
+                      placeholder="Название материала"
+                      className="form-input"
+                    />
+                    <input
+                      value={mat.url}
+                      onChange={e => updateMaterial(idx, { url: e.target.value })}
+                      placeholder="Ссылка на материал"
+                      className="form-input"
+                    />
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={!!mat.forStudent}
+                        onChange={e => updateMaterial(idx, { forStudent: e.target.checked })}
+                        className="checkbox-input"
+                      />
+                      <span className="checkbox-text">Показывать ученику</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => removeMaterial(idx)}
+                      className="remove-button"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                      Удалить
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={addMaterial}
+                className="add-button"
+              >
+                + Добавить материал
+              </button>
+            </div>
+          )}
+        </div>
+        
+        <div className="edit-actions">
           <button
             onClick={handleDeleteLesson}
-            className="px-5 py-2 rounded bg-red-500 hover:bg-red-600 text-white font-semibold shadow transition"
+            className="delete-button"
           >
             Удалить урок
           </button>
-          <button
-            onClick={handleCancelEdit}
-            className="px-5 py-2 rounded bg-gray-400 hover:bg-gray-500 text-white font-semibold shadow transition"
-          >
-            Отмена
-          </button>
-          <button
-            onClick={handleSaveEdit}
-            className="px-5 py-2 rounded bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow transition"
-          >
-            Сохранить
-          </button>
+          <div className="action-buttons">
+            <button
+              onClick={handleCancelEdit}
+              className="cancel-button"
+            >
+              Отмена
+            </button>
+            <button
+              onClick={handleSaveEdit}
+              className="save-button"
+            >
+              Сохранить
+            </button>
+          </div>
         </div>
+
+        <style jsx>{`
+          .edit-lesson-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+          }
+          .edit-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0 0 24px 0;
+          }
+          .edit-tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #e2e8f0;
+          }
+          .edit-tab {
+            padding: 12px 16px;
+            border: none;
+            background: #f1f5f9;
+            color: #64748b;
+            font-weight: 600;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: all 0.2s;
+          }
+          .edit-tab.active {
+            background: #7c3aed;
+            color: white;
+          }
+          .edit-content {
+            flex: 1;
+            overflow-y: auto;
+          }
+          .tab-content {
+            padding: 20px 0;
+          }
+          .tab-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0 0 16px 0;
+          }
+          .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+          }
+          .form-label {
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+          }
+          .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: all 0.2s;
+          }
+          .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+          }
+          .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+          }
+          .materials-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 16px;
+          }
+          .material-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+          }
+          .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+          }
+          .checkbox-input {
+            width: 16px;
+            height: 16px;
+            accent-color: #7c3aed;
+          }
+          .checkbox-text {
+            font-size: 14px;
+            color: #374151;
+          }
+          .remove-button {
+            padding: 8px 12px;
+            background: #fef2f2;
+            color: #dc2626;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+          }
+          .remove-button:hover {
+            background: #fee2e2;
+          }
+          .add-button {
+            padding: 12px 20px;
+            background: #7c3aed;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+          }
+          .add-button:hover {
+            background: #6d28d9;
+          }
+          .edit-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+          }
+          .action-buttons {
+            display: flex;
+            gap: 12px;
+          }
+          .delete-button {
+            padding: 10px 20px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+          }
+          .delete-button:hover {
+            background: #b91c1c;
+          }
+          .cancel-button {
+            padding: 10px 20px;
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+          }
+          .cancel-button:hover {
+            background: #4b5563;
+          }
+          .save-button {
+            padding: 10px 20px;
+            background: #7c3aed;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+          }
+          .save-button:hover {
+            background: #6d28d9;
+          }
+        `}</style>
       </div>
     );
   }
 
   return (
-    <div>
-      <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+    <div className="edit-lessons-container">
+      <div className="lessons-list">
         {lessons.map((lesson: any) => (
           <div 
             key={lesson._id || lesson.id} 
-            style={{ 
-              padding: 12, 
-              border: '1px solid #ddd', 
-              borderRadius: 8, 
-              marginBottom: 8,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}
+            className="lesson-card"
           >
-            <div>
-              <div style={{ fontWeight: 600 }}>Урок {lesson.orderNumber}: {lesson.title}</div>
-              <div style={{ fontSize: 14, color: '#666' }}>{lesson.description}</div>
+            <div className="lesson-info">
+              <div className="lesson-title">Урок {lesson.orderNumber}: {lesson.title}</div>
+              <div className="lesson-description">{lesson.description}</div>
             </div>
             <button
               onClick={() => handleEditLesson(lesson)}
-              style={{ 
-                background: '#7c3aed', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: 6, 
-                padding: '6px 12px', 
-                cursor: 'pointer',
-                fontSize: 12
-              }}
+              className="edit-button"
             >
               Редактировать
             </button>
           </div>
         ))}
       </div>
+
+      <style jsx>{`
+        .edit-lessons-container {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+        }
+        .lessons-list {
+          flex: 1;
+          overflow-y: auto;
+          padding-right: 8px;
+        }
+        .lesson-card {
+          padding: 16px;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          margin-bottom: 12px;
+          background: white;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          transition: all 0.2s;
+        }
+        .lesson-card:hover {
+          border-color: #7c3aed;
+          box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
+        }
+        .lesson-info {
+          flex: 1;
+        }
+        .lesson-title {
+          font-weight: 600;
+          font-size: 16px;
+          color: #1e293b;
+          margin-bottom: 4px;
+        }
+        .lesson-description {
+          font-size: 14px;
+          color: #64748b;
+        }
+        .edit-button {
+          background: #7c3aed;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          padding: 8px 16px;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 500;
+          transition: background-color 0.2s;
+          white-space: nowrap;
+        }
+        .edit-button:hover {
+          background: #6d28d9;
+        }
+      `}</style>
     </div>
   );
 }; 
