@@ -1,7 +1,9 @@
 import { dbConnect } from '@/server/db';
 import StudentProgress from '@/server/progress/model';
+import Lesson from '@/server/lessons/model';
 import { Types } from 'mongoose';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { checkAndSendSubscriptionEmail } from '@/server/registration/subscription-email';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   let studentId: string | undefined;
@@ -145,7 +147,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Если урок завершен и это первый урок, отправляем email
       if (attended && !wasAttended) {
         console.log('First lesson completed, ready to send email');
-        // TODO: Добавить логику отправки email для первого урока
+        await checkAndSendSubscriptionEmail(studentId, lessonId);
       }
       
       await progress.save();
