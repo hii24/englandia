@@ -3,13 +3,14 @@ import { useUserStore } from '@/store/userStore';
 import { TeacherStudentsTab } from '@/components/admin/TeacherStudentsTab';
 import { TeacherLessonsTab } from '@/components/admin/TeacherLessonsTab';
 import { AttendanceTab } from '@/components/admin/AttendanceTab';
+import { TeacherScheduleTab } from '@/components/admin/TeacherScheduleTab';
 
 interface TeacherPanelModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-type TeacherTab = 'students' | 'lessons' | 'attendance';
+type TeacherTab = 'students' | 'lessons' | 'attendance' | 'schedule';
 
 export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, onClose }) => {
   const user = useUserStore(s => s.user);
@@ -31,6 +32,8 @@ export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, on
         return 'Управление уроками';
       case 'attendance':
         return 'Управление посещениями';
+      case 'schedule':
+        return 'Расписание';
       default:
         return 'Панель учителя';
     }
@@ -47,6 +50,10 @@ export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, on
       case 'attendance':
         return selectedStudent 
           ? `Отметка посещений ученика ${selectedStudent.firstName} ${selectedStudent.lastName}`
+          : 'Сначала выберите ученика';
+      case 'schedule':
+        return selectedStudent 
+          ? `Расписание ученика ${selectedStudent.firstName} ${selectedStudent.lastName}`
           : 'Сначала выберите ученика';
       default:
         return '';
@@ -66,6 +73,8 @@ export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, on
         return <TeacherLessonsTab selectedStudent={selectedStudent} />;
       case 'attendance':
         return <AttendanceTab selectedStudent={selectedStudent} />;
+      case 'schedule':
+        return <TeacherScheduleTab selectedStudent={selectedStudent} />;
       default:
         return <TeacherStudentsTab onStudentSelect={handleStudentSelect} />;
     }
@@ -99,6 +108,13 @@ export const TeacherPanelModal: React.FC<TeacherPanelModalProps> = ({ isOpen, on
               disabled={!selectedStudent}
             >
               ✅ Посещения
+            </button>
+            <button
+              className={`teacher-nav__item ${activeTab === 'schedule' ? 'teacher-nav__item--active' : ''}`}
+              onClick={() => setActiveTab('schedule')}
+              disabled={!selectedStudent}
+            >
+              📅 Расписание
             </button>
           </nav>
           
