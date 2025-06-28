@@ -3,6 +3,12 @@ import type { NextRequest } from 'next/server';
 
 // Базовый middleware — не проверяет авторизацию, просто пропускает все запросы
 export function middleware(request: NextRequest) {
+  console.log('Middleware called:', {
+    url: request.url,
+    method: request.method,
+    pathname: request.nextUrl.pathname
+  });
+
   // Можно добавить другие проверки или редиректы, если потребуется
   return NextResponse.next();
 }
