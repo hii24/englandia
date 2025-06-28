@@ -158,7 +158,7 @@ export const ScheduleTab: React.FC = () => {
         </div>
       </div>
 
-      <div className="info-panel">
+      {/* <div className="info-panel">
         <h4 className="info-title">Информация о расписании:</h4>
         <ul className="info-list">
           <li>• <strong>4 раза в месяц:</strong> уроки проводятся еженедельно</li>
@@ -166,7 +166,7 @@ export const ScheduleTab: React.FC = () => {
           <li>• Система автоматически рассчитывает даты на основе выбранного паттерна</li>
           <li>• Учителя смогут отмечать посещения в соответствии с расписанием</li>
         </ul>
-      </div>
+      </div> */}
 
       <style jsx>{`
         .schedule-container {

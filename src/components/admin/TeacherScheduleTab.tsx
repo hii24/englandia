@@ -103,6 +103,17 @@ export const TeacherScheduleTab: React.FC<TeacherScheduleTabProps> = ({ selected
       if (response.ok) {
         alert('Расписание обновлено успешно!');
         await loadStudentSchedule(selectedStudent._id);
+        
+        // Если расписание включено, предлагаем автоматически назначить даты уроков
+        if (scheduleSettings.enabled && scheduleSettings.daysSchedule.some(day => day.enabled)) {
+          const shouldAutoSchedule = confirm(
+            'Хотите автоматически назначить даты для уроков на основе этого расписания?'
+          );
+          
+          if (shouldAutoSchedule) {
+            await handleAutoScheduleLessons();
+          }
+        }
       } else {
         const errorData = await response.json();
         alert(`Ошибка обновления расписания: ${errorData.error}`);
@@ -112,6 +123,32 @@ export const TeacherScheduleTab: React.FC<TeacherScheduleTabProps> = ({ selected
       alert('Ошибка обновления расписания');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAutoScheduleLessons = async () => {
+    if (!selectedStudent || !user?._id) return;
+    
+    try {
+      const response = await fetch(`/api/lessons/auto-schedule?studentId=${selectedStudent._id}&teacherId=${user._id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          startDate: new Date().toISOString().split('T')[0],
+          lessonsCount: 4 // По умолчанию 4 урока
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(`Автоматически назначено ${data.scheduledLessons.length} уроков на основе расписания!`);
+      } else {
+        const errorData = await response.json();
+        alert(`Ошибка автоматического назначения: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Error auto-scheduling lessons:', error);
+      alert('Ошибка автоматического назначения уроков');
     }
   };
 
@@ -176,10 +213,6 @@ export const TeacherScheduleTab: React.FC<TeacherScheduleTabProps> = ({ selected
   return (
     <div className="teacher-schedule-container">
       <div className="schedule-header">
-        <h3 className="schedule-title">Настройка расписания</h3>
-        <p className="schedule-subtitle">
-          Ученик: <strong>{selectedStudent.firstName} {selectedStudent.lastName}</strong>
-        </p>
         <p className="schedule-subtitle">
           Тариф: <strong>{getStudentSubscription(selectedStudent)}</strong>
         </p>
@@ -296,7 +329,7 @@ export const TeacherScheduleTab: React.FC<TeacherScheduleTabProps> = ({ selected
         )}
       </div>
 
-      <div className="info-panel">
+      {/* <div className="info-panel">
         <h4>Информация о расписании</h4>
         <ul>
           <li>• Выберите дни недели для проведения занятий</li>
@@ -304,7 +337,7 @@ export const TeacherScheduleTab: React.FC<TeacherScheduleTabProps> = ({ selected
           <li>• Система автоматически учтет тариф ученика</li>
           <li>• Расписание будет применяться ко всем урокам ученика</li>
         </ul>
-      </div>
+      </div> */}
 
       <style jsx>{`
         .teacher-schedule-container {

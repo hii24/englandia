@@ -109,12 +109,7 @@ export const AttendanceTab: React.FC<AttendanceTabProps> = ({ selectedStudent })
 
   return (
     <div className="attendance-container">
-      <div className="attendance-header">
-        <h3 className="attendance-title">Управление посещениями</h3>
-        <p className="student-info">
-          Ученик: <span className="student-name">{selectedStudent.firstName} {selectedStudent.lastName}</span>
-        </p>
-      </div>
+    
 
       <div className="attendance-content">
         <div className="table-container">
@@ -162,14 +157,14 @@ export const AttendanceTab: React.FC<AttendanceTabProps> = ({ selectedStudent })
         </div>
       </div>
 
-      <div className="info-panel">
+      {/* <div className="info-panel">
         <h4 className="info-title">Информация:</h4>
         <ul className="info-list">
           <li>• Отмечайте посещения учеников после каждого урока</li>
           <li>• При посещении первого урока система предложит отправить email с предложением курса</li>
           <li>• Статус посещения сохраняется автоматически</li>
         </ul>
-      </div>
+      </div> */}
 
       <style jsx>{`
         .attendance-container {

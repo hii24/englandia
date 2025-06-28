@@ -36,9 +36,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         studentId: studentObjectId, 
         lessonId: lessonObjectId 
       });
+      
       if (!progress) {
         console.log('Progress not found for:', { studentId, lessonId });
-        return res.status(404).json({ error: 'Not found' });
+        // Возвращаем дефолтную запись вместо 404
+        const defaultResponse = { 
+          lessonLink: null, 
+          homework: null,
+          attended: false,
+          attendanceDate: null,
+          attendanceConfirmedBy: null,
+          scheduledDate: null,
+          status: 'not_started'
+        };
+        
+        console.log('GET response (default):', defaultResponse);
+        return res.json(defaultResponse);
       }
       
       const response = { 

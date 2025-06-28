@@ -1,58 +1,129 @@
 import { dbConnect } from '@/server/db';
-import Lesson from '@/server/lessons/model';
+import { findUserById } from '@/server/db';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { 
+  findLessonSchedule, 
+  saveLessonSchedule, 
+  findLessonSchedulesByStudent,
+  type LessonSchedule 
+} from '@/server/schedule-storage';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  await dbConnect();
-
-  if (req.method === 'POST') {
-    const { lessonId, scheduledDate, scheduleEnabled, schedulePattern } = req.body;
+  try {
+    await dbConnect();
     
-    if (!lessonId) {
-      return res.status(400).json({ error: 'lessonId is required' });
-    }
-
-    try {
-      const lesson = await Lesson.findById(lessonId);
-      if (!lesson) {
-        return res.status(404).json({ error: 'Lesson not found' });
-      }
-
-      if (scheduledDate !== undefined) lesson.scheduledDate = scheduledDate;
-      if (scheduleEnabled !== undefined) lesson.scheduleEnabled = scheduleEnabled;
-      if (schedulePattern) lesson.schedulePattern = schedulePattern;
-
-      await lesson.save();
-      return res.json({ success: true, lesson });
-    } catch (error) {
-      console.error('Error updating lesson schedule:', error);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-  }
-
-  if (req.method === 'GET') {
-    const { lessonId } = req.query;
+    const { lessonId, studentId, teacherId } = req.query;
     
-    if (!lessonId) {
-      return res.status(400).json({ error: 'lessonId is required' });
+    console.log('API /lessons/schedule:', {
+      method: req.method,
+      lessonId,
+      studentId,
+      teacherId,
+      body: req.body
+    });
+
+    if (!lessonId || !studentId || !teacherId) {
+      return res.status(400).json({ error: 'lessonId, studentId and teacherId are required' });
     }
 
-    try {
-      const lesson = await Lesson.findById(lessonId);
-      if (!lesson) {
-        return res.status(404).json({ error: 'Lesson not found' });
-      }
+    // Проверяем, что studentId и teacherId являются валидными MongoDB ObjectId
+    const isValidObjectId = (id: string) => {
+      return /^[0-9a-fA-F]{24}$/.test(id);
+    };
 
+    // Для studentId и teacherId проверяем валидность ObjectId
+    if (studentId !== 'default' && !isValidObjectId(studentId as string)) {
+      return res.status(400).json({ error: 'Invalid studentId format' });
+    }
+
+    if (teacherId !== 'default' && !isValidObjectId(teacherId as string)) {
+      return res.status(400).json({ error: 'Invalid teacherId format' });
+    }
+
+    // Проверяем, что учитель существует и имеет правильную роль (только если teacherId не 'default')
+    if (teacherId !== 'default') {
+      const teacher = await findUserById(teacherId as string);
+      if (!teacher || teacher.role !== 'teacher') {
+        return res.status(403).json({ error: 'Unauthorized: Teacher not found' });
+      }
+    }
+
+    // Проверяем, что студент существует (только если studentId не 'default')
+    if (studentId !== 'default') {
+      const student = await findUserById(studentId as string);
+      if (!student) {
+        return res.status(404).json({ error: 'Student not found' });
+      }
+    }
+
+    if (req.method === 'GET') {
+      // Получаем расписание для конкретного урока
+      const schedule = findLessonSchedule(lessonId as string, studentId as string, teacherId as string);
+      
+      if (!schedule) {
+        return res.json({
+          enabled: false,
+          scheduledDate: null,
+          time: null,
+          timezone: 'Europe/Moscow'
+        });
+      }
+      
       return res.json({
-        scheduledDate: lesson.scheduledDate,
-        scheduleEnabled: lesson.scheduleEnabled,
-        schedulePattern: lesson.schedulePattern
+        enabled: schedule.enabled,
+        scheduledDate: schedule.scheduledDate,
+        time: schedule.time,
+        timezone: schedule.timezone
       });
-    } catch (error) {
-      console.error('Error getting lesson schedule:', error);
-      return res.status(500).json({ error: 'Internal server error' });
     }
-  }
 
-  res.status(405).json({ error: 'Method not allowed' });
+    if (req.method === 'POST') {
+      const { enabled, scheduledDate, time, timezone } = req.body;
+      
+      console.log('POST lesson schedule data:', {
+        lessonId,
+        studentId,
+        teacherId,
+        enabled,
+        scheduledDate,
+        time,
+        timezone
+      });
+
+      const scheduleData: LessonSchedule = {
+        lessonId: lessonId as string,
+        studentId: studentId as string,
+        teacherId: teacherId as string,
+        scheduledDate: scheduledDate || null,
+        time: time || null,
+        timezone: timezone || 'Europe/Moscow',
+        enabled: enabled || false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      // Сохраняем расписание используя общий модуль
+      saveLessonSchedule(scheduleData);
+
+      console.log('Lesson schedule saved successfully:', scheduleData);
+      
+      return res.json({ 
+        success: true, 
+        schedule: {
+          enabled: scheduleData.enabled,
+          scheduledDate: scheduleData.scheduledDate,
+          time: scheduleData.time,
+          timezone: scheduleData.timezone
+        }
+      });
+    }
+
+    return res.status(405).json({ error: 'Method not allowed' });
+  } catch (error) {
+    console.error('API error:', error);
+    res.status(500).json({ 
+      error: error instanceof Error ? error.message : 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? error : undefined
+    });
+  }
 } 

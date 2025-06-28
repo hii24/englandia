@@ -4,7 +4,8 @@ const MaterialSchema = new Schema({
   title: String,
   url: String,
   type: { type: String, enum: ['link', 'file'], default: 'link' },
-  forStudent: { type: Boolean, default: false }
+  forStudent: { type: Boolean, default: false },
+  createdBy: { type: Types.ObjectId, ref: 'User' }
 }, { _id: false });
 
 const LessonSchema = new Schema({

@@ -21,8 +21,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // TODO: Проверка роли (admin)
       try {
         console.log('Creating lesson with data:', req.body);
+        
+        // Получаем ID пользователя из заголовка или тела запроса
+        const userId = req.headers['x-user-id'] || req.body.userId;
+        
+        // Обрабатываем материалы, добавляя createdBy к новым
+        let lessonData = { ...req.body };
+        if (req.body.materials) {
+          lessonData.materials = req.body.materials.map((material: any) => ({
+            ...material,
+            createdBy: userId
+          }));
+        }
+        
         const lesson = new Lesson({
-          ...req.body,
+          ...lessonData,
           createdAt: new Date(),
           updatedAt: new Date()
         });

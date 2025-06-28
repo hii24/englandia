@@ -10,6 +10,8 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [studentLessonLink, setStudentLessonLink] = useState<any>(null);
   const [studentHomework, setStudentHomework] = useState<any[] | null>(null);
+  const [lessonSchedule, setLessonSchedule] = useState<any>(null);
+  const [teacherId, setTeacherId] = useState<string | null>(null);
   const { materials = [], additionalMaterials = [], homework = [] } = lesson;
   const user = useUserStore(s => s.user);
 
@@ -19,8 +21,33 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
     lessonTitle: lesson.title,
     progress: JSON.stringify(progress, null, 2), // Полное содержимое progress
     userRole: user?.role,
-    userId: user?._id
+    userId: user?._id,
+    teacherId
   });
+
+  // Загружаем teacherId для ученика
+  useEffect(() => {
+    if (user?.role === 'student' && user._id) {
+      console.log('🔍 LessonCard: Loading teacherId for student:', user._id);
+      
+      fetch(`/api/students/teacher?studentId=${user._id}`)
+        .then(response => {
+          console.log('📡 LessonCard: Teacher API response status:', response.status);
+          if (response.ok) {
+            return response.json();
+          }
+          throw new Error(`Failed to fetch teacher: ${response.status}`);
+        })
+        .then(data => {
+          console.log('✅ LessonCard: Teacher loaded:', data);
+          setTeacherId(data.teacherId);
+        })
+        .catch(error => {
+          console.error('❌ LessonCard: Error loading teacher:', error);
+          setTeacherId('default'); // Fallback
+        });
+    }
+  }, [user?._id, user?.role]);
 
   // Загружаем индивидуальные lessonLink и homework для студента
   useEffect(() => {
@@ -40,12 +67,89 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
     }
   }, [open, user?._id, user?.role, lesson._id]);
 
+  // Загружаем расписание урока для ученика
+  useEffect(() => {
+    if (user?.role === 'student' && user._id && lesson._id && teacherId) {
+      console.log('🔍 LessonCard: Loading schedule for:', {
+        lessonId: lesson._id,
+        studentId: user._id,
+        teacherId
+      });
+      
+      fetch(`/api/lessons/schedule?lessonId=${lesson._id}&studentId=${user._id}&teacherId=${teacherId}`)
+        .then(response => {
+          console.log('📡 LessonCard: Schedule API response status:', response.status);
+          if (response.ok) {
+            return response.json();
+          }
+          throw new Error(`Failed to fetch schedule: ${response.status}`);
+        })
+        .then(data => {
+          console.log('✅ LessonCard: Schedule loaded:', data);
+          setLessonSchedule(data);
+        })
+        .catch(error => {
+          console.error('❌ LessonCard: Error loading lesson schedule:', error);
+          setLessonSchedule(null);
+        });
+    }
+  }, [user?._id, user?.role, lesson._id, teacherId]);
+
   // Статус урока - определяем на основе посещения и статуса
   const status = progress?.attended ? 'completed' : 'not_started';
+  
+  // Для учеников показываем дату занятия вместо "Не начат"
+  const getStatusText = () => {
+    console.log('🔍 LessonCard: getStatusText called with:', {
+      status,
+      userRole: user?.role,
+      lessonSchedule,
+      lessonScheduleEnabled: lessonSchedule?.enabled,
+      lessonScheduleDate: lessonSchedule?.scheduledDate,
+      lessonScheduleTime: lessonSchedule?.time
+    });
+    
+    if (status === 'completed') return 'Завершён';
+    
+    if (user?.role === 'student' && lessonSchedule?.enabled && lessonSchedule?.scheduledDate) {
+      const scheduledDate = new Date(lessonSchedule.scheduledDate);
+      const now = new Date();
+      
+      console.log('📅 LessonCard: Processing scheduled date:', {
+        scheduledDate: scheduledDate.toISOString(),
+        now: now.toISOString(),
+        isPast: scheduledDate < now,
+        isToday: scheduledDate.toDateString() === now.toDateString()
+      });
+      
+      // Если дата в прошлом, показываем "Пропущен"
+      if (scheduledDate < now) {
+        const result = `Пропущен (${scheduledDate.toLocaleDateString('ru-RU')} в ${lessonSchedule.time})`;
+        console.log('📅 LessonCard: Past date result:', result);
+        return result;
+      }
+      
+      // Если дата сегодня, показываем "Сегодня"
+      if (scheduledDate.toDateString() === now.toDateString()) {
+        const result = `Сегодня в ${lessonSchedule.time}`;
+        console.log('📅 LessonCard: Today result:', result);
+        return result;
+      }
+      
+      // Если дата в будущем, показываем дату
+      const result = `${scheduledDate.toLocaleDateString('ru-RU')} в ${lessonSchedule.time}`;
+      console.log('📅 LessonCard: Future date result:', result);
+      return result;
+    }
+    
+    console.log('📅 LessonCard: Default result: Не начат');
+    return 'Не начат';
+  };
+
   const statusMap: Record<string, { text: string; color: string; className: string }> = {
-    completed: { text: 'Завершён', color: '#22c55e', className: 'dot--completed' },
+    completed: { text: getStatusText(), color: '#22c55e', className: 'dot--completed' },
     in_progress: { text: 'В процессе', color: '#facc15', className: 'dot--in_progress' },
-    not_started: { text: 'Не начат', color: '#d1d5db', className: 'dot--not_started' },
+    not_started: { text: getStatusText(), color: '#d1d5db', className: 'dot--not_started' },
   };
   const statusObj = statusMap[status] || statusMap['not_started'];
 

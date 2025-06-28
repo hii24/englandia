@@ -17,9 +17,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === 'PUT') {
       try {
         console.log('PUT /api/lessons/[id]:', { id, body: req.body });
+        
+        // Получаем текущий урок для сравнения материалов
+        const currentLesson = await Lesson.findById(id);
+        if (!currentLesson) return res.status(404).json({ error: 'Lesson not found' });
+        
+        // Получаем ID пользователя из заголовка или тела запроса
+        const userId = req.headers['x-user-id'] || req.body.userId;
+        
+        // Обрабатываем материалы, добавляя createdBy к новым
+        let updatedBody = { ...req.body };
+        if (req.body.materials) {
+          updatedBody.materials = req.body.materials.map((material: any, index: number) => {
+            // Если у материала нет createdBy, значит это новый материал
+            if (!material.createdBy) {
+              return { ...material, createdBy: userId };
+            }
+            return material;
+          });
+        }
+        
         const updated = await Lesson.findByIdAndUpdate(
           id, 
-          { ...req.body, updatedAt: new Date() },
+          { ...updatedBody, updatedAt: new Date() },
           { new: true, runValidators: true }
         );
         if (!updated) return res.status(404).json({ error: 'Lesson not found' });

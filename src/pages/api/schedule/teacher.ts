@@ -2,26 +2,13 @@ import { dbConnect } from '@/server/db';
 import { findUserById } from '@/server/db';
 import { Types } from 'mongoose';
 import type { NextApiRequest, NextApiResponse } from 'next';
-
-// Обновленная модель для хранения расписания с разным временем для разных дней
-interface DaySchedule {
-  day: string;
-  time: string;
-  enabled: boolean;
-}
-
-interface TeacherSchedule {
-  teacherId: string;
-  studentId: string;
-  enabled: boolean;
-  daysSchedule: DaySchedule[];
-  timezone: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// Временное хранилище расписаний (в реальном проекте использовать базу данных)
-const schedules: TeacherSchedule[] = [];
+import { 
+  findTeacherSchedule, 
+  saveTeacherSchedule, 
+  type TeacherSchedule, 
+  type DaySchedule,
+  getStorageStatus
+} from '@/server/schedule-storage';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -64,9 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'GET') {
       // Получаем расписание для конкретного студента и учителя
-      const schedule = schedules.find(s => 
-        s.teacherId === teacherId && s.studentId === studentId
-      );
+      const schedule = findTeacherSchedule(teacherId, studentId);
       
       if (!schedule) {
         // Возвращаем дефолтное расписание
@@ -117,11 +102,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
-      // Находим существующее расписание или создаем новое
-      const existingIndex = schedules.findIndex(s => 
-        s.teacherId === teacherId && s.studentId === studentId
-      );
-
       const scheduleData: TeacherSchedule = {
         teacherId,
         studentId,
@@ -132,19 +112,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         updatedAt: new Date()
       };
 
-      if (existingIndex >= 0) {
-        // Обновляем существующее расписание
-        schedules[existingIndex] = {
-          ...schedules[existingIndex],
-          ...scheduleData,
-          updatedAt: new Date()
-        };
-      } else {
-        // Создаем новое расписание
-        schedules.push(scheduleData);
-      }
+      // Сохраняем расписание используя общий модуль
+      saveTeacherSchedule(scheduleData);
 
-      console.log('Schedule saved successfully:', scheduleData);
+      console.log('✅ Teacher API: Schedule saved successfully:', scheduleData);
+      console.log('📊 Teacher API: Storage status after save:', getStorageStatus());
       
       return res.json({ 
         success: true, 
