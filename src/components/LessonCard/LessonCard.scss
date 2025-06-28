@@ -18,9 +18,14 @@
     font-weight: 500;
     min-width: fit-content;
     display: flex;
-  
-    align-self: start;
+    align-items: center;
+    gap: 6px;
     margin-top: 6px;
+    .lesson-lock-icon {
+      font-size: 12px;
+      color: #6b7280;
+      opacity: 0.8;
+    }
   }
   &__content {
     flex: 1;
@@ -36,6 +41,16 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    .title-lock-indicator {
+      font-size: 16px;
+      color: #6b7280;
+      opacity: 0.8;
+      flex-shrink: 0;
+    }
   }
   &__desc {
     color: #64748b;
@@ -52,6 +67,13 @@
     font-weight: 500;
     gap: 8px;
     min-width: fit-content;
+    
+    .status-lock-indicator {
+      font-size: 12px;
+      color: #6b7280;
+      opacity: 0.8;
+      margin-left: 4px;
+    }
   }
   &__toggle {
     width: 44px;
@@ -200,15 +222,60 @@
       font-size: 17px;
     }
     &__desc {
-      font-size: 13px;
+      font-size: 14px;
     }
-    &__body {
-      padding-top: 10px;
-      padding-left: 0;
-      padding-right: 0;
+    &__status {
+      font-size: 14px;
+    }
+    &__order {
+      font-size: 14px;
     }
     &__header {
-      padding: 18px 8px 12px 8px;
+      padding: 12px 16px 12px 32px;
+      gap: 16px;
+    }
+    &__body {
+      padding: 0 32px 24px 32px;
+    }
+    &__toggle {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      font-size: 18px;
+    }
+  }
+}
+
+// Стили для заблокированных уроков
+.lesson-card--locked {
+  opacity: 0.6;
+  filter: grayscale(0.3);
+  
+  .lesson-card__header {
+    cursor: not-allowed;
+  }
+  
+  .lesson-card__title,
+  .lesson-card__desc {
+    color: #6b7280;
+  }
+  
+  .lesson-card__toggle {
+    cursor: not-allowed;
+    
+    &:hover {
+      background-color: transparent;
+    }
+    
+    &--locked {
+      color: #6b7280;
+      
+      .lesson-card__toggle-icon {
+        svg {
+          width: 24px;
+          height: 24px;
+        }
+      }
     }
   }
 } 

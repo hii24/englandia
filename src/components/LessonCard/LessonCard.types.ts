@@ -17,6 +17,7 @@ export interface Lesson {
   lessonLink?: { title: string; url: string; forStudent?: boolean };
   isActive?: boolean;
   isArchived?: boolean;
+  isLocked?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

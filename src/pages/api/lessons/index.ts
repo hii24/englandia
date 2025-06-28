@@ -14,6 +14,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === 'GET') {
       const lessons = await Lesson.find({ isArchived: { $ne: true } }).sort({ orderNumber: 1 });
       console.log('API /lessons: Found', lessons.length, 'lessons');
+      
+      // Отладочная информация о домашних заданиях
+      lessons.forEach((lesson: any) => {
+        console.log(`🔍 API: Lesson ${lesson.orderNumber} "${lesson.title}":`, {
+          hasHomework: !!lesson.homework,
+          homeworkLength: lesson.homework ? lesson.homework.length : 0,
+          homeworkItems: lesson.homework ? lesson.homework.map((hw: any) => hw.title || hw.url) : []
+        });
+      });
+      
       return res.status(200).json(lessons);
     }
 

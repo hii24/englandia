@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     if (!studentId || !lessonId) {
-      console.error('Missing required fields:', { studentId, lessonId });
+      console.log('Missing required fields:', { studentId, lessonId });
       return res.status(400).json({ error: 'studentId and lessonId are required' });
     }
 
@@ -32,40 +32,71 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const lessonObjectId = new Types.ObjectId(lessonId as string);
 
     if (req.method === 'GET') {
+      const allLessons = await Lesson.find({ isActive: true }).sort({ orderNumber: 1 });
+      const currentLesson = allLessons.find(l => l._id.toString() === lessonId);
+      if (!currentLesson) {
+        return res.status(404).json({ error: 'Lesson not found' });
+      }
+
+      // Находим текущий (следующий доступный) урок
+      let currentAvailableLesson = null;
+      for (const lesson of allLessons) {
+        const lessonProgress = await StudentProgress.findOne({
+          studentId: studentObjectId,
+          lessonId: lesson._id
+        });
+        
+        // Если урок не посещен, это наш текущий урок
+        if (!lessonProgress || !lessonProgress.attended) {
+          currentAvailableLesson = lesson;
+          break;
+        }
+      }
+      
+      // Если все уроки посещены, последний урок считается текущим
+      if (!currentAvailableLesson && allLessons.length > 0) {
+        currentAvailableLesson = allLessons[allLessons.length - 1];
+      }
+
+      // Проверяем, посещен ли текущий урок
+      const currentProgress = await StudentProgress.findOne({
+        studentId: studentObjectId,
+        lessonId: lessonObjectId
+      });
+      const isCurrentLessonAttended = currentProgress && currentProgress.attended;
+
+      // Урок заблокирован, если он не является текущим доступным И не посещен
+      const isAutoLocked = currentAvailableLesson && 
+                          currentAvailableLesson._id.toString() !== lessonId && 
+                          !isCurrentLessonAttended;
+
       const progress = await StudentProgress.findOne({ 
         studentId: studentObjectId, 
         lessonId: lessonObjectId 
       });
-      
+
       if (!progress) {
-        console.log('Progress not found for:', { studentId, lessonId });
-        // Возвращаем дефолтную запись вместо 404
-        const defaultResponse = { 
+        return res.json({ 
           lessonLink: null, 
           homework: null,
           attended: false,
           attendanceDate: null,
           attendanceConfirmedBy: null,
           scheduledDate: null,
-          status: 'not_started'
-        };
-        
-        console.log('GET response (default):', defaultResponse);
-        return res.json(defaultResponse);
+          status: 'not_started',
+          isLocked: isAutoLocked
+        });
       }
-      
-      const response = { 
+      return res.json({ 
         lessonLink: progress.lessonLink, 
         homework: progress.homework,
         attended: progress.attended,
         attendanceDate: progress.attendanceDate,
         attendanceConfirmedBy: progress.attendanceConfirmedBy,
         scheduledDate: progress.scheduledDate,
-        status: progress.status
-      };
-      
-      console.log('GET response:', response);
-      return res.json(response);
+        status: progress.status,
+        isLocked: isAutoLocked
+      });
     }
 
     if (req.method === 'PUT') {
@@ -176,12 +207,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       stack: error instanceof Error ? error.stack : undefined,
       method: req.method,
       studentId,
-      lessonId,
-      body: req.body
+      lessonId
     });
-    res.status(500).json({ 
-      error: error instanceof Error ? error.message : 'Internal server error',
-      details: process.env.NODE_ENV === 'development' ? error : undefined
-    });
+    res.status(500).json({ error: 'Internal server error' });
   }
 } 

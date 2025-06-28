@@ -9,13 +9,13 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
   const [open, setOpen] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [studentLessonLink, setStudentLessonLink] = useState<any>(null);
-  const [studentHomework, setStudentHomework] = useState<any[] | null>(null);
   const [lessonSchedule, setLessonSchedule] = useState<any>(null);
   const [teacherId, setTeacherId] = useState<string | null>(null);
   const [isTeacherLoading, setIsTeacherLoading] = useState(true);
   const [isScheduleLoading, setIsScheduleLoading] = useState(true);
   const { materials = [], additionalMaterials = [], homework = [] } = lesson;
   const user = useUserStore(s => s.user);
+  const [studentProgress, setStudentProgress] = useState<any>(null);
 
   // Отладочная информация
   console.log('LessonCard render:', {
@@ -60,21 +60,58 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
     }
   }, [user?._id, user?.role]);
 
-  // Загружаем индивидуальные lessonLink и homework для студента
+  // Загружаем информацию о блокировке сразу при рендере для учеников
   useEffect(() => {
+    console.log('🔍 LessonCard: Loading lock info:', {
+      userRole: user?.role,
+      userId: user?._id,
+      lessonId: lesson._id,
+      willFetch: user?.role === 'student' && user._id && lesson._id
+    });
+
+    if (user?.role === 'student' && user._id && lesson._id) {
+      fetchStudentLesson(user._id, lesson._id)
+        .then(data => {
+          console.log('✅ LessonCard: Lock info loaded:', data);
+          // Устанавливаем информацию о блокировке из прогресса ученика
+          setStudentProgress(data);
+        })
+        .catch((error) => {
+          console.error('❌ LessonCard: Error loading lock info:', error);
+          setStudentProgress(null);
+        });
+    } else {
+      setStudentProgress(null);
+    }
+  }, [user?._id, user?.role, lesson._id]);
+
+  // Загружаем индивидуальные lessonLink для студента (только при открытии)
+  useEffect(() => {
+    console.log('🔍 LessonCard: Loading student lesson data:', {
+      open,
+      userRole: user?.role,
+      userId: user?._id,
+      lessonId: lesson._id,
+      willFetch: open && user?.role === 'student' && user._id && lesson._id
+    });
+
     if (open && user?.role === 'student' && user._id && lesson._id) {
       fetchStudentLesson(user._id, lesson._id)
         .then(data => {
+          console.log('✅ LessonCard: Student lesson data loaded:', data);
           setStudentLessonLink(data.lessonLink || null);
-          setStudentHomework(Array.isArray(data.homework) ? data.homework : null);
+          // Обновляем информацию о блокировке
+          setStudentProgress(data);
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error('❌ LessonCard: Error loading student lesson data:', error);
           setStudentLessonLink(null);
-          setStudentHomework(null);
+          setStudentProgress(null);
         });
     } else {
+      console.log('🔍 LessonCard: Resetting student lesson data');
       setStudentLessonLink(null);
-      setStudentHomework(null);
+      // НЕ сбрасываем studentProgress здесь, так как он загружается отдельно
     }
   }, [open, user?._id, user?.role, lesson._id]);
 
@@ -234,8 +271,19 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
 
   // Ссылка на занятие
   const effectiveLessonLink = user?.role === 'student' && studentLessonLink ? studentLessonLink : lesson.lessonLink;
-  // Домашка
-  const effectiveHomework = user?.role === 'student' && studentHomework ? studentHomework : homework;
+  // Домашка - всегда показываем из урока, без индивидуальных данных
+  const effectiveHomework = homework;
+
+  // Отладочная информация для домашних заданий
+  console.log('🔍 LessonCard Homework Debug:', {
+    lessonId: lesson._id,
+    lessonTitle: lesson.title,
+    userRole: user?.role,
+    originalHomework: homework,
+    effectiveHomework: effectiveHomework,
+    effectiveHomeworkLength: effectiveHomework.length,
+    willShowHomework: effectiveHomework.length > 0
+  });
 
   // Функция для нормализации URL
   const normalizeUrl = (url: string): string => {
@@ -256,29 +304,67 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
     return `https://${url}`;
   };
 
+  // Проверяем, заблокирован ли урок для ученика (индивидуальная блокировка)
+  const isLessonLocked = user?.role === 'student' && studentProgress?.isLocked;
+
+  // Обработчик клика с учетом блокировки
+  const handleToggle = () => {
+    if (isLessonLocked) {
+      alert('Этот урок заблокирован. Обратитесь к учителю для доступа.');
+      return;
+    }
+    setOpen(v => !v);
+  };
+
   return (
-    <div className={`lesson-card${open ? ' lesson-card--open' : ''}`}>
+    <div className={`lesson-card${open ? ' lesson-card--open' : ''}${isLessonLocked ? ' lesson-card--locked' : ''}`}>
       <div className="lesson-card__header">
-        <div className="lesson-card__order">Урок {lesson.orderNumber}</div>
+        <div className="lesson-card__order">
+          Урок {lesson.orderNumber}
+          {isLessonLocked && (
+            <span className="lesson-lock-icon" title="Урок заблокирован учителем">
+              🔒
+            </span>
+          )}
+        </div>
         <div className="lesson-card__content">
-          <div className="lesson-card__title">{lesson.title}</div>
+          <div className="lesson-card__title">
+            {lesson.title}
+            {isLessonLocked && (
+              <span className="title-lock-indicator" title="Урок заблокирован учителем">
+                🔒
+              </span>
+            )}
+          </div>
           <div className="lesson-card__desc">{lesson.description}</div>
         </div>
         <div className="lesson-card__status">
           <span className={`dot ${statusObj.className}`}></span>
           {statusObj.text}
+          {isLessonLocked && (
+            <span className="status-lock-indicator" title="Урок заблокирован учителем">
+              🔒
+            </span>
+          )}
         </div>
         <button
-          className={`lesson-card__toggle${open ? ' lesson-card__toggle--open' : ''}`}
-          onClick={() => setOpen(v => !v)}
-          aria-label={open ? 'Свернуть' : 'Развернуть'}
+          className={`lesson-card__toggle${open ? ' lesson-card__toggle--open' : ''}${isLessonLocked ? ' lesson-card__toggle--locked' : ''}`}
+          onClick={handleToggle}
+          aria-label={isLessonLocked ? 'Урок заблокирован' : (open ? 'Свернуть' : 'Развернуть')}
         >
           <span className="lesson-card__toggle-icon">
-            <Image src="/roll-btn.svg" alt="roll-btn" width={50} height={50} />
+            {isLessonLocked ? (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6z"/>
+              </svg>
+            ) : (
+              <Image src="/roll-btn.svg" alt="roll-btn" width={50} height={50} />
+            )}
           </span>
         </button>
       </div>
-      {open && (
+      {/* Показываем содержимое только если открыт и НЕ заблокирован */}
+      {open && !isLessonLocked && (
         <div className="lesson-card__body">
           {/* Ссылка на занятие */}
           {effectiveLessonLink && effectiveLessonLink.url && (effectiveLessonLink.forStudent !== false || user?.role !== 'student') && (

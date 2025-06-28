@@ -11,22 +11,26 @@ interface EditLessonData {
     type: string;
     forStudent: boolean;
   }>;
+  homework: Array<{
+    title: string;
+    url: string;
+    type: string;
+    forStudent: boolean;
+  }>;
 }
 
 export const EditLessonsTab: React.FC = () => {
-  const lessons = useLessonStore((s: any) => s.lessons);
-  const loadLessons = useLessonStore((s: any) => s.loadLessons);
-  const editLesson = useLessonStore((s: any) => s.editLesson);
-  const removeLesson = useLessonStore((s: any) => s.removeLesson);
+  const { lessons, loadLessons, editLesson, removeLesson } = useLessonStore();
   const [selectedLesson, setSelectedLesson] = useState<any>(null);
   const [editMode, setEditMode] = useState(false);
+  const [activeTab, setActiveTab] = useState<'main' | 'materials' | 'homework'>('main');
   const [editData, setEditData] = useState<EditLessonData>({
     title: '',
     description: '',
     orderNumber: 1,
     materials: [],
+    homework: []
   });
-  const [activeTab, setActiveTab] = useState<'main' | 'materials'>('main');
 
   useEffect(() => {
     loadLessons();
@@ -40,38 +44,28 @@ export const EditLessonsTab: React.FC = () => {
   const handleEditLesson = (lesson: any) => {
     setSelectedLesson(lesson);
     setEditData({
-      title: lesson.title,
-      description: lesson.description,
-      orderNumber: lesson.orderNumber,
+      title: lesson.title || '',
+      description: lesson.description || '',
+      orderNumber: lesson.orderNumber || 1,
       materials: lesson.materials || [],
+      homework: lesson.homework || []
     });
     setEditMode(true);
+    setActiveTab('main');
   };
 
-  const handleSaveEdit = async () => {
+  const handleSaveLesson = async () => {
     if (!selectedLesson) return;
-    
     try {
       const lessonId = selectedLesson._id || selectedLesson.id;
-      console.log('Редактирование урока:', {
-        lessonId,
-        lessonIdType: typeof lessonId,
-        selectedLesson,
-        editData
-      });
-      
-      if (!lessonId) {
-        throw new Error('ID урока не найден');
-      }
-      
       await editLesson(lessonId, editData);
       setEditMode(false);
       setSelectedLesson(null);
       loadLessons();
-      alert('Урок успешно обновлен!');
+      alert('Урок обновлён!');
     } catch (error) {
       console.error('Ошибка обновления урока:', error);
-      alert(`Ошибка обновления урока: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
+      alert('Ошибка обновления урока');
     }
   };
 
@@ -96,6 +90,7 @@ export const EditLessonsTab: React.FC = () => {
     setSelectedLesson(null);
   };
 
+  // Функции для материалов
   const addMaterial = () => setEditData(data => ({
     ...data,
     materials: [...(data.materials || []), { title: '', url: '', type: 'link', forStudent: false }]
@@ -111,6 +106,22 @@ export const EditLessonsTab: React.FC = () => {
     materials: data.materials.map((m, i) => i === idx ? { ...m, ...patch } : m)
   }));
 
+  // Функции для домашних заданий
+  const addHomework = () => setEditData(data => ({
+    ...data,
+    homework: [...(data.homework || []), { title: '', url: '', type: 'link', forStudent: true }]
+  }));
+
+  const removeHomework = (idx: number) => setEditData(data => ({
+    ...data,
+    homework: data.homework.filter((_, i) => i !== idx)
+  }));
+
+  const updateHomework = (idx: number, patch: any) => setEditData(data => ({
+    ...data,
+    homework: data.homework.map((h, i) => i === idx ? { ...h, ...patch } : h)
+  }));
+
   if (editMode) {
     return (
       <div className="edit-lesson-container">
@@ -119,6 +130,7 @@ export const EditLessonsTab: React.FC = () => {
         <div className="edit-tabs">
           <button className={`edit-tab ${activeTab==='main' ? 'active' : ''}`} onClick={()=>setActiveTab('main')}>Основное</button>
           <button className={`edit-tab ${activeTab==='materials' ? 'active' : ''}`} onClick={()=>setActiveTab('materials')}>Материалы</button>
+          <button className={`edit-tab ${activeTab==='homework' ? 'active' : ''}`} onClick={()=>setActiveTab('homework')}>Домашние задания</button>
         </div>
         
         <div className="edit-content">
@@ -203,6 +215,53 @@ export const EditLessonsTab: React.FC = () => {
               </button>
             </div>
           )}
+          {activeTab === 'homework' && (
+            <div className="tab-content">
+              <h5 className="tab-title">Домашние задания:</h5>
+              <div className="materials-list">
+                {(editData.homework || []).map((hw, idx) => (
+                  <div key={idx} className="material-item">
+                    <input
+                      value={hw.title}
+                      onChange={e => updateHomework(idx, { title: e.target.value })}
+                      placeholder="Название домашнего задания"
+                      className="form-input"
+                    />
+                    <input
+                      value={hw.url}
+                      onChange={e => updateHomework(idx, { url: e.target.value })}
+                      placeholder="Ссылка на задание"
+                      className="form-input"
+                    />
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={!!hw.forStudent}
+                        onChange={e => updateHomework(idx, { forStudent: e.target.checked })}
+                        className="checkbox-input"
+                      />
+                      <span className="checkbox-text">Показывать ученику</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => removeHomework(idx)}
+                      className="remove-button"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                      Удалить
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={addHomework}
+                className="add-button"
+              >
+                + Добавить домашнее задание
+              </button>
+            </div>
+          )}
         </div>
         
         <div className="edit-actions">
@@ -220,7 +279,7 @@ export const EditLessonsTab: React.FC = () => {
               Отмена
             </button>
             <button
-              onClick={handleSaveEdit}
+              onClick={handleSaveLesson}
               className="save-button"
             >
               Сохранить
@@ -334,6 +393,12 @@ export const EditLessonsTab: React.FC = () => {
             font-size: 14px;
             color: #374151;
           }
+          .form-help-text {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+            font-style: italic;
+          }
           .remove-button {
             padding: 8px 12px;
             background: #fef2f2;
@@ -421,20 +486,21 @@ export const EditLessonsTab: React.FC = () => {
 
   return (
     <div className="edit-lessons-container">
+      <h3 className="edit-lessons-title">Редактирование уроков</h3>
       <div className="lessons-list">
         {lessons.map((lesson: any) => (
-          <div 
-            key={lesson._id || lesson.id} 
-            className="lesson-card"
-          >
+          <div key={lesson._id} className="lesson-item">
             <div className="lesson-info">
-              <div className="lesson-title">Урок {lesson.orderNumber}: {lesson.title}</div>
-              <div className="lesson-description">{lesson.description}</div>
+              <div className="lesson-header">
+                <h4 className="lesson-title">Урок {lesson.orderNumber}: {lesson.title}</h4>
+              </div>
+              <p className="lesson-description">{lesson.description}</p>
+              <div className="lesson-meta">
+                <span className="meta-item">Материалов: {lesson.materials?.length || 0}</span>
+                <span className="meta-item">Домашних заданий: {lesson.homework?.length || 0}</span>
+              </div>
             </div>
-            <button
-              onClick={() => handleEditLesson(lesson)}
-              className="edit-button"
-            >
+            <button onClick={() => handleEditLesson(lesson)} className="edit-button">
               Редактировать
             </button>
           </div>
@@ -446,51 +512,70 @@ export const EditLessonsTab: React.FC = () => {
           height: 100%;
           display: flex;
           flex-direction: column;
+          padding: 20px;
+        }
+        .edit-lessons-title {
+          font-size: 20px;
+          font-weight: 600;
+          color: #1e293b;
+          margin: 0 0 24px 0;
         }
         .lessons-list {
           flex: 1;
           overflow-y: auto;
-          padding-right: 8px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
         }
-        .lesson-card {
-          padding: 16px;
+        .lesson-item {
+          background: white;
           border: 1px solid #e2e8f0;
           border-radius: 12px;
-          margin-bottom: 12px;
-          background: white;
+          padding: 20px;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          transition: all 0.2s;
-        }
-        .lesson-card:hover {
-          border-color: #7c3aed;
-          box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
         }
         .lesson-info {
           flex: 1;
         }
+        .lesson-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
         .lesson-title {
+          font-size: 18px;
           font-weight: 600;
-          font-size: 16px;
           color: #1e293b;
-          margin-bottom: 4px;
+          margin: 0 0 8px 0;
         }
         .lesson-description {
-          font-size: 14px;
           color: #64748b;
+          font-size: 14px;
+          margin: 0 0 12px 0;
+        }
+        .lesson-meta {
+          display: flex;
+          gap: 16px;
+        }
+        .meta-item {
+          background: #f1f5f9;
+          color: #64748b;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 500;
         }
         .edit-button {
+          padding: 10px 20px;
           background: #7c3aed;
           color: white;
           border: none;
           border-radius: 8px;
-          padding: 8px 16px;
+          font-weight: 600;
           cursor: pointer;
-          font-size: 14px;
-          font-weight: 500;
           transition: background-color 0.2s;
-          white-space: nowrap;
         }
         .edit-button:hover {
           background: #6d28d9;
