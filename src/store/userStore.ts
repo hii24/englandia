@@ -19,6 +19,7 @@ interface UserState {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isInitialized: boolean;
   selectedStudentId?: string | null;
   setSelectedStudent: (id: string | null) => void;
   
@@ -28,6 +29,7 @@ interface UserState {
   login: (user: User, token: string) => void;
   logout: () => void;
   setLoading: (loading: boolean) => void;
+  setInitialized: (initialized: boolean) => void;
 }
 
 export const useUserStore = create<UserState>()(
@@ -36,7 +38,8 @@ export const useUserStore = create<UserState>()(
       user: null,
       token: null,
       isAuthenticated: false,
-      isLoading: false,
+      isLoading: true,
+      isInitialized: false,
       selectedStudentId: null,
       setSelectedStudent: (id) => set({ selectedStudentId: id }),
       setUser: (user) => set({ user }),
@@ -45,16 +48,19 @@ export const useUserStore = create<UserState>()(
         user, 
         token, 
         isAuthenticated: true,
-        isLoading: false 
+        isLoading: false,
+        isInitialized: true
       }),
       logout: () => set({ 
         user: null, 
         token: null, 
         isAuthenticated: false,
         isLoading: false,
+        isInitialized: true,
         selectedStudentId: null
       }),
       setLoading: (isLoading) => set({ isLoading }),
+      setInitialized: (isInitialized) => set({ isInitialized }),
     }),
     {
       name: 'user-storage',
@@ -65,6 +71,12 @@ export const useUserStore = create<UserState>()(
         isAuthenticated: state.isAuthenticated,
         selectedStudentId: state.selectedStudentId
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.setInitialized(true);
+          state.setLoading(false);
+        }
+      },
     }
   )
 ); 

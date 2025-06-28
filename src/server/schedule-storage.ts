@@ -1,6 +1,8 @@
 // Общий модуль для хранения расписаний
 // Используется в API endpoints для синхронизации данных
 
+import mongoose, { Schema, model, models } from 'mongoose';
+
 export interface DaySchedule {
   day: string;
   time: string;
@@ -29,82 +31,88 @@ export interface LessonSchedule {
   updatedAt: Date;
 }
 
-// Временное хранилище расписаний учителей
-export const teacherSchedules: TeacherSchedule[] = [];
+// Mongoose схемы
+const DayScheduleSchema = new Schema<DaySchedule>({
+  day: { type: String, required: true },
+  time: { type: String, required: true },
+  enabled: { type: Boolean, required: true }
+}, { _id: false });
 
-// Временное хранилище расписаний уроков
-export const lessonSchedules: LessonSchedule[] = [];
+const TeacherScheduleSchema = new Schema<TeacherSchedule>({
+  teacherId: { type: String, required: true },
+  studentId: { type: String, required: true },
+  enabled: { type: Boolean, required: true },
+  daysSchedule: { type: [DayScheduleSchema], required: true },
+  timezone: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
 
-// Функции для работы с расписаниями учителей
-export const findTeacherSchedule = (teacherId: string, studentId: string): TeacherSchedule | undefined => {
-  console.log('🔍 findTeacherSchedule called with:', { teacherId, studentId });
-  console.log('📊 Current teacherSchedules:', teacherSchedules);
-  
-  const schedule = teacherSchedules.find(s => s.teacherId === teacherId && s.studentId === studentId);
-  console.log('✅ Found schedule:', schedule);
-  
-  return schedule;
-};
+const LessonScheduleSchema = new Schema<LessonSchedule>({
+  lessonId: { type: String, required: true },
+  studentId: { type: String, required: true },
+  teacherId: { type: String, required: true },
+  scheduledDate: { type: String, required: true },
+  time: { type: String, required: true },
+  timezone: { type: String, required: true },
+  enabled: { type: Boolean, required: true },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
 
-export const saveTeacherSchedule = (schedule: TeacherSchedule): void => {
-  console.log('💾 saveTeacherSchedule called with:', schedule);
-  
-  const existingIndex = teacherSchedules.findIndex(s => 
-    s.teacherId === schedule.teacherId && s.studentId === schedule.studentId
-  );
+export const TeacherScheduleModel = models.TeacherSchedule || model('TeacherSchedule', TeacherScheduleSchema);
+export const LessonScheduleModel = models.LessonSchedule || model('LessonSchedule', LessonScheduleSchema);
 
-  if (existingIndex >= 0) {
-    teacherSchedules[existingIndex] = {
-      ...teacherSchedules[existingIndex],
-      ...schedule,
-      updatedAt: new Date()
-    };
-    console.log('🔄 Updated existing schedule at index:', existingIndex);
+// --- Функции для работы с MongoDB ---
+
+export async function findTeacherSchedule(teacherId: string, studentId: string) {
+  return TeacherScheduleModel.findOne({ teacherId, studentId }).lean();
+}
+
+export async function saveTeacherSchedule(schedule: TeacherSchedule) {
+  const existing = await TeacherScheduleModel.findOne({ teacherId: schedule.teacherId, studentId: schedule.studentId });
+  if (existing) {
+    await TeacherScheduleModel.updateOne(
+      { teacherId: schedule.teacherId, studentId: schedule.studentId },
+      { ...schedule, updatedAt: new Date() }
+    );
   } else {
-    teacherSchedules.push(schedule);
-    console.log('➕ Added new schedule, total count:', teacherSchedules.length);
+    await TeacherScheduleModel.create(schedule);
   }
-  
-  console.log('📊 Current teacherSchedules after save:', teacherSchedules);
-};
+}
 
-// Функции для работы с расписаниями уроков
-export const findLessonSchedule = (lessonId: string, studentId: string, teacherId: string): LessonSchedule | undefined => {
-  return lessonSchedules.find(s => 
-    s.lessonId === lessonId && s.studentId === studentId && s.teacherId === teacherId
-  );
-};
+export async function findLessonSchedule(lessonId: string, studentId: string, teacherId: string) {
+  return LessonScheduleModel.findOne({ lessonId, studentId, teacherId }).lean();
+}
 
-export const saveLessonSchedule = (schedule: LessonSchedule): void => {
-  const existingIndex = lessonSchedules.findIndex(s => 
-    s.lessonId === schedule.lessonId && 
-    s.studentId === schedule.studentId && 
-    s.teacherId === schedule.teacherId
-  );
-
-  if (existingIndex >= 0) {
-    lessonSchedules[existingIndex] = schedule;
+export async function saveLessonSchedule(schedule: LessonSchedule) {
+  const existing = await LessonScheduleModel.findOne({ lessonId: schedule.lessonId, studentId: schedule.studentId, teacherId: schedule.teacherId });
+  if (existing) {
+    await LessonScheduleModel.updateOne(
+      { lessonId: schedule.lessonId, studentId: schedule.studentId, teacherId: schedule.teacherId },
+      { ...schedule, updatedAt: new Date() }
+    );
   } else {
-    lessonSchedules.push(schedule);
+    await LessonScheduleModel.create(schedule);
   }
-};
+}
 
-export const findLessonSchedulesByStudent = (studentId: string, teacherId: string): LessonSchedule[] => {
-  return lessonSchedules.filter(s => s.studentId === studentId && s.teacherId === teacherId);
-};
+export async function findLessonSchedulesByStudent(studentId: string, teacherId: string) {
+  return LessonScheduleModel.find({ studentId, teacherId }).lean();
+}
 
-// Диагностические функции
-export const getStorageStatus = () => {
+export async function getStorageStatus() {
+  const teacherSchedules = await TeacherScheduleModel.find().lean();
+  const lessonSchedules = await LessonScheduleModel.find().lean();
   return {
     teacherSchedulesCount: teacherSchedules.length,
     lessonSchedulesCount: lessonSchedules.length,
-    teacherSchedules: teacherSchedules,
-    lessonSchedules: lessonSchedules
+    teacherSchedules,
+    lessonSchedules
   };
-};
+}
 
-export const clearStorage = () => {
-  teacherSchedules.length = 0;
-  lessonSchedules.length = 0;
-  console.log('🗑️ Storage cleared');
-}; 
+export async function clearStorage() {
+  await TeacherScheduleModel.deleteMany({});
+  await LessonScheduleModel.deleteMany({});
+} 

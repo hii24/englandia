@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUserStore } from '@/store/userStore';
+import { useAuthInit } from '@/hooks/useAuthInit';
+import { AuthLoader } from './AuthLoader';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -10,32 +11,34 @@ interface AuthGuardProps {
 
 export default function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
-  const { isAuthenticated, user } = useUserStore();
-  const [isLoading, setIsLoading] = useState(true);
+  const { isAuthenticated, isLoading, isInitialized } = useAuthInit();
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
-    // Проверяем аутентификацию при загрузке компонента
-    if (!isAuthenticated || !user) {
-      router.push('/');
-      return;
+    // Ждем завершения инициализации аутентификации
+    if (isInitialized && !isLoading) {
+      // Если не авторизован и еще не редиректили, перенаправляем на главную
+      if (!isAuthenticated && !hasRedirected) {
+        console.log('AuthGuard: User not authenticated, redirecting to home');
+        setHasRedirected(true);
+        // Используем setTimeout для избежания конфликтов рендеринга
+        setTimeout(() => {
+          router.push('/');
+        }, 100);
+      }
     }
-    setIsLoading(false);
-  }, [isAuthenticated, user, router]);
+  }, [isInitialized, isLoading, isAuthenticated, hasRedirected, router]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h1 className="text-xl font-semibold text-gray-700">Загрузка...</h1>
-        </div>
-      </div>
-    );
+  // Показываем лоадер пока инициализируется аутентификация
+  if (isLoading || !isInitialized) {
+    return <AuthLoader />;
   }
 
-  if (!isAuthenticated || !user) {
-    return null; // Не рендерим ничего, пока происходит редирект
+  // Если не авторизован, показываем лоадер (происходит редирект)
+  if (!isAuthenticated) {
+    return <AuthLoader />;
   }
 
+  // Если авторизован, показываем контент
   return <>{children}</>;
 } 

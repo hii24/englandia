@@ -12,6 +12,8 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
   const [studentHomework, setStudentHomework] = useState<any[] | null>(null);
   const [lessonSchedule, setLessonSchedule] = useState<any>(null);
   const [teacherId, setTeacherId] = useState<string | null>(null);
+  const [isTeacherLoading, setIsTeacherLoading] = useState(true);
+  const [isScheduleLoading, setIsScheduleLoading] = useState(true);
   const { materials = [], additionalMaterials = [], homework = [] } = lesson;
   const user = useUserStore(s => s.user);
 
@@ -22,13 +24,16 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
     progress: JSON.stringify(progress, null, 2), // Полное содержимое progress
     userRole: user?.role,
     userId: user?._id,
-    teacherId
+    teacherId,
+    isTeacherLoading,
+    isScheduleLoading
   });
 
   // Загружаем teacherId для ученика
   useEffect(() => {
     if (user?.role === 'student' && user._id) {
       console.log('🔍 LessonCard: Loading teacherId for student:', user._id);
+      setIsTeacherLoading(true);
       
       fetch(`/api/students/teacher?studentId=${user._id}`)
         .then(response => {
@@ -45,7 +50,13 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
         .catch(error => {
           console.error('❌ LessonCard: Error loading teacher:', error);
           setTeacherId('default'); // Fallback
+        })
+        .finally(() => {
+          setIsTeacherLoading(false);
         });
+    } else {
+      console.log('🔍 LessonCard: Not a student or no user ID, skipping teacher loading');
+      setIsTeacherLoading(false);
     }
   }, [user?._id, user?.role]);
 
@@ -75,6 +86,7 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
         studentId: user._id,
         teacherId
       });
+      setIsScheduleLoading(true);
       
       fetch(`/api/lessons/schedule?lessonId=${lesson._id}&studentId=${user._id}&teacherId=${teacherId}`)
         .then(response => {
@@ -91,7 +103,12 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
         .catch(error => {
           console.error('❌ LessonCard: Error loading lesson schedule:', error);
           setLessonSchedule(null);
+        })
+        .finally(() => {
+          setIsScheduleLoading(false);
         });
+    } else {
+      setIsScheduleLoading(false);
     }
   }, [user?._id, user?.role, lesson._id, teacherId]);
 
@@ -106,10 +123,16 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
       lessonSchedule,
       lessonScheduleEnabled: lessonSchedule?.enabled,
       lessonScheduleDate: lessonSchedule?.scheduledDate,
-      lessonScheduleTime: lessonSchedule?.time
+      lessonScheduleTime: lessonSchedule?.time,
+      teacherId,
+      isTeacherLoading,
+      isScheduleLoading
     });
     
-    if (status === 'completed') return 'Завершён';
+    if (status === 'completed') {
+      console.log('📅 LessonCard: Lesson completed, returning "Завершён"');
+      return 'Завершён';
+    }
     
     if (user?.role === 'student' && lessonSchedule?.enabled && lessonSchedule?.scheduledDate) {
       const scheduledDate = new Date(lessonSchedule.scheduledDate);
@@ -142,7 +165,7 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
       return result;
     }
     
-    console.log('📅 LessonCard: Default result: Не начат');
+    console.log('📅 LessonCard: Default result: Не начат (no schedule or not student)');
     return 'Не начат';
   };
 

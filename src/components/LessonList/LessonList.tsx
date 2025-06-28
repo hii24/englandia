@@ -34,12 +34,16 @@ export const LessonList: React.FC<LessonListProps> = ({
   const [editId, setEditId] = useState<string | null>(null);
   const [studentProgresses, setStudentProgresses] = useState<StudentProgress[]>([]);
   const [loadingProgresses, setLoadingProgresses] = useState(false);
+  const [isDataReady, setIsDataReady] = useState(false);
 
   // Загружаем прогресс ученика
   useEffect(() => {
     if (user?.role === 'student' && user._id) {
       console.log('Loading progress for student:', user._id);
       loadStudentProgresses();
+    } else {
+      // Для не-студентов сразу помечаем данные как готовые
+      setIsDataReady(true);
     }
   }, [user?._id, user?.role]);
 
@@ -48,6 +52,8 @@ export const LessonList: React.FC<LessonListProps> = ({
     
     console.log('Starting to load student progresses...');
     setLoadingProgresses(true);
+    setIsDataReady(false);
+    
     try {
       const data = await fetchStudentProgress(user._id);
       console.log('Loaded student progresses:', data);
@@ -79,6 +85,8 @@ export const LessonList: React.FC<LessonListProps> = ({
       }
     } finally {
       setLoadingProgresses(false);
+      // Даем небольшую задержку для загрузки расписания в LessonCard
+      setTimeout(() => setIsDataReady(true), 500);
     }
   };
 
@@ -102,7 +110,9 @@ export const LessonList: React.FC<LessonListProps> = ({
     lessonsCount: lessons?.length,
     studentProgressesCount: studentProgresses.length,
     filteredProgressesCount: filteredProgresses.length,
-    loadingProgresses
+    loadingProgresses,
+    isDataReady,
+    isLoading
   });
 
   if (error) {
@@ -114,9 +124,9 @@ export const LessonList: React.FC<LessonListProps> = ({
     );
   }
 
-  if (isLoading || loadingProgresses) {
+  // Показываем скелетон пока загружаются уроки ИЛИ прогресс ИЛИ данные еще не готовы
+  if (isLoading || loadingProgresses || !isDataReady) {
     return (
-      
       <div className="lesson-list lesson-list--loading">
         {Array.from({ length: 3 }).map((_, index) => (
           <div key={index} className="lesson-card lesson-card--skeleton">

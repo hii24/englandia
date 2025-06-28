@@ -83,8 +83,7 @@ export default function DebugSchedulePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          startDate: new Date().toISOString().split('T')[0],
-          lessonsCount: 4
+          startDate: new Date().toISOString().split('T')[0]
         })
       });
       

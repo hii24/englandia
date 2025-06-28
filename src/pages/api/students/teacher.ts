@@ -41,14 +41,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
       // Для конкретного ученика возвращаем его teacherId
       if (studentId === '68603c91fc0d6a6d785f5f8b') {
+        console.log('✅ Returning teacherId for student:', studentId);
         return res.json({
           teacherId: '685d67e3d5e671c77b9fe8b5', // Реальный teacherId
           studentId: studentId
         });
       }
       
+      // Для всех остальных учеников возвращаем тот же teacherId для тестирования
+      console.log('✅ Returning default teacherId for student:', studentId);
       return res.json({
-        teacherId: 'default', // Для остальных учеников пока используем дефолтное значение
+        teacherId: '685d67e3d5e671c77b9fe8b5', // Используем тот же teacherId для всех
         studentId: studentId
       });
     }

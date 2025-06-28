@@ -134,14 +134,13 @@ export const TeacherScheduleTab: React.FC<TeacherScheduleTabProps> = ({ selected
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          startDate: new Date().toISOString().split('T')[0],
-          lessonsCount: 4 // По умолчанию 4 урока
+          startDate: new Date().toISOString().split('T')[0]
         })
       });
 
       if (response.ok) {
         const data = await response.json();
-        alert(`Автоматически назначено ${data.scheduledLessons.length} уроков на основе расписания!`);
+        alert(`Автоматически назначено ${data.scheduledCount} из ${data.totalLessons} доступных уроков на основе расписания!`);
       } else {
         const errorData = await response.json();
         alert(`Ошибка автоматического назначения: ${errorData.error}`);
