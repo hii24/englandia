@@ -1,6 +1,24 @@
 import { dbConnect } from '@/server/db';
 import { findUserById } from '@/server/db';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { Schema, model, Types, models } from 'mongoose';
+
+// Модель пользователя
+const UserSchema = new Schema({
+  firstName: String,
+  lastName: String,
+  email: String,
+  phone: String,
+  age: Number,
+  comment: String,
+  password: String,
+  role: { type: String, enum: ['admin', 'teacher', 'student', 'guest'], default: 'guest' },
+  isEmailVerified: { type: Boolean, default: false },
+  subscription: { type: Types.ObjectId, ref: 'Subscription' },
+  teacherId: { type: Types.ObjectId, ref: 'User' },
+}, { timestamps: true });
+
+const User = models.User || model('User', UserSchema);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -35,24 +53,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === 'GET') {
-      // В реальном проекте здесь должна быть логика для получения teacherId
-      // Пока возвращаем дефолтное значение для тестирования
-      // TODO: Добавить связь ученик-учитель в базе данных
+      // Находим первого учителя в базе данных
+      const teacher = await User.findOne({ role: 'teacher' }).select('_id email firstName lastName');
       
-      // Для конкретного ученика возвращаем его teacherId
-      if (studentId === '68603c91fc0d6a6d785f5f8b') {
-        console.log('✅ Returning teacherId for student:', studentId);
-        return res.json({
-          teacherId: '685d67e3d5e671c77b9fe8b5', // Реальный teacherId
-          studentId: studentId
-        });
+      if (!teacher) {
+        console.log('❌ No teacher found in database');
+        return res.status(404).json({ error: 'No teacher found' });
       }
       
-      // Для всех остальных учеников возвращаем тот же teacherId для тестирования
-      console.log('✅ Returning default teacherId for student:', studentId);
+      console.log('✅ Returning teacherId for student:', studentId, 'teacher:', teacher._id);
       return res.json({
-        teacherId: '685d67e3d5e671c77b9fe8b5', // Используем тот же teacherId для всех
-        studentId: studentId
+        teacherId: teacher._id.toString(),
+        studentId: studentId,
+        teacher: {
+          _id: teacher._id,
+          email: teacher.email,
+          firstName: teacher.firstName,
+          lastName: teacher.lastName
+        }
       });
     }
 

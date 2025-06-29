@@ -35,6 +35,8 @@ export const TeacherScheduleTab: React.FC<TeacherScheduleTabProps> = ({ selected
   const [loading, setLoading] = useState(false);
   const [students, setStudents] = useState<any[]>([]);
   const [selectedStudentSchedule, setSelectedStudentSchedule] = useState<any>(null);
+  const [studentSubscription, setStudentSubscription] = useState<string>('—');
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false);
 
   const daysOfWeek = [
     { value: 'monday', label: 'Понедельник' },
@@ -57,6 +59,19 @@ export const TeacherScheduleTab: React.FC<TeacherScheduleTabProps> = ({ selected
       loadStudentSchedule(selectedStudent._id);
     }
   }, [selectedStudent]);
+
+  useEffect(() => {
+    if (selectedStudent?._id) {
+      setSubscriptionLoading(true);
+      fetch(`/api/users/subscription?userId=${selectedStudent._id}`)
+        .then(res => res.json())
+        .then(data => setStudentSubscription(data.packageName || '—'))
+        .catch(() => setStudentSubscription('—'))
+        .finally(() => setSubscriptionLoading(false));
+    } else {
+      setStudentSubscription('—');
+    }
+  }, [selectedStudent?._id]);
 
   const loadStudents = async () => {
     try {
@@ -213,7 +228,7 @@ export const TeacherScheduleTab: React.FC<TeacherScheduleTabProps> = ({ selected
     <div className="teacher-schedule-container">
       <div className="schedule-header">
         <p className="schedule-subtitle">
-          Тариф: <strong>{getStudentSubscription(selectedStudent)}</strong>
+          Тариф: <strong>{subscriptionLoading ? 'Загрузка...' : studentSubscription}</strong>
         </p>
       </div>
 

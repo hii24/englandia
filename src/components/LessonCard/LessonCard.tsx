@@ -319,7 +319,7 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
   };
 
   // Проверяем, заблокирован ли урок для пользователя (индивидуальная блокировка)
-  const isLessonLocked = studentProgress?.isLocked;
+  const isLessonLocked = (user?.role !== 'teacher' && user?.role !== 'admin') && studentProgress?.isLocked;
 
   // Обработчик клика с учетом блокировки
   const handleToggle = () => {
