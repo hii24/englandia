@@ -4,6 +4,7 @@ import { LessonCardProps } from './LessonCard.types';
 import './LessonCard.scss';
 import { useUserStore } from '@/store/userStore';
 import { fetchStudentLesson } from '@/lib/api';
+import { BunnyVideoPlayer } from '@/components/ui/BunnyVideoPlayer';
 
 export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
   const [open, setOpen] = useState(false);
@@ -416,6 +417,19 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
                   </li>
                 ))}
               </ul>
+            </div>
+          )}
+          
+          {/* Видео из Bunny.net - в конце карточки */}
+          {lesson.bunnyVideoId && (
+            <div className="lesson-card__video-section">
+        
+              <div className="lesson-card__video">
+                <BunnyVideoPlayer 
+                  videoId={lesson.bunnyVideoId}
+                  className="lesson-card__video-player"
+                />
+              </div>
             </div>
           )}
         </div>

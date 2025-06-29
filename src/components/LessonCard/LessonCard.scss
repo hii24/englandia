@@ -108,11 +108,35 @@
   &__body {
     padding: 0 40px 32px 40px;
   }
+  &__video-section {
+  
+    margin-bottom: 0;
+ 
+    padding-top: 24px;
+  }
+  &__video-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    &::before {
+      content: "🎥";
+      font-size: 20px;
+    }
+  }
   &__video {
     position: relative;
-    margin-bottom: 32px;
+    margin-bottom: 0;
     border-radius: 20px;
     overflow: hidden;
+    width: 100%;
+    height: auto;
+    min-height: 400px;
+    
     img {
       width: 100%;
       border-radius: 20px;

@@ -31,6 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // TODO: Проверка роли (admin)
       try {
         console.log('Creating lesson with data:', req.body);
+        console.log('🔍 bunnyVideoId в запросе:', req.body.bunnyVideoId);
         
         // Получаем ID пользователя из заголовка или тела запроса
         const userId = req.headers['x-user-id'] || req.body.userId;
@@ -44,6 +45,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }));
         }
         
+        console.log('🔍 Данные для сохранения:', lessonData);
+        
         const lesson = new Lesson({
           ...lessonData,
           createdAt: new Date(),
@@ -51,6 +54,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
         await lesson.save();
         console.log('Lesson created successfully:', lesson._id);
+        console.log('🔍 Сохраненный урок:', {
+          id: lesson._id,
+          bunnyVideoId: lesson.bunnyVideoId,
+          title: lesson.title
+        });
         return res.status(201).json(lesson);
       } catch (e: any) {
         console.error('Error creating lesson:', e);

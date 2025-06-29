@@ -13,6 +13,7 @@ const LessonSchema = new Schema({
   description: String,
   orderNumber: { type: Number, required: true, unique: true },
   videoUrl: String,
+  bunnyVideoId: String,
   materials: [MaterialSchema],
   additionalMaterials: [MaterialSchema],
   homework: [MaterialSchema],

@@ -11,6 +11,7 @@ export interface Lesson {
   title: string;
   description: string;
   videoUrl?: string;
+  bunnyVideoId?: string;
   materials: LessonMaterial[];
   additionalMaterials: LessonMaterial[];
   homework: LessonMaterial[];

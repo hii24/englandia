@@ -5,6 +5,7 @@ interface EditLessonData {
   title: string;
   description: string;
   orderNumber: number;
+  bunnyVideoId: string; // Код видео из Bunny.net
   materials: Array<{
     title: string;
     url: string;
@@ -28,6 +29,7 @@ export const EditLessonsTab: React.FC = () => {
     title: '',
     description: '',
     orderNumber: 1,
+    bunnyVideoId: '',
     materials: [],
     homework: []
   });
@@ -47,6 +49,7 @@ export const EditLessonsTab: React.FC = () => {
       title: lesson.title || '',
       description: lesson.description || '',
       orderNumber: lesson.orderNumber || 1,
+      bunnyVideoId: lesson.bunnyVideoId || '',
       materials: lesson.materials || [],
       homework: lesson.homework || []
     });
@@ -58,6 +61,9 @@ export const EditLessonsTab: React.FC = () => {
     if (!selectedLesson) return;
     try {
       const lessonId = selectedLesson._id || selectedLesson.id;
+      console.log('🔍 EditLessonsTab: Отправляем данные для обновления:', editData);
+      console.log('🔍 EditLessonsTab: bunnyVideoId:', editData.bunnyVideoId);
+      
       await editLesson(lessonId, editData);
       setEditMode(false);
       setSelectedLesson(null);
@@ -165,6 +171,16 @@ export const EditLessonsTab: React.FC = () => {
                   className="form-input"
                   min={1}
                 />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Код видео Bunny.net</label>
+                <input
+                  value={editData.bunnyVideoId}
+                  onChange={e => setEditData({...editData, bunnyVideoId: e.target.value})}
+                  placeholder="d2a2d931-f32e-48a4-8d76-20b1f2f714cc"
+                  className="form-input"
+                />
+                <div className="form-help-text">Вставьте код видео из dash.bunny.net (например: d2a2d931-f32e-48a4-8d76-20b1f2f714cc)</div>
               </div>
             </div>
           )}

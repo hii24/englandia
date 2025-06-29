@@ -33,6 +33,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     description: '',
     orderNumber: 1,
     videoUrl: '',
+    bunnyVideoId: '',
     materials: [],
     additionalMaterials: [],
     homework: []
@@ -90,6 +91,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         description: '',
         orderNumber: 1,
         videoUrl: '',
+        bunnyVideoId: '',
         materials: [],
         additionalMaterials: [],
         homework: []
@@ -190,6 +192,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             value={newLesson.orderNumber}
             onChange={e => setNewLesson({...newLesson, orderNumber: Number(e.target.value)})}
             placeholder="Порядковый номер"
+            style={{ width: '100%', marginBottom: 12, padding: 8, borderRadius: 8, border: '1px solid #ddd' }}
+          />
+          <input
+            value={newLesson.bunnyVideoId}
+            onChange={e => setNewLesson({...newLesson, bunnyVideoId: e.target.value})}
+            placeholder="Код видео Bunny.net (например: d2a2d931-f32e-48a4-8d76-20b1f2f714cc)"
             style={{ width: '100%', marginBottom: 12, padding: 8, borderRadius: 8, border: '1px solid #ddd' }}
           />
           <input

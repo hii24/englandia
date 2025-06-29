@@ -13,6 +13,7 @@ interface NewLesson {
   description: string;
   orderNumber: number;
   videoUrl: string;
+  bunnyVideoId: string;
   materials: Material[];
   additionalMaterials: Material[];
   homework: Material[];
@@ -25,6 +26,7 @@ export const CreateLessonTab: React.FC = () => {
     description: '',
     orderNumber: 1,
     videoUrl: '',
+    bunnyVideoId: '',
     materials: [],
     additionalMaterials: [],
     homework: []
@@ -33,12 +35,16 @@ export const CreateLessonTab: React.FC = () => {
 
   const handleCreateLesson = async () => {
     try {
+      console.log('🔍 CreateLessonTab: Отправляем данные урока:', newLesson);
+      console.log('🔍 CreateLessonTab: bunnyVideoId:', newLesson.bunnyVideoId);
+      
       await addLesson(newLesson);
       setNewLesson({
         title: '',
         description: '',
         orderNumber: 1,
         videoUrl: '',
+        bunnyVideoId: '',
         materials: [],
         additionalMaterials: [],
         homework: []
@@ -125,6 +131,16 @@ export const CreateLessonTab: React.FC = () => {
                 className="form-input"
                 min={1}
               />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Код видео Bunny.net</label>
+              <input
+                value={newLesson.bunnyVideoId}
+                onChange={e => setNewLesson({...newLesson, bunnyVideoId: e.target.value})}
+                placeholder="d2a2d931-f32e-48a4-8d76-20b1f2f714cc"
+                className="form-input"
+              />
+              <div className="form-help-text">Вставьте код видео из dash.bunny.net (например: d2a2d931-f32e-48a4-8d76-20b1f2f714cc)</div>
             </div>
             <div className="form-group">
               <label className="form-label">Ссылка на видео (опционально)</label>

@@ -6,6 +6,7 @@ export { NumberInput } from './NumberInput';
 export { Modal } from './Modal';
 export { BurgerMenuButton } from './BurgerMenuButton/BurgerMenuButton';
 export { BurgerMenu } from './BurgerMenu';
+export { BunnyVideoPlayer } from './BunnyVideoPlayer';
 
 // Types
 export type { 

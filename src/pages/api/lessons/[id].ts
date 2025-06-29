@@ -26,6 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         body: req.body,
         headers: req.headers
       });
+      console.log('🔍 bunnyVideoId в запросе обновления:', req.body.bunnyVideoId);
 
       const lesson = await Lesson.findById(id);
       if (!lesson) {
@@ -36,11 +37,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.log('🔒 API: Найден урок:', {
         lessonId: lesson._id,
         title: lesson.title,
+        currentBunnyVideoId: lesson.bunnyVideoId,
         currentIsLocked: lesson.isLocked
       });
 
       // Обновляем только разрешенные поля
-      const allowedFields = ['title', 'description', 'videoUrl', 'materials', 'additionalMaterials', 'homework', 'lessonLink', 'isActive', 'isArchived', 'isLocked'];
+      const allowedFields = ['title', 'description', 'videoUrl', 'bunnyVideoId', 'materials', 'additionalMaterials', 'homework', 'lessonLink', 'isActive', 'isArchived', 'isLocked'];
       const updateData: any = {};
       
       allowedFields.forEach(field => {
@@ -64,6 +66,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.log('🔒 API: Урок обновлен:', {
         lessonId: updatedLesson._id,
         title: updatedLesson.title,
+        newBunnyVideoId: updatedLesson.bunnyVideoId,
         newIsLocked: updatedLesson.isLocked
       });
       
