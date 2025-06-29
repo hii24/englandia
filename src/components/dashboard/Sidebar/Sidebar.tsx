@@ -22,10 +22,41 @@ export const Sidebar: React.FC = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [adminPanelOpen, setAdminPanelOpen] = useState(false);
   const [teacherPanelOpen, setTeacherPanelOpen] = useState(false);
+  const [packageName, setPackageName] = useState('—');
+  const [loading, setLoading] = useState(false);
 
   const age = user?.age ? `${user.age} лет` : '—';
-  const packageName = user?.subscription || '—';
   const email = user?.email || '—';
+
+  // Загружаем информацию о подписке
+  useEffect(() => {
+    if (user?._id) {
+      setLoading(true);
+      fetch(`/api/users/subscription?userId=${user._id}`)
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          }
+          throw new Error(`Failed to fetch subscription: ${response.status}`);
+        })
+        .then(data => {
+          console.log('✅ Subscription info loaded:', data);
+          setPackageName(data.packageName || '—');
+        })
+        .catch(error => {
+          console.error('❌ Error loading subscription info:', error);
+          // В случае ошибки показываем базовую информацию
+          if (user?.role === 'guest') {
+            setPackageName('Гостевой доступ');
+          } else {
+            setPackageName('—');
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [user?._id, user?.role]);
 
   useEffect(() => {
     if (user?.role === 'teacher' && user?._id) {
@@ -86,7 +117,9 @@ export const Sidebar: React.FC = () => {
             </div>
             <div className="dashboard-sidebar__info-block">
               <span className="dashboard-sidebar__info-label">Пакет</span>
-              <span className="dashboard-sidebar__info-value">{packageName}</span>
+              <span className="dashboard-sidebar__info-value">
+                {loading ? 'Загрузка...' : packageName}
+              </span>
             </div>
           </>
         )}

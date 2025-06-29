@@ -5,6 +5,7 @@ import { findUserById } from '@/server/db';
 import { Schema, model, Types, models } from 'mongoose';
 import { buffer } from 'micro';
 import { Payment } from '@/server/payments/model';
+import Subscription from '@/server/subscription/model';
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
@@ -153,6 +154,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               rawEvent: event
             });
             console.log('💾 Payment record created for user:', user._id);
+
+            // Создаем запись подписки в базе данных
+            const subscriptionData = {
+              userId: user._id,
+              type: subscriptionType === 'BASIC' ? 'basic' : 'intensive',
+              status: 'active',
+              startDate: new Date(),
+              autoRenewal: true,
+              lessonsPerMonth: subscriptionType === 'BASIC' ? 4 : 8,
+              stripeSubscriptionId: session.subscription,
+              stripeCustomerId: session.customer,
+              createdAt: new Date(),
+              updatedAt: new Date()
+            };
+            
+            const newSubscription = await Subscription.create(subscriptionData);
+            console.log('💾 Subscription record created for user:', {
+              userId: user._id,
+              subscriptionId: newSubscription._id,
+              type: subscriptionData.type,
+              lessonsPerMonth: subscriptionData.lessonsPerMonth
+            });
+
+            // Обновляем поле subscription в модели пользователя
+            await User.findByIdAndUpdate(userId, {
+              subscription: newSubscription._id,
+              updatedAt: new Date()
+            });
+            console.log('✅ User subscription field updated:', {
+              userId,
+              subscriptionId: newSubscription._id
+            });
 
           } catch (error) {
             console.error('❌ Error activating subscription:', error);
