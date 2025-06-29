@@ -12,6 +12,12 @@ export async function getLessonById(id: string) {
 }
 
 export async function createLesson(data: any) {
+  // Логируем переменные окружения и строку подключения
+  console.log('LESSON CREATE DEBUG:', {
+    MONGODB_URI: process.env.MONGODB_URI,
+    MONGODB_DB: process.env.MONGODB_DB,
+    NODE_ENV: process.env.NODE_ENV,
+  });
   const db = await getDb();
   const now = new Date();
   const lesson = {
@@ -22,6 +28,11 @@ export async function createLesson(data: any) {
     updatedAt: now,
   };
   const result = await db.collection('lessons').insertOne(lesson);
+  console.log('LESSON CREATE RESULT:', {
+    insertedId: result.insertedId,
+    dbName: db.databaseName,
+    collection: 'lessons',
+  });
   return { ...lesson, _id: result.insertedId };
 }
 
