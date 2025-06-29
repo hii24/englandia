@@ -61,31 +61,61 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       case 'checkout.session.completed': {
         const session = event.data.object;
         console.log('💳 Checkout session completed:', session.id);
+        console.log('📋 Session metadata:', session.metadata);
+        console.log('📋 Session subscription:', session.subscription);
         
         // Получаем данные из метаданных
         const userId = session.metadata?.userId;
         const subscriptionType = session.metadata?.subscriptionType;
         const userEmail = session.metadata?.userEmail;
         
+        console.log('🔍 Extracted data from session:', {
+          userId,
+          subscriptionType,
+          userEmail,
+          hasSubscription: !!session.subscription
+        });
+        
         if (userId && session.subscription) {
           try {
             // Получаем пользователя
             const user = await findUserById(userId);
             if (!user) {
-              console.error('User not found for subscription activation:', userId);
+              console.error('❌ User not found for subscription activation:', userId);
+              break;
+            }
+
+            console.log('👤 Found user:', {
+              userId: user._id,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              email: user.email,
+              currentRole: user.role
+            });
+
+            // Проверяем, что пользователь имеет роль 'guest'
+            if (user.role !== 'guest') {
+              console.log('⚠️ User is not a guest, skipping role update:', {
+                userId,
+                currentRole: user.role,
+                expectedRole: 'guest'
+              });
               break;
             }
 
             // Обновляем роль пользователя с 'guest' на 'student'
-            await User.findByIdAndUpdate(userId, {
+            const updateResult = await User.findByIdAndUpdate(userId, {
               role: 'student',
               updatedAt: new Date()
-            });
+            }, { new: true });
 
             console.log('✅ User role updated from guest to student:', {
               userId,
               userEmail,
-              subscriptionType
+              subscriptionType,
+              oldRole: 'guest',
+              newRole: 'student',
+              updateResult: !!updateResult
             });
 
             // Здесь можно добавить создание записи подписки в базе данных
@@ -98,7 +128,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           console.log('⚠️ Missing userId or subscription in session:', {
             userId,
             subscription: session.subscription,
-            metadata: session.metadata
+            metadata: session.metadata,
+            hasUserId: !!userId,
+            hasSubscription: !!session.subscription
           });
         }
         break;
