@@ -79,6 +79,20 @@ export default function CreateTeacherTab() {
         </p>
       </div>
 
+      {success && (
+        <div className="success-message">
+          <div className="success-icon">✓</div>
+          <div className="success-text">{success}</div>
+        </div>
+      )}
+      
+      {error && (
+        <div className="error-message">
+          <div className="error-icon">✗</div>
+          <div className="error-text">{error}</div>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="create-teacher-form">
         <div className="form-section">
           <h3 className="section-title">Основная информация</h3>
@@ -174,20 +188,6 @@ export default function CreateTeacherTab() {
             {loading ? 'Регистрируем учителя...' : 'Зарегистрировать учителя'}
           </button>
         </div>
-
-        {success && (
-          <div className="success-message">
-            <div className="success-icon">✓</div>
-            <div className="success-text">{success}</div>
-          </div>
-        )}
-        
-        {error && (
-          <div className="error-message">
-            <div className="error-icon">✗</div>
-            <div className="error-text">{error}</div>
-          </div>
-        )}
       </form>
 
       <style jsx>{`
@@ -317,7 +317,7 @@ export default function CreateTeacherTab() {
           gap: 12px;
           padding: 16px;
           border-radius: 8px;
-          margin-top: 16px;
+          margin-bottom: 20px;
         }
         
         .success-message {

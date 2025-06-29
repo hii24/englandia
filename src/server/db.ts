@@ -41,12 +41,15 @@ export async function createUser(data: CreateUserData): Promise<User> {
     throw error;
   }
 
-  // Проверяем, существует ли пользователь с таким телефоном
-  const existingByPhone = await collection.findOne({ phone: data.phone });
-  if (existingByPhone) {
-    const error = new Error('Пользователь с таким телефоном уже зарегистрирован');
-    (error as any).name = 'ValidationError';
-    throw error;
+  // Проверяем уникальность телефона только если он не пустой
+  // Для учителей телефон опциональный
+  if (data.phone && data.phone.trim() !== '') {
+    const existingByPhone = await collection.findOne({ phone: data.phone });
+    if (existingByPhone) {
+      const error = new Error('Пользователь с таким телефоном уже зарегистрирован');
+      (error as any).name = 'ValidationError';
+      throw error;
+    }
   }
 
   const now = new Date();
