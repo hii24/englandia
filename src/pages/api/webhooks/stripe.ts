@@ -24,37 +24,57 @@ const UserSchema = new Schema({
 const User = models.User || model('User', UserSchema);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log('🔔 Webhook endpoint called:', {
+    method: req.method,
+    url: req.url,
+    headers: {
+      'stripe-signature': req.headers['stripe-signature'] ? 'present' : 'missing',
+      'content-type': req.headers['content-type'],
+      'user-agent': req.headers['user-agent']
+    },
+    bodySize: req.body ? JSON.stringify(req.body).length : 0
+  });
+
   if (req.method !== 'POST') {
+    console.log('❌ Method not allowed:', req.method);
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
     await dbConnect();
+    console.log('✅ Database connected');
     
     const body = req.body;
     const signature = req.headers['stripe-signature'] as string;
 
     if (!signature) {
-      console.error('Missing stripe-signature header');
+      console.error('❌ Missing stripe-signature header');
       return res.status(400).json({ error: 'Missing stripe-signature header' });
     }
 
     if (!endpointSecret) {
-      console.error('Missing STRIPE_WEBHOOK_SECRET environment variable');
+      console.error('❌ Missing STRIPE_WEBHOOK_SECRET environment variable');
       return res.status(500).json({ error: 'Webhook secret not configured' });
     }
+
+    console.log('🔍 Webhook secret configured:', endpointSecret ? 'yes' : 'no');
 
     let event;
 
     try {
       event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
+      console.log('✅ Webhook signature verified successfully');
     } catch (err) {
-      console.error('Webhook signature verification failed:', err);
+      console.error('❌ Webhook signature verification failed:', err);
       return res.status(400).json({ error: 'Webhook signature verification failed' });
     }
 
-    console.log('✅ Webhook signature verified successfully');
-    console.log('📨 Received webhook event:', event.type, 'ID:', event.id);
+    console.log('📨 Received webhook event:', {
+      type: event.type,
+      id: event.id,
+      created: event.created,
+      dataObjectType: event.data?.object?.object
+    });
 
     // Обрабатываем различные типы событий
     switch (event.type) {

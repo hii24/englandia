@@ -166,6 +166,76 @@ export default function TestWebhookPage() {
     }
   };
 
+  // Тест 4: Проверяем доступность webhook endpoint
+  const testWebhookAccessibility = async () => {
+    setLoading(true);
+    try {
+      addResult('🔍 Проверяем доступность webhook endpoint...');
+      
+      // Тестируем GET запрос
+      const getResponse = await fetch('/api/webhooks/test');
+      const getData = await getResponse.json();
+      
+      if (getResponse.ok) {
+        addResult('✅ GET запрос к webhook endpoint успешен');
+        addResult(`   - Время ответа: ${getData.timestamp}`);
+      } else {
+        addResult(`❌ GET запрос к webhook endpoint неуспешен: ${getResponse.status}`);
+      }
+      
+      // Тестируем POST запрос
+      const postResponse = await fetch('/api/webhooks/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ test: 'data' })
+      });
+      const postData = await postResponse.json();
+      
+      if (postResponse.ok) {
+        addResult('✅ POST запрос к webhook endpoint успешен');
+        addResult(`   - Время ответа: ${postData.timestamp}`);
+      } else {
+        addResult(`❌ POST запрос к webhook endpoint неуспешен: ${postResponse.status}`);
+      }
+      
+    } catch (error) {
+      addResult(`❌ Ошибка проверки доступности: ${error}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Тест 5: Проверяем Stripe webhook endpoint
+  const testStripeWebhookEndpoint = async () => {
+    setLoading(true);
+    try {
+      addResult('🔍 Проверяем Stripe webhook endpoint...');
+      
+      const response = await fetch('/api/webhooks/stripe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'stripe-signature': 'test-signature'
+        },
+        body: JSON.stringify({ test: 'data' })
+      });
+      
+      if (response.status === 400) {
+        addResult('✅ Stripe webhook endpoint доступен (ожидаемая ошибка подписи)');
+      } else if (response.status === 405) {
+        addResult('✅ Stripe webhook endpoint доступен (ожидаемая ошибка метода)');
+      } else {
+        addResult(`⚠️ Stripe webhook endpoint вернул неожиданный статус: ${response.status}`);
+      }
+    } catch (error) {
+      addResult(`❌ Stripe webhook endpoint недоступен: ${error}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Диагностика Webhook и изменения ролей</h1>
@@ -188,6 +258,22 @@ export default function TestWebhookPage() {
               className="btn-secondary w-full"
             >
               Проверить webhook endpoint
+            </button>
+            
+            <button
+              onClick={testWebhookAccessibility}
+              disabled={loading}
+              className="btn-secondary w-full"
+            >
+              Проверить доступность webhook
+            </button>
+            
+            <button
+              onClick={testStripeWebhookEndpoint}
+              disabled={loading}
+              className="btn-secondary w-full"
+            >
+              Проверить Stripe webhook endpoint
             </button>
             
             <button
@@ -247,6 +333,51 @@ export default function TestWebhookPage() {
               ))}
             </div>
           )}
+        </div>
+      </div>
+
+      <div className="card mt-8">
+        <h2 className="text-xl font-semibold mb-4">Инструкции по проверке webhook</h2>
+        <div className="space-y-4 text-sm">
+          <div className="border-l-4 border-blue-500 pl-4">
+            <h3 className="font-semibold text-blue-700">1. Проверьте webhook в Stripe Dashboard</h3>
+            <ol className="mt-2 space-y-1 text-gray-600">
+              <li>• Перейдите в Stripe Dashboard → Developers → Webhooks</li>
+              <li>• Найдите ваш webhook endpoint</li>
+              <li>• URL должен быть: <code className="bg-gray-100 px-1 rounded">https://your-domain.com/api/webhooks/stripe</code></li>
+              <li>• Статус должен быть "Active"</li>
+              <li>• Проверьте "Recent deliveries" - есть ли неудачные попытки</li>
+            </ol>
+          </div>
+          
+          <div className="border-l-4 border-green-500 pl-4">
+            <h3 className="font-semibold text-green-700">2. Проверьте переменные окружения</h3>
+            <ul className="mt-2 space-y-1 text-gray-600">
+              <li>• STRIPE_WEBHOOK_SECRET должен начинаться с <code>whsec_</code></li>
+              <li>• STRIPE_SECRET_KEY должен начинаться с <code>sk_test_</code> или <code>sk_live_</code></li>
+              <li>• NEXT_PUBLIC_DOMAIN должен быть правильным</li>
+            </ul>
+          </div>
+          
+          <div className="border-l-4 border-yellow-500 pl-4">
+            <h3 className="font-semibold text-yellow-700">3. Проверьте доступность сервера</h3>
+            <ul className="mt-2 space-y-1 text-gray-600">
+              <li>• Сервер должен быть доступен из интернета</li>
+              <li>• Должен поддерживать HTTPS</li>
+              <li>• Порт 443 (HTTPS) должен быть открыт</li>
+              <li>• Файрвол не должен блокировать входящие запросы</li>
+            </ul>
+          </div>
+          
+          <div className="border-l-4 border-purple-500 pl-4">
+            <h3 className="font-semibold text-purple-700">4. Тестирование webhook</h3>
+            <ul className="mt-2 space-y-1 text-gray-600">
+              <li>• В Stripe Dashboard нажмите "Send test webhook"</li>
+              <li>• Выберите событие "checkout.session.completed"</li>
+              <li>• Проверьте логи сервера на наличие webhook запросов</li>
+              <li>• Проверьте "Recent deliveries" в Stripe Dashboard</li>
+            </ul>
+          </div>
         </div>
       </div>
 
