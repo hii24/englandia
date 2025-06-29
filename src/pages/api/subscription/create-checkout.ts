@@ -1,0 +1,102 @@
+import { NextApiRequest, NextApiResponse } from 'next';
+import { stripe, SUBSCRIPTION_TYPES } from '@/lib/stripe';
+import { dbConnect } from '@/server/db';
+import { findUserById } from '@/server/db';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    await dbConnect();
+    
+    const { subscriptionType, userId } = req.body;
+
+    if (!subscriptionType || !userId) {
+      return res.status(400).json({ 
+        error: 'subscriptionType and userId are required' 
+      });
+    }
+
+    // Проверяем, что тип подписки валидный
+    if (!SUBSCRIPTION_TYPES[subscriptionType as keyof typeof SUBSCRIPTION_TYPES]) {
+      return res.status(400).json({ 
+        error: 'Invalid subscription type' 
+      });
+    }
+
+    const subscriptionConfig = SUBSCRIPTION_TYPES[subscriptionType as keyof typeof SUBSCRIPTION_TYPES];
+    
+    if (!subscriptionConfig.priceId) {
+      return res.status(500).json({ 
+        error: `Price ID not configured for ${subscriptionType} subscription` 
+      });
+    }
+
+    // Получаем данные пользователя
+    const user = await findUserById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Проверяем, что пользователь имеет роль 'guest'
+    if (user.role !== 'guest') {
+      return res.status(400).json({ 
+        error: 'Only guests can create subscriptions' 
+      });
+    }
+
+    console.log('🔍 Creating checkout session for:', {
+      userId,
+      subscriptionType,
+      userEmail: user.email,
+      priceId: subscriptionConfig.priceId
+    });
+
+    // Создаем Stripe Checkout Session
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      customer_email: user.email,
+      line_items: [
+        {
+          price: subscriptionConfig.priceId,
+          quantity: 1,
+        },
+      ],
+      success_url: `${process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000'}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000'}/subscription/cancel`,
+      metadata: {
+        userId: userId,
+        subscriptionType: subscriptionType,
+        userEmail: user.email,
+        userName: `${user.firstName} ${user.lastName}`
+      },
+      subscription_data: {
+        metadata: {
+          userId: userId,
+          subscriptionType: subscriptionType,
+          lessonsPerMonth: subscriptionConfig.lessonsPerMonth.toString()
+        }
+      }
+    });
+
+    console.log('✅ Checkout session created:', {
+      sessionId: session.id,
+      url: session.url
+    });
+
+    return res.status(200).json({
+      success: true,
+      sessionId: session.id,
+      url: session.url
+    });
+
+  } catch (error) {
+    console.error('❌ Error creating checkout session:', error);
+    return res.status(500).json({ 
+      error: 'Failed to create checkout session' 
+    });
+  }
+} 

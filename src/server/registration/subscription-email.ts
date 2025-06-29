@@ -3,6 +3,7 @@ import { findUserById } from '../db';
 import Lesson from '../lessons/model';
 import StudentProgress from '../progress/model';
 import { Types } from 'mongoose';
+import { stripe, SUBSCRIPTION_TYPES } from '@/lib/stripe';
 
 interface SubscriptionEmailData {
   studentId: string;
@@ -11,44 +12,118 @@ interface SubscriptionEmailData {
   lessonTitle: string;
 }
 
-// Создаем транспортер для отправки email
+// Создаем транспорт для отправки email
 const createTransporter = () => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-    throw new Error('Gmail credentials not configured. Please set EMAIL_USER and EMAIL_PASSWORD in .env.local')
+  // Проверяем наличие настроек Gmail
+  if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
   }
-
-  return nodemailer.createTransport({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-  })
-}
-
-// Альтернативная конфигурация для других SMTP серверов
-const createCustomTransporter = () => {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    return null;
+  
+  // Проверяем наличие настроек кастомного SMTP
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
   }
-
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false, // true для 465, false для других портов
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
+  
+  return null;
 };
+
+// Функция для создания ссылок на подписку
+async function createSubscriptionLinks(userId: string) {
+  const links: { [key: string]: string } = {};
+  
+  console.log('🔗 Начинаем создание ссылок на подписку для пользователя:', userId);
+  
+  // Проверяем наличие переменных окружения
+  if (!process.env.STRIPE_SECRET_KEY) {
+    console.error('❌ STRIPE_SECRET_KEY не настроен');
+    return links;
+  }
+  
+  if (!process.env.STRIPE_BASIC_PRICE_ID || !process.env.STRIPE_INTENSIVE_PRICE_ID) {
+    console.error('❌ Price IDs не настроены:', {
+      basic: process.env.STRIPE_BASIC_PRICE_ID ? '✅' : '❌',
+      intensive: process.env.STRIPE_INTENSIVE_PRICE_ID ? '✅' : '❌'
+    });
+    return links;
+  }
+  
+  try {
+    for (const [type, config] of Object.entries(SUBSCRIPTION_TYPES)) {
+      console.log(`📝 Создаем ссылку для ${type}:`, config);
+      
+      if (config.priceId) {
+        console.log(`💰 Используем Price ID: ${config.priceId}`);
+        
+        const session = await stripe.checkout.sessions.create({
+          mode: 'subscription',
+          payment_method_types: ['card'],
+          line_items: [
+            {
+              price: config.priceId,
+              quantity: 1,
+            },
+          ],
+          success_url: `${process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000'}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000'}/subscription/cancel`,
+          metadata: {
+            userId: userId,
+            subscriptionType: type,
+          },
+          subscription_data: {
+            metadata: {
+              userId: userId,
+              subscriptionType: type,
+              lessonsPerMonth: config.lessonsPerMonth.toString()
+            }
+          }
+        });
+        
+        links[type] = session.url!;
+        console.log(`✅ Ссылка создана для ${type}:`, session.url);
+      } else {
+        console.warn(`⚠️ Price ID не настроен для ${type}`);
+      }
+    }
+  } catch (error) {
+    console.error('❌ Ошибка создания ссылок на Stripe:', error);
+    
+    // Детальная информация об ошибке
+    if (error instanceof Error) {
+      console.error('Детали ошибки:', {
+        message: error.message,
+        name: error.name,
+        stack: error.stack
+      });
+    }
+  }
+  
+  console.log('📊 Итоговые ссылки:', links);
+  return links;
+}
 
 export async function sendSubscriptionEmail(data: SubscriptionEmailData): Promise<void> {
   try {
     const transporter = createTransporter();
+    
+    // Создаем ссылки на подписку
+    const subscriptionLinks = await createSubscriptionLinks(data.studentId);
     
     // Если транспортер не создан (нет настроек), выводим данные в консоль
     if (!transporter) {
@@ -57,6 +132,23 @@ export async function sendSubscriptionEmail(data: SubscriptionEmailData): Promis
       console.log(`Тема: Поздравляем с первым уроком! Оформите подписку`);
       console.log(`Студент: ${data.studentName}`);
       console.log(`Урок: ${data.lessonTitle}`);
+      console.log('Ссылки на подписку:', subscriptionLinks);
+      
+      // Проверяем, создались ли ссылки
+      if (Object.keys(subscriptionLinks).length === 0) {
+        console.log('⚠️ ВНИМАНИЕ: Ссылки на Stripe не созданы!');
+        console.log('🔧 Возможные причины:');
+        console.log('   • STRIPE_SECRET_KEY не настроен');
+        console.log('   • STRIPE_BASIC_PRICE_ID не настроен');
+        console.log('   • STRIPE_INTENSIVE_PRICE_ID не настроен');
+        console.log('   • Ошибка в Stripe API');
+        console.log('');
+        console.log('📧 Email будет отправлен БЕЗ кнопок для оплаты!');
+      } else {
+        console.log('✅ Ссылки на Stripe созданы успешно');
+        console.log('📧 Email будет отправлен с кнопками для оплаты');
+      }
+      
       console.log('==========================================');
       console.log('Для реальной отправки email настройте переменные окружения EMAIL_USER и EMAIL_PASSWORD');
       return;
@@ -102,30 +194,43 @@ export async function sendSubscriptionEmail(data: SubscriptionEmailData): Promis
                   <h4 style="margin: 0 0 10px 0; color: #333;">Базовый</h4>
                   <p style="margin: 0; font-size: 24px; font-weight: bold; color: #667eea;">4 урока/мес</p>
                   <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Идеально для начинающих</p>
+                  ${subscriptionLinks.BASIC ? `
+                    <a href="${subscriptionLinks.BASIC}" style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: #667eea; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">
+                      Оформить подписку
+                    </a>
+                  ` : ''}
                 </div>
                 <div style="flex: 1; background: white; padding: 15px; border-radius: 6px; text-align: center;">
                   <h4 style="margin: 0 0 10px 0; color: #333;">Интенсивный</h4>
                   <p style="margin: 0; font-size: 24px; font-weight: bold; color: #667eea;">8 уроков/мес</p>
                   <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Для быстрого прогресса</p>
+                  ${subscriptionLinks.INTENSIVE ? `
+                    <a href="${subscriptionLinks.INTENSIVE}" style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: #667eea; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">
+                      Оформить подписку
+                    </a>
+                  ` : ''}
                 </div>
               </div>
             </div>
             
             <div style="text-align: center; margin-top: 30px;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/subscription" 
-                 style="background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
-                🎯 Оформить подписку
-              </a>
+              <p style="color: #666; margin-bottom: 20px;">
+                Выберите подходящий тариф и начните свой путь к свободному владению английским языком!
+              </p>
             </div>
             
-            <p style="color: #666; line-height: 1.6; margin-top: 20px;">
-              Если у вас возникнут вопросы по подписке или обучению, не стесняйтесь обращаться к нам. 
-              Мы всегда готовы помочь!
-            </p>
+            <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; margin-top: 20px;">
+              <h4 style="margin-top: 0; color: #333;">🔒 Безопасная оплата</h4>
+              <p style="color: #666; line-height: 1.6; margin-bottom: 0;">
+                Все платежи обрабатываются через Stripe - одну из самых надежных платежных систем в мире. 
+                Ваши данные защищены по стандартам PCI DSS.
+              </p>
+            </div>
           </div>
           
           <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-            <p>Это автоматическое письмо, не отвечайте на него.</p>
+            <p>Если у вас возникнут вопросы по подписке или обучению, не стесняйтесь обращаться к нам.</p>
+            <p>С уважением,<br>Команда Eng-Landia</p>
             <p>&copy; 2024 Eng-Landia. Все права защищены.</p>
           </div>
         </div>
@@ -152,7 +257,10 @@ export async function sendSubscriptionEmail(data: SubscriptionEmailData): Promis
 - Базовый: 4 урока/мес (идеально для начинающих)
 - Интенсивный: 8 уроков/мес (для быстрого прогресса)
 
-Оформить подписку: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/subscription
+${subscriptionLinks.BASIC ? `Оформить базовую подписку: ${subscriptionLinks.BASIC}` : ''}
+${subscriptionLinks.INTENSIVE ? `Оформить интенсивную подписку: ${subscriptionLinks.INTENSIVE}` : ''}
+
+🔒 Безопасная оплата через Stripe
 
 Если у вас возникнут вопросы по подписке или обучению, не стесняйтесь обращаться к нам. 
 Мы всегда готовы помочь!
@@ -169,7 +277,8 @@ export async function sendSubscriptionEmail(data: SubscriptionEmailData): Promis
       to: data.studentEmail,
       subject: mailOptions.subject,
       studentName: data.studentName,
-      lessonTitle: data.lessonTitle
+      lessonTitle: data.lessonTitle,
+      subscriptionLinks
     });
     
   } catch (error) {
