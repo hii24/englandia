@@ -38,7 +38,7 @@ export const EditLessonsTab: React.FC = () => {
     bunnyVideoId: '',
     games: [],
     materials: [],
-    homework: []
+    homework: [],
   });
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export const EditLessonsTab: React.FC = () => {
       bunnyVideoId: lesson.bunnyVideoId || '',
       games: lesson.games || [],
       materials: lesson.materials || [],
-      homework: lesson.homework || []
+      homework: lesson.homework || [],
     });
     setEditMode(true);
     setActiveTab('main');

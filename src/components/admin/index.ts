@@ -4,4 +4,5 @@ export { EditLessonsTab } from './EditLessonsTab';
 export { TeacherStudentsTab } from './TeacherStudentsTab';
 export { TeacherLessonsTab } from './TeacherLessonsTab';
 export { AttendanceTab } from './AttendanceTab';
-export { ScheduleTab } from './ScheduleTab'; 
+export { ScheduleTab } from './ScheduleTab';
+export { default as CreateTeacherTab } from './CreateTeacherTab'; 

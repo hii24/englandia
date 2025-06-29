@@ -4,9 +4,10 @@ export interface RegistrationData {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
-  age: number;
+  phone?: string;
+  age?: number;
   comment?: string;
+  role?: 'admin' | 'teacher' | 'student' | 'guest';
 }
 
 export interface User {
@@ -28,4 +29,5 @@ export interface User {
 
 export interface CreateUserData extends Omit<User, '_id' | 'password' | 'role' | 'isEmailVerified' | 'subscription' | 'teacherId' | 'createdAt' | 'updatedAt'> {
   password: string;
+  role?: 'admin' | 'teacher' | 'student' | 'guest';
 } 

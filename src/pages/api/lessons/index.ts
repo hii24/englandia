@@ -25,6 +25,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           gamesLength: lesson.games ? lesson.games.length : 0,
           gamesItems: lesson.games ? lesson.games.map((game: any) => game.title) : [],
           bunnyVideoId: lesson.bunnyVideoId,
+          // Добавляем отладку для lessonLink
+          hasLessonLink: !!lesson.lessonLink,
+          lessonLink: lesson.lessonLink,
+          lessonLinkTitle: lesson.lessonLink?.title,
+          lessonLinkUrl: lesson.lessonLink?.url,
+          lessonLinkForStudent: lesson.lessonLink?.forStudent,
           // Проверяем все поля урока
           allFields: Object.keys(lesson.toObject ? lesson.toObject() : lesson)
         });

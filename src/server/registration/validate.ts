@@ -28,18 +28,28 @@ export function validateRegistration(data: RegistrationData) {
     throw error;
   }
 
-  // Проверка телефона (только на заполненность)
-  if (!data.phone || !data.phone.trim()) {
+  // Проверка телефона (обязателен только для студентов)
+  if (data.role !== 'teacher' && (!data.phone || !data.phone.trim())) {
     const error = new Error('Телефон обязателен для заполнения');
     (error as any).name = 'ValidationError';
     throw error;
   }
 
-  // Валидация возраста
-  if (typeof data.age !== 'number' || data.age < 4 || data.age > 12) {
-    const error = new Error('Возраст ребенка должен быть от 4 до 12 лет');
-    (error as any).name = 'ValidationError';
-    throw error;
+  // Разная валидация возраста в зависимости от роли
+  if (data.role === 'teacher') {
+    // Для учителей: возраст необязателен, но если указан - от 18 до 100 лет
+    if (data.age !== undefined && (typeof data.age !== 'number' || data.age < 18 || data.age > 100)) {
+      const error = new Error('Возраст учителя должен быть от 18 до 100 лет');
+      (error as any).name = 'ValidationError';
+      throw error;
+    }
+  } else {
+    // Для студентов: возраст обязателен от 4 до 12 лет
+    if (typeof data.age !== 'number' || data.age < 4 || data.age > 12) {
+      const error = new Error('Возраст ребенка должен быть от 4 до 12 лет');
+      (error as any).name = 'ValidationError';
+      throw error;
+    }
   }
 
   // Валидация длины полей

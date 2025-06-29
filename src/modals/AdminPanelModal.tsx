@@ -3,13 +3,14 @@ import { useUserStore } from '@/store/userStore';
 import { AssignTeachersTab } from '@/components/admin/AssignTeachersTab';
 import { CreateLessonTab } from '@/components/admin/CreateLessonTab';
 import { EditLessonsTab } from '@/components/admin/EditLessonsTab';
+import { CreateTeacherTab } from '@/components/admin';
 
 interface AdminPanelModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-type AdminTab = 'assign' | 'create' | 'edit';
+type AdminTab = 'assign' | 'create' | 'edit' | 'teacher';
 
 export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClose }) => {
   const user = useUserStore(s => s.user);
@@ -25,6 +26,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
         return <CreateLessonTab />;
       case 'edit':
         return <EditLessonsTab />;
+      case 'teacher':
+        return <CreateTeacherTab />;
       default:
         return <AssignTeachersTab />;
     }
@@ -38,6 +41,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
         return 'Создание нового урока';
       case 'edit':
         return 'Редактирование уроков';
+      case 'teacher':
+        return 'Добавить учителя';
       default:
         return 'Админ-панель';
     }
@@ -51,6 +56,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
         return 'Заполните форму для создания нового урока';
       case 'edit':
         return 'Выберите урок для редактирования из списка';
+      case 'teacher':
+        return 'Зарегистрируйте нового учителя по email. Ему придёт письмо с логином и паролем.';
       default:
         return '';
     }
@@ -82,6 +89,12 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({ isOpen, onClos
               onClick={() => setActiveTab('edit')}
             >
               ✏️ Редактировать уроки
+            </button>
+            <button
+              className={`admin-nav__item ${activeTab === 'teacher' ? 'admin-nav__item--active' : ''}`}
+              onClick={() => setActiveTab('teacher')}
+            >
+              🧑‍🏫 Добавить учителя
             </button>
           </nav>
         </div>

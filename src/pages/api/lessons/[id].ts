@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log('🔍 API lessons/[id].ts: games.length:', req.body.games?.length);
         
         // Обновляем только разрешенные поля
-        const allowedFields = ['title', 'description', 'videoUrl', 'bunnyVideoId', 'games', 'materials', 'additionalMaterials', 'homework', 'lessonLink', 'isActive', 'isArchived', 'isLocked'];
+        const allowedFields = ['title', 'description', 'orderNumber', 'videoUrl', 'bunnyVideoId', 'games', 'materials', 'additionalMaterials', 'homework', 'lessonLink', 'isActive', 'isArchived', 'isLocked'];
         const updateData: any = {};
         
         allowedFields.forEach(field => {

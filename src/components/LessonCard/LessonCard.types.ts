@@ -23,7 +23,6 @@ export interface Lesson {
   materials: LessonMaterial[];
   additionalMaterials: LessonMaterial[];
   homework: LessonMaterial[];
-  lessonLink?: { title: string; url: string; forStudent?: boolean };
   isActive?: boolean;
   isArchived?: boolean;
   isLocked?: boolean;

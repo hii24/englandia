@@ -36,13 +36,28 @@ export const LessonList: React.FC<LessonListProps> = ({
   const [loadingProgresses, setLoadingProgresses] = useState(false);
   const [isDataReady, setIsDataReady] = useState(false);
 
+  console.log('🔍 LessonList: Component rendered:', {
+    userRole: user?.role,
+    userId: user?._id,
+    lessonsCount: lessons?.length,
+    isLoading,
+    error
+  });
+
   // Загружаем прогресс ученика
   useEffect(() => {
-    if (user?.role === 'student' && user._id) {
-      console.log('Loading progress for student:', user._id);
+    console.log('🔍 LessonList: useEffect triggered:', {
+      userRole: user?.role,
+      userId: user?._id,
+      willLoadProgress: user?._id
+    });
+    
+    if (user?._id) {
+      console.log('Loading progress for user:', user._id);
       loadStudentProgresses();
     } else {
-      // Для не-студентов сразу помечаем данные как готовые
+      // Для неавторизованных пользователей сразу помечаем данные как готовые
+      console.log('🔍 LessonList: No user ID, skipping progress loading');
       setIsDataReady(true);
     }
   }, [user?._id, user?.role]);
@@ -50,35 +65,52 @@ export const LessonList: React.FC<LessonListProps> = ({
   const loadStudentProgresses = async () => {
     if (!user?._id) return;
     
-    console.log('Starting to load student progresses...');
+    console.log('Starting to load user progresses...');
     setLoadingProgresses(true);
     setIsDataReady(false);
     
     try {
       const data = await fetchStudentProgress(user._id);
-      console.log('Loaded student progresses:', data);
+      console.log('Loaded user progresses:', data);
       
       // Если прогресс пустой, создаем записи по умолчанию для всех уроков
       if (data.length === 0 && lessons && lessons.length > 0) {
         console.log('No progress found, creating default progress for lessons');
-        const defaultProgresses = lessons.map(lesson => ({
-          _id: `${user._id}-${lesson._id}`,
-          lessonId: lesson._id,
-          attended: false
-        }));
+        const defaultProgresses = lessons.map(lesson => {
+          const defaultProgress = {
+            _id: `${user._id}-${lesson._id}`,
+            lessonId: lesson._id,
+            attended: false
+          };
+          console.log('Created default progress for lesson:', {
+            lessonId: lesson._id,
+            lessonTitle: lesson.title,
+            userRole: user?.role
+          });
+          return defaultProgress;
+        });
         setStudentProgresses(defaultProgresses);
       } else {
         setStudentProgresses(data);
       }
     } catch (error) {
-      console.error('Error loading student progresses:', error);
+      console.error('Error loading user progresses:', error);
       // В случае ошибки создаем записи по умолчанию
       if (lessons && lessons.length > 0) {
-        const defaultProgresses = lessons.map(lesson => ({
-          _id: `${user._id}-${lesson._id}`,
-          lessonId: lesson._id,
-          attended: false
-        }));
+        console.log('Creating default progress due to error');
+        const defaultProgresses = lessons.map(lesson => {
+          const defaultProgress = {
+            _id: `${user._id}-${lesson._id}`,
+            lessonId: lesson._id,
+            attended: false
+          };
+          console.log('Created default progress (error case) for lesson:', {
+            lessonId: lesson._id,
+            lessonTitle: lesson.title,
+            userRole: user?.role
+          });
+          return defaultProgress;
+        });
         setStudentProgresses(defaultProgresses);
       } else {
         setStudentProgresses([]);
@@ -102,18 +134,6 @@ export const LessonList: React.FC<LessonListProps> = ({
     // teacher: показываем прогресс выбранного ученика
     filteredProgresses = progresses.filter(p => p.lessonId === selectedStudentId);
   }
-
-  // Отладочная информация
-  console.log('LessonList render:', {
-    userRole: user?.role,
-    userId: user?._id,
-    lessonsCount: lessons?.length,
-    studentProgressesCount: studentProgresses.length,
-    filteredProgressesCount: filteredProgresses.length,
-    loadingProgresses,
-    isDataReady,
-    isLoading
-  });
 
   if (error) {
     return (
@@ -161,17 +181,6 @@ export const LessonList: React.FC<LessonListProps> = ({
           if (!p.lessonId) return false;
           const progressLessonId = typeof p.lessonId === 'object' ? p.lessonId._id : p.lessonId;
           return progressLessonId === lesson._id;
-        });
-        
-        console.log('Lesson mapping:', {
-          lessonId: lesson._id,
-          lessonTitle: lesson.title,
-          foundProgress: !!progress,
-          progressData: progress,
-          allProgresses: filteredProgresses?.map(p => ({ 
-            lessonId: p.lessonId ? (typeof p.lessonId === 'object' ? p.lessonId._id : p.lessonId) : null, 
-            attended: p.attended 
-          }))
         });
         
         return (

@@ -1,5 +1,5 @@
 import { createUser } from '../db';
-import { sendRegistrationEmail } from './email';
+import { sendRegistrationEmail, sendTeacherRegistrationEmail } from './email';
 import { generatePassword, hashPassword } from './utils';
 import { validateRegistration } from './validate';
 
@@ -23,12 +23,23 @@ export async function handleRegistration(data: RegistrationData): Promise<{ user
   
   // Отправка email с данными для входа
   try {
-    await sendRegistrationEmail({
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      password: plainPassword,
-    });
+    if (data.role === 'teacher') {
+      // Специальный email для учителей
+      await sendTeacherRegistrationEmail({
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        password: plainPassword,
+      });
+    } else {
+      // Обычный email для студентов
+      await sendRegistrationEmail({
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        password: plainPassword,
+      });
+    }
   } catch (emailError) {
     console.error('Ошибка отправки email:', emailError);
     // Не прерываем регистрацию, если email не отправился

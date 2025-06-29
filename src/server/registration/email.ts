@@ -150,4 +150,128 @@ export async function sendRegistrationEmail(data: EmailData): Promise<void> {
     
     throw new Error('Не удалось отправить email с данными для входа');
   }
+}
+
+export async function sendTeacherRegistrationEmail({ email, password, firstName, lastName }: { email: string, password: string, firstName?: string, lastName?: string }) {
+  try {
+    const transporter = createTransporter();
+    
+    // Если транспортер не создан (нет настроек), выводим данные в консоль
+    if (!transporter) {
+      console.log('=== EMAIL УЧИТЕЛЯ (РЕЖИМ РАЗРАБОТКИ) ===');
+      console.log(`Кому: ${email}`);
+      console.log(`Тема: Вас зарегистрировали как учителя на Eng-Landia`);
+      console.log(`Имя: ${firstName} ${lastName}`);
+      console.log(`Логин: ${email}`);
+      console.log(`Пароль: ${password}`);
+      console.log('=====================================');
+      console.log('Для реальной отправки email настройте переменные окружения EMAIL_USER и EMAIL_PASSWORD');
+      return;
+    }
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || 'noreply@eng-landia.com',
+      to: email,
+      subject: 'Вас зарегистрировали как учителя на Eng-Landia',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1 style="margin: 0; font-size: 28px;">Добро пожаловать в команду Eng-Landia!</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Вас зарегистрировали как учителя</p>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+            <h2 style="color: #333; margin-top: 0;">Здравствуйте, ${firstName} ${lastName}!</h2>
+            
+            <p style="color: #666; line-height: 1.6;">
+              Вас зарегистрировали как учителя на платформе <strong>Eng-Landia</strong>. 
+              Мы рады приветствовать вас в нашей команде преподавателей!
+            </p>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea;">
+              <h3 style="margin-top: 0; color: #333;">Ваши данные для входа:</h3>
+              <p style="margin: 10px 0;"><strong>Логин:</strong> ${email}</p>
+              <p style="margin: 10px 0;"><strong>Пароль:</strong> ${password}</p>
+            </div>
+            
+            <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #22c55e;">
+              <h4 style="margin-top: 0; color: #166534;">🔐 Важная информация:</h4>
+              <ul style="color: #166534; line-height: 1.6; margin: 0; padding-left: 20px;">
+                <li>Рекомендуем сменить пароль после первого входа в систему</li>
+                <li>У вас есть доступ к панели учителя</li>
+                <li>Вы можете просматривать назначенных учеников и их прогресс</li>
+                <li>Доступны все материалы уроков и домашние задания</li>
+              </ul>
+            </div>
+            
+            <p style="color: #666; line-height: 1.6;">
+              Если у вас возникнут вопросы по работе с платформой, не стесняйтесь обращаться к администрации. 
+              Мы всегда готовы помочь!
+            </p>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}" 
+                 style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                Перейти на платформу
+              </a>
+            </div>
+          </div>
+          
+          <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+            <p>Это автоматическое письмо, не отвечайте на него.</p>
+            <p>&copy; 2024 Eng-Landia. Все права защищены.</p>
+          </div>
+        </div>
+      `,
+      text: `
+Добро пожаловать в команду Eng-Landia!
+
+Здравствуйте, ${firstName} ${lastName}!
+
+Вас зарегистрировали как учителя на платформе Eng-Landia. 
+Мы рады приветствовать вас в нашей команде преподавателей!
+
+Ваши данные для входа:
+Логин: ${email}
+Пароль: ${password}
+
+🔐 Важная информация:
+• Рекомендуем сменить пароль после первого входа в систему
+• У вас есть доступ к панели учителя
+• Вы можете просматривать назначенных учеников и их прогресс
+• Доступны все материалы уроков и домашние задания
+
+Если у вас возникнут вопросы по работе с платформой, не стесняйтесь обращаться к администрации. 
+Мы всегда готовы помочь!
+
+С уважением,
+Команда Eng-Landia
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log('Teacher registration email отправлен успешно:', {
+      messageId: info.messageId,
+      to: email,
+      subject: mailOptions.subject,
+      teacherName: `${firstName} ${lastName}`
+    });
+    
+  } catch (error) {
+    console.error('Ошибка отправки teacher registration email:', error);
+    
+    // В режиме разработки выводим данные в консоль
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== EMAIL УЧИТЕЛЯ (РЕЖИМ РАЗРАБОТКИ) ===');
+      console.log(`Кому: ${email}`);
+      console.log(`Тема: Вас зарегистрировали как учителя на Eng-Landia`);
+      console.log(`Имя: ${firstName} ${lastName}`);
+      console.log(`Логин: ${email}`);
+      console.log(`Пароль: ${password}`);
+      console.log('=====================================');
+    }
+    
+    throw new Error('Не удалось отправить email с данными для входа учителю');
+  }
 } 

@@ -25,11 +25,6 @@ const LessonSchema = new Schema({
   materials: [MaterialSchema],
   additionalMaterials: [MaterialSchema],
   homework: [MaterialSchema],
-  lessonLink: {
-    title: String,
-    url: String,
-    forStudent: { type: Boolean, default: true }
-  },
   isActive: { type: Boolean, default: true },
   isArchived: { type: Boolean, default: false },
   teacherId: { type: Types.ObjectId, ref: 'User' },
