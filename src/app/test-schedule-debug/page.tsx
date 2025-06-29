@@ -389,4 +389,21 @@ export default function TestScheduleDebug() {
           } else if (scheduledDate.toDateString() === now.toDateString()) {
             statusText = `Сегодня в ${scheduleData.time}`;
           } else {
-            statusText = `${scheduledDate.toLocaleDateString('ru-RU')} в ${scheduleData.time}`
+            statusText = `${scheduledDate.toLocaleDateString('ru-RU')} в ${scheduleData.time}`;
+          }
+        }
+      }
+      
+    } catch (error) {
+      addResult('❌ Error testing LessonCard flow:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      {/* Render your component content here */}
+    </div>
+  );
+}

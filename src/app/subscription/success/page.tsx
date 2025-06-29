@@ -1,35 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
-export default function SubscriptionSuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams();
-  const [sessionData, setSessionData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const sessionId = searchParams?.get('session_id');
-    
-    if (sessionId) {
-      // Здесь можно сделать запрос к API для получения данных о сессии
-      setSessionData({ id: sessionId });
-    }
-    
-    setLoading(false);
-  }, [searchParams]);
-
-  if (loading) {
-    return (
-      <div className="max-w-md mx-auto mt-16">
-        <div className="card text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Обрабатываем ваш платеж...</p>
-        </div>
-      </div>
-    );
-  }
+  const sessionId = searchParams?.get('session_id');
 
   return (
     <div className="max-w-md mx-auto mt-16">
@@ -58,10 +35,10 @@ export default function SubscriptionSuccessPage() {
           Поздравляем! Ваша подписка активирована. Теперь у вас есть доступ ко всем урокам платформы.
         </p>
 
-        {sessionData?.id && (
+        {sessionId && (
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <p className="text-sm text-gray-500">ID сессии:</p>
-            <p className="font-mono text-sm break-all">{sessionData.id}</p>
+            <p className="font-mono text-sm break-all">{sessionId}</p>
           </div>
         )}
 
@@ -88,5 +65,13 @@ export default function SubscriptionSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SubscriptionSuccessPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-16">Загрузка...</div>}>
+      <SuccessContent />
+    </Suspense>
   );
 } 
