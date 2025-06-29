@@ -68,14 +68,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       success_url: `${process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000'}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000'}/subscription/cancel`,
       metadata: {
-        userId: userId,
+        userId: String(user._id),
         subscriptionType: subscriptionType,
         userEmail: user.email,
         userName: `${user.firstName} ${user.lastName}`
       },
       subscription_data: {
         metadata: {
-          userId: userId,
+          userId: String(user._id),
           subscriptionType: subscriptionType,
           lessonsPerMonth: subscriptionConfig.lessonsPerMonth.toString()
         }

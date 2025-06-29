@@ -4,6 +4,7 @@ import { dbConnect } from '@/server/db';
 import { findUserById } from '@/server/db';
 import { Schema, model, Types, models } from 'mongoose';
 import { buffer } from 'micro';
+import { Payment } from '@/server/payments/model';
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
@@ -139,8 +140,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               updateResult: !!updateResult
             });
 
-            // Здесь можно добавить создание записи подписки в базе данных
-            // если нужно отслеживать подписки локально
+            // Сохраняем платеж
+            await Payment.create({
+              userId: user._id,
+              stripeCustomerId: session.customer,
+              stripeSubscriptionId: session.subscription,
+              stripeSessionId: session.id,
+              amount: session.amount_total || 0,
+              currency: session.currency || 'usd',
+              status: session.payment_status || 'unknown',
+              eventType: event.type,
+              rawEvent: event
+            });
+            console.log('💾 Payment record created for user:', user._id);
 
           } catch (error) {
             console.error('❌ Error activating subscription:', error);
