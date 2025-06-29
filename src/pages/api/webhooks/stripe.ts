@@ -3,6 +3,7 @@ import { stripe } from '@/lib/stripe';
 import { dbConnect } from '@/server/db';
 import { findUserById } from '@/server/db';
 import { Schema, model, Types, models } from 'mongoose';
+import { buffer } from 'micro';
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
@@ -31,8 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       'stripe-signature': req.headers['stripe-signature'] ? 'present' : 'missing',
       'content-type': req.headers['content-type'],
       'user-agent': req.headers['user-agent']
-    },
-    bodySize: req.body ? JSON.stringify(req.body).length : 0
+    }
   });
 
   if (req.method !== 'POST') {
@@ -43,8 +43,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     await dbConnect();
     console.log('✅ Database connected');
-    
-    const body = req.body;
+
+    // Получаем raw body
+    const buf = await buffer(req);
     const signature = req.headers['stripe-signature'] as string;
 
     if (!signature) {
@@ -62,7 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let event;
 
     try {
-      event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
+      event = stripe.webhooks.constructEvent(buf, signature, endpointSecret);
       console.log('✅ Webhook signature verified successfully');
     } catch (err) {
       console.error('❌ Webhook signature verification failed:', err);
@@ -236,4 +237,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.error('Error processing webhook:', error);
     return res.status(500).json({ error: 'Webhook processing failed' });
   }
-} 
+}
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+}; 
