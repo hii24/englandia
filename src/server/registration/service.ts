@@ -19,6 +19,8 @@ export async function handleRegistration(data: RegistrationData): Promise<{ user
   const user = await createUser({
     ...data,
     password: hashedPassword,
+    phone: data.phone || '', // гарантируем строку
+    age: data.age || 0, // гарантируем число
   });
   
   // Отправка email с данными для входа
