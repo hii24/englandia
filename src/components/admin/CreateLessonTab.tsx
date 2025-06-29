@@ -8,12 +8,20 @@ interface Material {
   forStudent: boolean;
 }
 
+interface Game {
+  title: string;
+  iframeUrl: string;
+  description: string;
+  forStudent: boolean;
+}
+
 interface NewLesson {
   title: string;
   description: string;
   orderNumber: number;
   videoUrl: string;
   bunnyVideoId: string;
+  games: Game[];
   materials: Material[];
   additionalMaterials: Material[];
   homework: Material[];
@@ -27,16 +35,21 @@ export const CreateLessonTab: React.FC = () => {
     orderNumber: 1,
     videoUrl: '',
     bunnyVideoId: '',
+    games: [],
     materials: [],
     additionalMaterials: [],
     homework: []
   });
-  const [activeTab, setActiveTab] = useState<'main' | 'materials' | 'homework'>('main');
+  const [activeTab, setActiveTab] = useState<'main' | 'materials' | 'homework' | 'games'>('main');
 
   const handleCreateLesson = async () => {
     try {
-      console.log('🔍 CreateLessonTab: Отправляем данные урока:', newLesson);
+      console.log('🔍 CreateLessonTab: Начинаем создание урока');
+      console.log('🔍 CreateLessonTab: Полные данные урока:', JSON.stringify(newLesson, null, 2));
       console.log('🔍 CreateLessonTab: bunnyVideoId:', newLesson.bunnyVideoId);
+      console.log('🔍 CreateLessonTab: games:', newLesson.games);
+      console.log('🔍 CreateLessonTab: games.length:', newLesson.games.length);
+      console.log('🔍 CreateLessonTab: games[0]:', newLesson.games[0]);
       
       await addLesson(newLesson);
       setNewLesson({
@@ -45,6 +58,7 @@ export const CreateLessonTab: React.FC = () => {
         orderNumber: 1,
         videoUrl: '',
         bunnyVideoId: '',
+        games: [],
         materials: [],
         additionalMaterials: [],
         homework: []
@@ -52,7 +66,7 @@ export const CreateLessonTab: React.FC = () => {
       setActiveTab('main');
       alert('Урок успешно создан!');
     } catch (error) {
-      console.error('Ошибка создания урока:', error);
+      console.error('❌ CreateLessonTab: Ошибка создания урока:', error);
       alert('Ошибка создания урока');
     }
   };
@@ -89,6 +103,22 @@ export const CreateLessonTab: React.FC = () => {
     homework: data.homework.map((h, i) => i === idx ? { ...h, ...patch } : h)
   }));
 
+  // Функции для игр
+  const addGame = () => setNewLesson(data => ({
+    ...data,
+    games: [...data.games, { title: '', iframeUrl: '', description: '', forStudent: true }]
+  }));
+
+  const removeGame = (idx: number) => setNewLesson(data => ({
+    ...data,
+    games: data.games.filter((_, i) => i !== idx)
+  }));
+
+  const updateGame = (idx: number, patch: Partial<Game>) => setNewLesson(data => ({
+    ...data,
+    games: data.games.map((g, i) => i === idx ? { ...g, ...patch } : g)
+  }));
+
   return (
     <div className="create-lesson-container">
       <h3 className="create-lesson-title">Создание нового урока</h3>
@@ -97,6 +127,7 @@ export const CreateLessonTab: React.FC = () => {
         <button className={`create-tab ${activeTab==='main' ? 'active' : ''}`} onClick={()=>setActiveTab('main')}>Основное</button>
         <button className={`create-tab ${activeTab==='materials' ? 'active' : ''}`} onClick={()=>setActiveTab('materials')}>Материалы</button>
         <button className={`create-tab ${activeTab==='homework' ? 'active' : ''}`} onClick={()=>setActiveTab('homework')}>Домашние задания</button>
+        <button className={`create-tab ${activeTab==='games' ? 'active' : ''}`} onClick={()=>setActiveTab('games')}>Игры</button>
       </div>
       
       <div className="create-content">
@@ -236,6 +267,56 @@ export const CreateLessonTab: React.FC = () => {
             </div>
             <button onClick={addHomework} className="add-button">
               + Добавить домашнее задание
+            </button>
+          </div>
+        )}
+        {activeTab === 'games' && (
+          <div className="tab-content">
+            <h5 className="tab-title">Игры для урока:</h5>
+            <div className="materials-list">
+              {newLesson.games.map((game, idx) => (
+                <div key={idx} className="material-item">
+                  <input
+                    value={game.title}
+                    onChange={e => updateGame(idx, { title: e.target.value })}
+                    placeholder="Название игры"
+                    className="form-input"
+                  />
+                  <input
+                    value={game.iframeUrl}
+                    onChange={e => updateGame(idx, { iframeUrl: e.target.value })}
+                    placeholder="URL для iframe игры"
+                    className="form-input"
+                  />
+                  <textarea
+                    value={game.description}
+                    onChange={e => updateGame(idx, { description: e.target.value })}
+                    placeholder="Описание игры"
+                    className="form-textarea"
+                    rows={2}
+                  />
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={!!game.forStudent}
+                      onChange={e => updateGame(idx, { forStudent: e.target.checked })}
+                      className="checkbox-input"
+                    />
+                    <span className="checkbox-text">Показывать ученику</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => removeGame(idx)}
+                    className="remove-button"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    Удалить
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button onClick={addGame} className="add-button">
+              + Добавить игру
             </button>
           </div>
         )}

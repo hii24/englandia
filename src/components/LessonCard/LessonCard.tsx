@@ -5,6 +5,7 @@ import './LessonCard.scss';
 import { useUserStore } from '@/store/userStore';
 import { fetchStudentLesson } from '@/lib/api';
 import { BunnyVideoPlayer } from '@/components/ui/BunnyVideoPlayer';
+import { GameGrid } from '@/components/ui/GameGrid';
 
 export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
   const [open, setOpen] = useState(false);
@@ -423,7 +424,7 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
           {/* Видео из Bunny.net - в конце карточки */}
           {lesson.bunnyVideoId && (
             <div className="lesson-card__video-section">
-        
+              <h4 className="lesson-card__video-title mb-3">Видео урока</h4>
               <div className="lesson-card__video">
                 <BunnyVideoPlayer 
                   videoId={lesson.bunnyVideoId}
@@ -431,6 +432,11 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
                 />
               </div>
             </div>
+          )}
+          
+          {/* Игры для урока */}
+          {lesson.games && lesson.games.length > 0 && (
+            <GameGrid games={lesson.games} />
           )}
         </div>
       )}

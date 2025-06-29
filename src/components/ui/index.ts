@@ -7,6 +7,7 @@ export { Modal } from './Modal';
 export { BurgerMenuButton } from './BurgerMenuButton/BurgerMenuButton';
 export { BurgerMenu } from './BurgerMenu';
 export { BunnyVideoPlayer } from './BunnyVideoPlayer';
+export { GameGrid } from './GameGrid';
 
 // Types
 export type { 

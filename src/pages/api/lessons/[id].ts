@@ -21,56 +21,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === 'PUT') {
-      console.log('🔒 API: PUT запрос на обновление урока:', {
-        lessonId: id,
-        body: req.body,
-        headers: req.headers
-      });
-      console.log('🔍 bunnyVideoId в запросе обновления:', req.body.bunnyVideoId);
-
-      const lesson = await Lesson.findById(id);
-      if (!lesson) {
-        console.log('❌ API: Урок не найден:', id);
-        return res.status(404).json({ error: 'Lesson not found' });
-      }
-
-      console.log('🔒 API: Найден урок:', {
-        lessonId: lesson._id,
-        title: lesson.title,
-        currentBunnyVideoId: lesson.bunnyVideoId,
-        currentIsLocked: lesson.isLocked
-      });
-
-      // Обновляем только разрешенные поля
-      const allowedFields = ['title', 'description', 'videoUrl', 'bunnyVideoId', 'materials', 'additionalMaterials', 'homework', 'lessonLink', 'isActive', 'isArchived', 'isLocked'];
-      const updateData: any = {};
-      
-      allowedFields.forEach(field => {
-        if (req.body[field] !== undefined) {
-          updateData[field] = req.body[field];
-          console.log(`🔒 API: Обновляем поле ${field}:`, req.body[field]);
+      try {
+        console.log('🔍 API lessons/[id].ts: Начинаем обновление урока');
+        console.log('🔍 API lessons/[id].ts: ID урока:', id);
+        console.log('🔍 API lessons/[id].ts: Полное тело запроса:', JSON.stringify(req.body, null, 2));
+        console.log('🔍 API lessons/[id].ts: games в запросе:', req.body.games);
+        console.log('🔍 API lessons/[id].ts: games.length:', req.body.games?.length);
+        
+        // Обновляем только разрешенные поля
+        const allowedFields = ['title', 'description', 'videoUrl', 'bunnyVideoId', 'games', 'materials', 'additionalMaterials', 'homework', 'lessonLink', 'isActive', 'isArchived', 'isLocked'];
+        const updateData: any = {};
+        
+        allowedFields.forEach(field => {
+          if (req.body[field] !== undefined) {
+            updateData[field] = req.body[field];
+          }
+        });
+        
+        console.log('🔍 API lessons/[id].ts: Данные для обновления:', JSON.stringify(updateData, null, 2));
+        console.log('🔍 API lessons/[id].ts: games для обновления:', updateData.games);
+        
+        const updatedLesson = await Lesson.findByIdAndUpdate(
+          id,
+          { ...updateData, updatedAt: new Date() },
+          { new: true }
+        );
+        
+        if (!updatedLesson) {
+          return res.status(404).json({ error: 'Lesson not found' });
         }
-      });
-
-      // Добавляем информацию о том, кто заблокировал/разблокировал урок
-      if (req.body.isLocked !== undefined) {
-        console.log(`🔒 API: Lesson ${id} ${req.body.isLocked ? 'LOCKED' : 'UNLOCKED'} by teacher`);
+        
+        console.log('🔍 API lessons/[id].ts: Урок успешно обновлен');
+        console.log('🔍 API lessons/[id].ts: Обновленный урок:', {
+          id: updatedLesson._id,
+          title: updatedLesson.title,
+          bunnyVideoId: updatedLesson.bunnyVideoId,
+          games: updatedLesson.games,
+          gamesLength: updatedLesson.games?.length
+        });
+        
+        return res.status(200).json(updatedLesson);
+      } catch (e: any) {
+        console.error('API /lessons/[id] error:', e);
+        return res.status(500).json({ error: e.message || 'Internal Server Error' });
       }
-
-      updateData.updatedAt = new Date();
-      
-      console.log('🔒 API: Данные для обновления:', updateData);
-      
-      const updatedLesson = await Lesson.findByIdAndUpdate(id, updateData, { new: true });
-      
-      console.log('🔒 API: Урок обновлен:', {
-        lessonId: updatedLesson._id,
-        title: updatedLesson.title,
-        newBunnyVideoId: updatedLesson.bunnyVideoId,
-        newIsLocked: updatedLesson.isLocked
-      });
-      
-      return res.status(200).json(updatedLesson);
     }
 
     if (req.method === 'DELETE') {

@@ -100,12 +100,20 @@ export async function fetchLessonById(id: string) {
 }
 
 export async function createLesson(data: any) {
+  console.log('🔍 api.createLesson: Отправляем данные:', JSON.stringify(data, null, 2));
+  console.log('🔍 api.createLesson: games в данных:', data.games);
+  console.log('🔍 api.createLesson: games.length:', data.games?.length);
   const response = await api.post('/lessons', data);
+  console.log('🔍 api.createLesson: Ответ сервера:', response.data);
   return response.data;
 }
 
 export async function updateLesson(id: string, data: any) {
+  console.log('🔍 api.updateLesson: Отправляем данные:', JSON.stringify(data, null, 2));
+  console.log('🔍 api.updateLesson: games в данных:', data.games);
+  console.log('🔍 api.updateLesson: games.length:', data.games?.length);
   const response = await api.put(`/lessons/${id}`, data);
+  console.log('🔍 api.updateLesson: Ответ сервера:', response.data);
   return response.data;
 }
 

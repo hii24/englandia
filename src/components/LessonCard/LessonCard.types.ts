@@ -1,8 +1,15 @@
 export interface LessonMaterial {
   title: string;
   url: string;
-  type: 'file' | 'link';
-  forStudent?: boolean;
+  type: string;
+  forStudent: boolean;
+}
+
+export interface LessonGame {
+  title: string;
+  iframeUrl: string;
+  description: string;
+  forStudent: boolean;
 }
 
 export interface Lesson {
@@ -12,6 +19,7 @@ export interface Lesson {
   description: string;
   videoUrl?: string;
   bunnyVideoId?: string;
+  games?: LessonGame[];
   materials: LessonMaterial[];
   additionalMaterials: LessonMaterial[];
   homework: LessonMaterial[];

@@ -27,12 +27,19 @@ export const useLessonStore = create<LessonStore>((set, get) => ({
   },
 
   addLesson: async (data: any) => {
+    console.log('🔍 lessonStore.addLesson: Получены данные:', JSON.stringify(data, null, 2));
+    console.log('🔍 lessonStore.addLesson: games в данных:', data.games);
+    console.log('🔍 lessonStore.addLesson: games.length:', data.games?.length);
     await createLesson(data);
     await get().loadLessons();
   },
 
   editLesson: async (id: string, data: any) => {
-    console.log('lessonStore.editLesson вызван с:', { id, data });
+    console.log('🔍 lessonStore.editLesson: Начинаем обновление урока');
+    console.log('🔍 lessonStore.editLesson: ID урока:', id);
+    console.log('🔍 lessonStore.editLesson: Полные данные:', JSON.stringify(data, null, 2));
+    console.log('🔍 lessonStore.editLesson: games в данных:', data.games);
+    console.log('🔍 lessonStore.editLesson: games.length:', data.games?.length);
     await updateLesson(id, data);
     await get().loadLessons();
   },
