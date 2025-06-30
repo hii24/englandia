@@ -79,8 +79,16 @@
       color: #FFFFFF;
     }
     
+    .feature span {
+      color: #FFFFFF;
+    }
+    
+    .checkIcon {
+      background: #FFFFFF;
+    }
+    
     .checkIcon svg path {
-      stroke: #FFFFFF;
+      stroke: #440693;
     }
     
     .separator {
@@ -214,12 +222,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #FFFFFF;
+  background: #440693;
   border-radius: 50%;
+  position: relative;
   
   svg {
-    width: 17px;
-    height: 17px;
+    width: 16.67px;
+    height: 16.67px;
+    position: absolute;
+    top: 1.67px;
+    left: 1.67px;
+  }
+  
+  svg path {
+    stroke: #FFFFFF;
   }
 }
 
