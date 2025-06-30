@@ -274,4 +274,124 @@ export async function sendTeacherRegistrationEmail({ email, password, firstName,
     
     throw new Error('Не удалось отправить email с данными для входа учителю');
   }
+}
+
+export async function sendPasswordResetEmail({ email, firstName, lastName, newPassword }: { email: string, firstName?: string, lastName?: string, newPassword: string }) {
+  try {
+    const transporter = createTransporter();
+    
+    // Если транспортер не создан (нет настроек), выводим данные в консоль
+    if (!transporter) {
+      console.log('=== EMAIL ВОССТАНОВЛЕНИЯ ПАРОЛЯ (РЕЖИМ РАЗРАБОТКИ) ===');
+      console.log(`Кому: ${email}`);
+      console.log(`Тема: Восстановление пароля - Eng-Landia`);
+      console.log(`Имя: ${firstName} ${lastName}`);
+      console.log(`Логин: ${email}`);
+      console.log(`Новый пароль: ${newPassword}`);
+      console.log('=====================================');
+      console.log('Для реальной отправки email настройте переменные окружения EMAIL_USER и EMAIL_PASSWORD');
+      return;
+    }
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || 'noreply@eng-landia.com',
+      to: email,
+      subject: 'Восстановление пароля - Eng-Landia',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1 style="margin: 0; font-size: 28px;">Восстановление пароля</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Eng-Landia</p>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+            <h2 style="color: #333; margin-top: 0;">Здравствуйте, ${firstName} ${lastName}!</h2>
+            
+            <p style="color: #666; line-height: 1.6;">
+              Вы запросили восстановление пароля для вашего аккаунта на платформе <strong>Eng-Landia</strong>.
+              Мы сгенерировали для вас новый пароль.
+            </p>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea;">
+              <h3 style="margin-top: 0; color: #333;">Ваши новые данные для входа:</h3>
+              <p style="margin: 10px 0;"><strong>Логин:</strong> ${email}</p>
+              <p style="margin: 10px 0;"><strong>Новый пароль:</strong> ${newPassword}</p>
+            </div>
+            
+            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+              <h4 style="margin-top: 0; color: #856404;">⚠️ Важная информация:</h4>
+              <ul style="color: #856404; line-height: 1.6; margin: 0; padding-left: 20px;">
+                <li>Рекомендуем сменить пароль после входа в систему</li>
+                <li>Храните пароль в безопасном месте</li>
+                <li>Не передавайте пароль третьим лицам</li>
+              </ul>
+            </div>
+            
+            <p style="color: #666; line-height: 1.6;">
+              Если вы не запрашивали восстановление пароля, пожалуйста, свяжитесь с нами немедленно.
+            </p>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}" 
+                 style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                Войти в систему
+              </a>
+            </div>
+          </div>
+          
+          <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+            <p>Это автоматическое письмо, не отвечайте на него.</p>
+            <p>&copy; 2024 Eng-Landia. Все права защищены.</p>
+          </div>
+        </div>
+      `,
+      text: `
+Восстановление пароля - Eng-Landia
+
+Здравствуйте, ${firstName} ${lastName}!
+
+Вы запросили восстановление пароля для вашего аккаунта на платформе Eng-Landia.
+Мы сгенерировали для вас новый пароль.
+
+Ваши новые данные для входа:
+Логин: ${email}
+Новый пароль: ${newPassword}
+
+Важная информация:
+- Рекомендуем сменить пароль после входа в систему
+- Храните пароль в безопасном месте
+- Не передавайте пароль третьим лицам
+
+Если вы не запрашивали восстановление пароля, пожалуйста, свяжитесь с нами немедленно.
+
+С уважением,
+Команда Eng-Landia
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log('Password reset email отправлен успешно:', {
+      messageId: info.messageId,
+      to: email,
+      subject: mailOptions.subject,
+      userName: `${firstName} ${lastName}`
+    });
+    
+  } catch (error) {
+    console.error('Ошибка отправки password reset email:', error);
+    
+    // В режиме разработки выводим данные в консоль
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== EMAIL ВОССТАНОВЛЕНИЯ ПАРОЛЯ (РЕЖИМ РАЗРАБОТКИ) ===');
+      console.log(`Кому: ${email}`);
+      console.log(`Тема: Восстановление пароля - Eng-Landia`);
+      console.log(`Имя: ${firstName} ${lastName}`);
+      console.log(`Логин: ${email}`);
+      console.log(`Новый пароль: ${newPassword}`);
+      console.log('=====================================');
+    }
+    
+    throw new Error('Не удалось отправить email с новым паролем');
+  }
 } 

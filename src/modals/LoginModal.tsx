@@ -25,6 +25,14 @@ const LoginModal: React.FC<LoginModalProps> = ({
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  
+  // Состояние для восстановления пароля
+  const [isPasswordReset, setIsPasswordReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetSubmitted, setResetSubmitted] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
+  const [resetSuccess, setResetSuccess] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   const validate = (field: string, value: string) => {
     let error = '';
@@ -51,9 +59,6 @@ const LoginModal: React.FC<LoginModalProps> = ({
     setServerError(null);
     setSuccess(false);
     
-    // Проверяем все поля перед отправкой
-    // TODO: Добавить валидацию на лету, но ошибки не показываем до submit
-
     const emailError = validate('email', form.email);
     const passwordError = validate('password', form.password);
     if (emailError || passwordError) return;
@@ -69,6 +74,102 @@ const LoginModal: React.FC<LoginModalProps> = ({
       setIsSubmitting(false);
     }
   };
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetSubmitted(true);
+    setResetError(null);
+    setResetSuccess(false);
+    
+    if (!resetEmail || !/^[^@]+@[^@]+\.[^@]+$/.test(resetEmail)) {
+      setResetError('Введите корректный email');
+      return;
+    }
+    
+    setIsResetting(true);
+    try {
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setResetSuccess(true);
+        setResetEmail("");
+      } else {
+        setResetError(data.error || 'Ошибка восстановления пароля');
+      }
+    } catch (error: any) {
+      setResetError('Ошибка соединения с сервером');
+      console.error('Ошибка восстановления пароля:', error);
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
+  const resetForm = () => {
+    setIsPasswordReset(false);
+    setResetEmail("");
+    setResetSubmitted(false);
+    setResetError(null);
+    setResetSuccess(false);
+  };
+
+  if (isPasswordReset) {
+    return (
+      <Modal open={true} onClose={onClose}>
+        <form
+          className="flex flex-col gap-5 login-modal-form"
+          onSubmit={handlePasswordReset}
+        >
+          <h2 className="text-center font-bold text-2xl">
+            Восстановление пароля
+          </h2>
+          
+          <p className="text-center text-gray-600 text-sm">
+            Введите ваш email, и мы отправим вам новый пароль
+          </p>
+          
+          <Input
+            placeholder="Email"
+            type="email"
+            value={resetEmail}
+            onChange={(e) => setResetEmail(e.target.value)}
+            required
+            error={resetSubmitted && !resetEmail ? 'Введите email' : undefined}
+          />
+
+          {resetError && (
+            <div className="text-center text-red-600 text-sm mt-2">{resetError}</div>
+          )}
+          {resetSuccess && (
+            <div className="text-center text-green-600 text-sm mt-2">
+              Новый пароль отправлен на ваш email!
+            </div>
+          )}
+          
+          <div className="flex justify-center">
+            <Button type="submit" showIcon disabled={isResetting}>
+              {isResetting ? 'Отправляем...' : 'Отправить новый пароль'}
+            </Button>
+          </div>
+          
+          <div className="text-center">
+            <button
+              type="button"
+              className="text-blue-600 hover:text-blue-800 text-sm underline cursor-pointer"
+              onClick={resetForm}
+            >
+              ← Вернуться к входу
+            </button>
+          </div>
+        </form>
+      </Modal>
+    );
+  }
 
   return (
     <Modal open={true} onClose={onClose}>
@@ -113,6 +214,17 @@ const LoginModal: React.FC<LoginModalProps> = ({
         {success && (
           <div className="text-center text-green-600 text-sm mt-2">Вход выполнен успешно!</div>
         )}
+        
+        <div className="text-center">
+          <button
+            type="button"
+            className="text-blue-600 hover:text-blue-800 text-sm underline cursor-pointer"
+            onClick={() => setIsPasswordReset(true)}
+          >
+            Забыли пароль?
+          </button>
+        </div>
+        
         <div className="text-center flex flex-row gap-2 justify-center align-middle">
           <p className="flex flex-col justify-center align-middle">
             Нет аккаунта?
@@ -133,8 +245,6 @@ const LoginModal: React.FC<LoginModalProps> = ({
             {isSubmitting ? 'Вход...' : 'Войти'}
           </Button>
         </div>
-
-        
       </form>
     </Modal>
   );
