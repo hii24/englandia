@@ -9,6 +9,7 @@ import ClassesSection from "@/components/home/ClassesSection";
 import GiftBanner from "@/components/home/GiftBanner";
 import VideoSection from "@/components/home/VideoSection";
 import TeachersSection from "@/components/home/TeachersSection";
+import FreeLessonSection from "@/components/home/FreeLessonSection";
 import PricingSection from "@/components/home/PricingSection";
 import ResultsSection from "@/components/home/ResultsSection";
 import ReviewsSection from "@/components/home/ReviewsSection";
@@ -32,6 +33,7 @@ export default function HomePage() {
       <GiftBanner />
       <VideoSection />
       <TeachersSection />
+      <FreeLessonSection />
       <PricingSection />
       <ResultsSection />
       <ReviewsSection />
