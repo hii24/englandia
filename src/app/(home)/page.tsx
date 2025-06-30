@@ -12,6 +12,7 @@ import TeachersSection from "@/components/home/TeachersSection";
 import PricingSection from "@/components/home/PricingSection";
 import ResultsSection from "@/components/home/ResultsSection";
 import ReviewsSection from "@/components/home/ReviewsSection";
+import { Footer } from "@/components/home";
 
 export default function HomePage() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function HomePage() {
   }, [isAuthenticated, router]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-white ">
       <Header />
       <Hero />
       <ClassesSection />
@@ -34,6 +35,7 @@ export default function HomePage() {
       <PricingSection />
       <ResultsSection />
       <ReviewsSection />
+      <Footer />
     </div>
   );
 } 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui';
 import styles from './ReviewsSection.module.scss';
@@ -66,6 +66,54 @@ const allReviews = [
 export default function ReviewsSection() {
   const [visibleReviews, setVisibleReviews] = useState(6);
 
+  // Параллакс
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [parallax, setParallax] = useState({ img1: { x: 0, y: 0 }, img2: { x: 0, y: 0 } });
+
+  // Получаем ширину окна для отключения параллакса на мобильных
+  const [isDesktop, setIsDesktop] = useState(true);
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth > 1024);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (window.innerWidth <= 1024) return;
+      const section = sectionRef.current;
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      // Коэффициенты для параллакса
+      const k1 = 30; // для первой картинки
+      const k2 = 50; // для второй картинки
+      setParallax({
+        img1: {
+          x: (x - centerX) / k1,
+          y: (y - centerY) / k1,
+        },
+        img2: {
+          x: (x - centerX) / k2,
+          y: (y - centerY) / k2,
+        },
+      });
+    };
+    const section = sectionRef.current;
+    if (section) {
+      section.addEventListener('mousemove', handleMouseMove);
+    }
+    return () => {
+      if (section) {
+        section.removeEventListener('mousemove', handleMouseMove);
+      }
+    };
+  }, []);
+
   const handleShowMore = () => {
     setVisibleReviews(prev => Math.min(prev + 3, allReviews.length));
   };
@@ -105,9 +153,36 @@ export default function ReviewsSection() {
 
   return (
     <section className={styles.reviewsSection}>
-      <div className={styles.container}>
+      <div className={styles.container} ref={sectionRef}>
         {/* Декоративные изображения */}
-        
+        <div
+          className={styles.decorativeImage1}
+          style={isDesktop ? {
+            transform: `translate3d(${parallax.img1.x}px, ${parallax.img1.y}px, 0)`
+          } : {}}
+        >
+          <Image
+            src="/reviews-image-1.jpg"
+            alt="Декоративное изображение"
+            width={197}
+            height={197}
+            className={styles.decorImage}
+          />
+        </div>
+        <div
+          className={styles.decorativeImage2}
+          style={isDesktop ? {
+            transform: `translate3d(${parallax.img2.x}px, ${parallax.img2.y}px, 0)`
+          } : {}}
+        >
+          <Image
+            src="/reviews-image-2.jpg"
+            alt="Декоративное изображение"
+            width={153}
+            height={209}
+            className={styles.decorImage}
+          />
+        </div>
 
         {/* Заголовок */}
         <div className={styles.titleSection}>
@@ -165,24 +240,6 @@ export default function ReviewsSection() {
             showIcon
           >
             Бесплатное занятие
-            <div className={styles.decorativeImage1}>
-          <Image
-            src="/reviews-image-1.jpg"
-            alt="Декоративное изображение"
-            width={197}
-            height={197}
-            className={styles.decorImage}
-          />
-        </div>
-        <div className={styles.decorativeImage2}>
-          <Image
-            src="/reviews-image-2.jpg"
-            alt="Декоративное изображение"
-            width={153}
-            height={209}
-            className={styles.decorImage}
-          />
-        </div>
           </Button>
         </div>
       </div>
