@@ -45,6 +45,8 @@
   height: 872px;
   object-fit: contain;
   border-radius: 0;
+  animation: parallaxFloatMain 10s ease-in-out infinite;
+  animation-delay: -1s;
 }
 
 .image1 {
@@ -55,7 +57,7 @@
   height: 234px;
   object-fit: cover;
   border-radius: 8px;
-  
+  animation: parallaxFloat1 6s ease-in-out infinite;
 }
 
 .image2 {
@@ -66,6 +68,8 @@
   height: 161px;
   object-fit: cover;
   border-radius: 8px;
+  animation: parallaxFloat2 8s ease-in-out infinite;
+  animation-delay: -2s;
 }
 
 .image3 {
@@ -77,6 +81,8 @@
   object-fit: contain;
   border-radius: 8px;
   transform: rotate(15deg);
+  animation: parallaxFloat3 7s ease-in-out infinite;
+  animation-delay: -4s;
 }
 
 .container {
@@ -232,178 +238,67 @@
   margin: 4px 0 0 0;
 }
 
-/* Мобильная версия согласно второму дизайну */
-@media (max-width: 768px) {
-  .hero {
-    height: 800px;
+/* Keyframes для параллакс эффекта */
+@keyframes parallaxFloatMain {
+  0%, 100% {
+    transform: translateY(0px);
   }
-  
-  .gradientBg {
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 40px);
-    height: 100%;
-    border-radius: 20px;
-  }
-  
-  .images {
-    // bottom: -225px;
-    // left: 50%;
-    // transform: translateX(-50%);
-    width: 316px;
-    height: 225px;
-  }
-  
-  .mainImage {
-    left: 56px;
-    width: 189px;
-    height: 225px;
-  }
-  
-  .image1 {
-    bottom: 69px;
-    left: 0;
-    width: 111px;
-    height: 111px;
-  }
-  
-  .image2 {
-    display: none;
-  }
-  
-  .image3 {
-    bottom: 81px;
-    left: 181px;
-    width: 135px;
-    height: 108px;
-  }
-  
-  .container {
-    padding: 0 20px;
-  }
-  
-  .title {
-    margin-top: 20px;
-    width: 100%;
-    max-width: 300px;
-    
-    h1 {
-      font-size: 26px;
-    }
-  }
-  
-  .persons {
-    margin-top: 20px;
-    margin-left: 0;
-  }
-  
-  .personAvatar {
-    width: 30px;
-    height: 30px;
-  }
-  
-  .personsText {
-    font-size: 12px;
-    width: 165px;
-  }
-  
-  .tags {
-    width: 100%;
-    max-width: 300px;
-    margin-top: 34px;
-  }
-  
-  .tag {
-    font-size: 12px;
-    padding: 6px 10px;
-  }
-  
-  .action {
-    margin-top: 155px;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .actionButton {
-    :global(.button) {
-      padding: 15px 30px !important;
-      font-size: 14px !important;
-      height: 47px !important;
-    }
-    
-    :global(.circle-btn) {
-      width: 47px !important;
-      height: 47px !important;
-      
-      svg {
-        width: 14px !important;
-        height: 12px !important;
-      }
-    }
-  }
-  
-  .actionDescription {
-    width: 100%;
-    max-width: 300px;
-    margin: 0;
+  50% {
+    transform: translateY(-8px);
   }
 }
 
-@media (max-width: 1400px) {
-  .images {
-    // right: 50%;
-    // transform: translateX(calc(50% - 480px/2 + 1200px/2 - 720px));
-    // width: 480px;
+@keyframes parallaxFloat1 {
+  0%, 100% {
+    transform: translateY(0px);
   }
-  
-  .mainImage {
-    width: 380px;
-    left: 50px;
-  }
-  
-  .tags {
-    width: 700px;
+  50% {
+    transform: translateY(-15px);
   }
 }
 
-@media (max-width: 1200px) {
-  .images {
-    display: none;
+@keyframes parallaxFloat2 {
+  0%, 100% {
+    transform: translateY(0px);
   }
-  
-  .title {
-    width: 100%;
-    text-align: center;
-    
-    h1 {
-      font-size: 40px;
-    }
+  50% {
+    transform: translateY(-10px);
   }
-  
-  .persons {
-    justify-content: center;
-    margin-left: 0;
-    margin-top: 40px;
+}
+
+@keyframes parallaxFloat3 {
+  0%, 100% {
+    transform: rotate(15deg) translateY(0px);
   }
-  
-  .tags {
-    width: 100%;
-    justify-content: center;
-    margin-top: 40px;
+  50% {
+    transform: rotate(15deg) translateY(-12px);
   }
-  
-  .action {
-    justify-content: center;
-    margin-top: 40px;
-    margin-bottom: 40px;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+}
+
+/* Keyframes для мобильной версии */
+@keyframes parallaxFloatMainMobile {
+  0%, 100% {
+    transform: translateY(0px);
   }
-  
-  .actionDescription {
-    width: 100%;
-    max-width: 400px;
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes parallaxFloatMobile1 {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes parallaxFloatMobile3 {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
   }
 } 
