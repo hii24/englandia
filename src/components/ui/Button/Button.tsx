@@ -10,6 +10,7 @@ export const Button: React.FC<ButtonProps> = ({
   loading = false,
   fullWidth = false,
   showIcon = false,
+  iconColor = 'default',
   className = '',
   onClick,
   type = 'button',
@@ -25,6 +26,10 @@ export const Button: React.FC<ButtonProps> = ({
     className
   ].filter(Boolean).join(' ');
 
+  // Определяем цвета для иконки
+  const iconBgColor = iconColor === 'white' ? '#440693' : '#ffffff';
+  const iconStrokeColor = iconColor === 'white' ? '#ffffff' : '#440693';
+
   return (
     <div className="button__container">
       <button
@@ -39,7 +44,7 @@ export const Button: React.FC<ButtonProps> = ({
       </button>
       {showIcon && (
         <div className="button__icon">
-          <div className="circle-btn">
+          <div className="circle-btn" style={{ backgroundColor: iconBgColor }}>
             <span className="arrow arrow-left">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -47,7 +52,7 @@ export const Button: React.FC<ButtonProps> = ({
                 height="36"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="white"
+                stroke={iconStrokeColor}
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -63,7 +68,7 @@ export const Button: React.FC<ButtonProps> = ({
                 height="36"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="white"
+                stroke={iconStrokeColor}
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"

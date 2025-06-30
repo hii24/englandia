@@ -1,0 +1,155 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.menuWrapper {
+  width: 100%;
+  height: 100vh;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0 60px 0;
+  position: relative;
+  overflow-y: auto;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  z-index: 10;
+  
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.logoBlock {
+  margin-top: 18px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 210px;
+  margin-bottom: 30px;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  background: #ffffff;
+  border: 1px solid #ffffff;
+  border-radius: 30px;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: #440693;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #f8f5ff;
+    border-color: #440693;
+  }
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 210px;
+  margin-bottom: 30px;
+}
+
+.cabinetBtn {
+  width: 100% !important;
+  
+  :global(.button) {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  :global(.button__content) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.freeLessonBtn {
+  width: 100% !important;
+  
+  :global(.button) {
+    width: 100% !important;
+    background: #f55c42 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 40px !important;
+    padding: 10px 32px !important;
+    font-family: 'Rubik', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 16px !important;
+    margin-right: 0 !important;
+    justify-content: center !important;
+    
+    &:hover {
+      background: #e04a32 !important;
+    }
+  }
+}
+
+.socials {
+  display: flex;
+  gap: 45px;
+  justify-content: center;
+  align-items: center;
+  margin-top: auto;
+  
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s;
+    
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+@media (max-width: 400px) {
+  .menuWrapper {
+    width: 100vw;
+    padding: 20px 20px 60px 20px;
+  }
+  
+  .menu, .buttons {
+    width: calc(100% - 40px);
+    max-width: 280px;
+  }
+  
+  .socials {
+    gap: 30px;
+  }
+} 

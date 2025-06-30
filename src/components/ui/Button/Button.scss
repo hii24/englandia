@@ -86,7 +86,21 @@
 }
 
 .button--outline {
-  // Стили для outline кнопки
+  background: #ffffff;
+  color: #440693;
+  border: 1px solid #440693;
+  border-radius: 30px;
+  padding: 10px 20px;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #f8f5ff;
+    color: #440693;
+    border-color: #440693;
+  }
 }
 
 .button--ghost {
@@ -95,6 +109,9 @@
 
 // Размеры кнопок
 .button--small {
+  height: 50px !important;
+  padding: 5px 20px;
+  font-size: 16px;
   // Стили для маленькой кнопки
 }
 

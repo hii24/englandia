@@ -1,0 +1,154 @@
+.videoSection {
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.title {
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 50px;
+  line-height: 1.2;
+  background: linear-gradient(90deg, #1F55A2 0%, #850B4F 50%, #F55C42 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+  margin-bottom: -40px;
+  z-index: 10;
+}
+
+.videoLayout {
+  position: relative;
+  width: 100%;
+  max-width: 1404px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 752px;
+  margin: 0 auto;
+}
+
+.backgroundImages {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.bgImage1 {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  width: 265.282193511617px;
+  height: 511.054255373608px;
+  transform: rotate(-153.13deg) scale(1 ,-1);
+  object-fit: cover;
+  border-radius: 20px;
+  z-index: 1;
+  
+}
+
+.bgImage2 {
+  position: absolute;
+  bottom: -40px;
+  left: -60px;
+  width: 297px;
+  height: 297px;
+  object-fit: cover;
+  border-radius: 20px;
+  transform:  scale(-1 ,1);
+  z-index: 1;
+}
+
+.videoContainer {
+  
+  
+  width: 900px;
+  height: 500px;
+  border-radius: 20px;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.videoPreview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+.playButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 95px;
+  height: 95px;
+  background: rgba(255, 255, 255, 0.6);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  
+  &:active {
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  
+  svg {
+    margin-left: 4px; // Центрирование треугольника play
+  }
+}
+
+.videoPlayer {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.bunnyPlayer {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+}
+
+@media (max-width: 1024px) {
+  .videoLayout {
+    max-width: 1000px;
+    height: 560px;
+    margin-top: 100px;
+  
+  }
+  
+ 
+  .bgImage2{
+    display: none;
+  }
+   .bgImage1 {
+    top: -100px;
+    left: 0;
+   
+    transform: rotate(166.13deg) scale(1 ,-1);
+
+    width: 94.25023374388374;
+    height: 182.03007728271498;
+
+  }
+} 

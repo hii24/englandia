@@ -16,6 +16,8 @@ export type ButtonSize =
   | 'large'
   | 'xl';
 
+export type IconColor = 'default' | 'white';
+
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
@@ -23,5 +25,6 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
   fullWidth?: boolean;
   showIcon?: boolean;
+  iconColor?: IconColor;
   children: React.ReactNode;
 } 
