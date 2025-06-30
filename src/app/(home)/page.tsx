@@ -10,10 +10,9 @@ import GiftBanner from "@/components/home/GiftBanner";
 import VideoSection from "@/components/home/VideoSection";
 import TeachersSection from "@/components/home/TeachersSection";
 import FreeLessonSection from "@/components/home/FreeLessonSection";
-import PricingSection from "@/components/home/PricingSection";
 import ResultsSection from "@/components/home/ResultsSection";
 import ReviewsSection from "@/components/home/ReviewsSection";
-import { Footer } from "@/components/home";
+import { Footer, PricingSection } from "@/components/home";
 
 export default function HomePage() {
   const router = useRouter();
@@ -32,8 +31,8 @@ export default function HomePage() {
       <ClassesSection />
       <GiftBanner />
       <VideoSection />
-      <TeachersSection />
       <FreeLessonSection />
+      <TeachersSection />
       <PricingSection />
       <ResultsSection />
       <ReviewsSection />
