@@ -1,0 +1,346 @@
+// Основная секция
+.resultsSection {
+  padding: 80px 0;
+  background-color: white;
+}
+
+// Контейнер с точными размерами из Figma
+.container {
+  width: 2059px;
+  height: 422px;
+  margin: 0 auto;
+  position: relative;
+}
+
+// Заголовок "Видимые результаты"
+.title {
+  position: absolute;
+  left: 732px;
+  top: 0;
+  width: 512px;
+  height: 60px;
+  
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 50px;
+  line-height: 1.2;
+  text-align: center;
+  
+  background: linear-gradient(90deg, #1F55A2 0%, #850B4F 50%, #F55C42 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+// Подзаголовок
+.subtitle {
+  position: absolute;
+  left: 865px;
+  top: 60px;
+  width: 247px;
+  height: 24px;
+  
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.2;
+  text-align: center;
+  color: #000000;
+  margin: 0;
+}
+
+// Первая строка тегов
+.firstRowTags {
+  position: absolute;
+  left: 121px;
+  top: 149px;
+  display: flex;
+  align-items: center;
+  gap: 19px;
+}
+
+// Вторая строка тегов
+.secondRowTags {
+  position: absolute;
+  left: 0;
+  top: 235px;
+  display: flex;
+  align-items: center;
+  gap: 19px;
+}
+
+// Базовый стиль тега
+.tag {
+  background: #E4E6FF;
+  border: 1px dashed #63ACDF;
+  border-radius: 60px;
+  padding: 10px 30px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  
+  // Специальный стиль для последнего тега в каждой строке
+  &.lastTag {
+    border-radius: 30px;
+    padding: 10px 20px;
+  }
+}
+
+// Текст тега
+.tagText {
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.5;
+  color: #000000;
+  white-space: nowrap;
+}
+
+// Кнопка
+.buttonContainer {
+  position: absolute;
+  left: 793px;
+  top: 362px;
+  display: flex;
+  align-items: center;
+}
+
+// Основная часть кнопки
+.buttonBase {
+  background: #F55C42;
+  border-radius: 100px;
+  padding: 20px 40px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    background: #e54a35;
+  }
+}
+
+// Текст кнопки
+.buttonText {
+  font-family: 'Rubik', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.185;
+  color: #FFFFFF;
+}
+
+// Круглая иконка
+.buttonCircle {
+  width: 60px;
+  height: 60px;
+  background: #440693;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    background: #5a0bb5;
+  }
+  
+  svg {
+    width: 19px;
+    height: 16px;
+  }
+}
+
+// Адаптивность
+@media (max-width: 2100px) {
+  .container {
+    width: 100%;
+    max-width: 1800px;
+    padding: 0 20px;
+  }
+  
+  .title {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .subtitle {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .firstRowTags {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .secondRowTags {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .buttonContainer {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 1400px) {
+  .container {
+    max-width: 1200px;
+  }
+  
+  .firstRowTags,
+  .secondRowTags {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+  }
+  
+  .tag {
+    padding: 8px 24px;
+    
+    &.lastTag {
+      padding: 8px 16px;
+    }
+  }
+  
+  .tagText {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 1000px) {
+  .container {
+    max-width: 800px;
+    height: auto;
+  }
+  
+  .title {
+    font-size: 36px;
+    width: auto;
+  }
+  
+  .subtitle {
+    font-size: 18px;
+    width: auto;
+  }
+  
+  .firstRowTags {
+    top: 120px;
+  }
+  
+  .secondRowTags {
+    top: 200px;
+  }
+  
+  .buttonContainer {
+    top: 300px;
+  }
+  
+  .tag {
+    padding: 6px 20px;
+    
+    &.lastTag {
+      padding: 6px 14px;
+    }
+  }
+  
+  .tagText {
+    font-size: 18px;
+  }
+  
+  .buttonBase {
+    padding: 16px 32px;
+    height: 50px;
+  }
+  
+  .buttonText {
+    font-size: 18px;
+  }
+  
+  .buttonCircle {
+    width: 50px;
+    height: 50px;
+    
+    svg {
+      width: 16px;
+      height: 13px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .resultsSection {
+    padding: 60px 0;
+  }
+  
+  .container {
+    max-width: 100%;
+    padding: 0 15px;
+  }
+  
+  .title {
+    font-size: 28px;
+    width: auto;
+  }
+  
+  .subtitle {
+    font-size: 16px;
+    width: auto;
+  }
+  
+  .firstRowTags {
+    top: 100px;
+    gap: 10px;
+  }
+  
+  .secondRowTags {
+    top: 170px;
+    gap: 10px;
+  }
+  
+  .buttonContainer {
+    top: 250px;
+  }
+  
+  .tag {
+    padding: 5px 15px;
+    border-radius: 30px;
+    
+    &.lastTag {
+      padding: 5px 12px;
+      border-radius: 20px;
+    }
+  }
+  
+  .tagText {
+    font-size: 14px;
+  }
+  
+  .buttonBase {
+    padding: 12px 24px;
+    height: 44px;
+  }
+  
+  .buttonText {
+    font-size: 16px;
+  }
+  
+  .buttonCircle {
+    width: 44px;
+    height: 44px;
+    margin-left: -8px;
+    
+    svg {
+      width: 14px;
+      height: 11px;
+    }
+  }
+} 

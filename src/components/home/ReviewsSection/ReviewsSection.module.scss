@@ -1,0 +1,328 @@
+.reviewsSection {
+  position: relative;
+  padding: 20px 0 60px 0;
+  margin: 0;
+  background: linear-gradient(135deg, #912CBC 0%, #6C2EDA 42.79%, #6F75E9 100%);
+  overflow: hidden;
+  border-radius: 40px;
+}
+
+.container {
+  position: relative;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.mainButton{
+  position: relative;
+  z-index: 0;
+}
+/* Декоративные изображения */
+.decorativeImage1 {
+  position: absolute;
+  right: -100%;
+  bottom: 0;
+  z-index: 1;
+  
+  .decorImage {
+    border-radius: 0;
+  }
+}
+
+.decorativeImage2 {
+  position: absolute;
+  left: -100%;
+  bottom: 0;
+  z-index: 1;
+  
+  .decorImage {
+    border-radius: 0;
+  }
+}
+
+/* Заголовок */
+.titleSection {
+  width: 365px;
+  text-align: center;
+  z-index: 2;
+  margin-bottom: 40px;
+}
+
+.title {
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 50px;
+  line-height: 1.2;
+  color: #FFFFFF;
+
+}
+
+.subtitle {
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.185;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+/* Сетка отзывов - только для десктопа */
+.reviewsGrid {
+  display: flex;
+  gap: 20px;
+  z-index: 2;
+  margin-bottom: 60px;
+  width: 100%;
+  max-width: 1358px;
+  z-index: 2;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+}
+
+/* Мобильный слайдер - скрыт по умолчанию */
+.mobileSlider {
+  display: none;
+  z-index: 2;
+  overflow: hidden;
+  width: 100%;
+  margin-bottom: 60px;
+}
+
+.sliderContainer {
+  display: flex;
+  gap: 20px;
+  padding: 0 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+}
+
+.reviewCard {
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0; /* Важно для слайдера */
+}
+
+.quoteSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quoteIcon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.reviewText {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #000000;
+  margin: 0;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatarWrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #FFFFFF;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+  width: 210px;
+}
+
+.userName {
+  font-family: 'Rubik', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #000000;
+  margin: 0;
+}
+
+.childAge {
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #000000;
+  margin: 0;
+}
+
+/* Кнопки */
+.buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 50px;
+  z-index: 3;
+}
+
+
+
+.buttonCircle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 60px;
+  height: 60px;
+  background: #FFFFFF;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.moreButton {
+
+  border: 1px dashed #FFFFFF;
+  border-radius: 40px;
+  padding: 20px;
+  width: 312px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.7);
+  }
+}
+
+
+@media (max-width: 1200px) {
+  /* На планшетах и мобильных показываем слайдер вместо сетки */
+  .reviewsGrid {
+    display: none;
+  }
+  
+  .mobileSlider {
+    display: block;
+    margin-bottom: 40px;
+  }
+  
+  .sliderContainer {
+    padding: 0 20px;
+    
+    .reviewCard {
+      width: 320px;
+      min-width: 320px;
+      padding: 18px;
+      gap: 32px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .reviewsSection {
+    padding: 40px 0;
+  }
+  
+  .container {
+    padding: 0 16px;
+  }
+  
+  .title {
+    font-size: 32px;
+  }
+  
+  .subtitle {
+    font-size: 16px;
+  }
+  
+  .titleSection {
+    margin-bottom: 30px;
+  }
+  
+  /* Дополнительные стили для мобильных */
+  .sliderContainer {
+    padding: 0 16px;
+    
+    .reviewCard {
+      width: 280px;
+      min-width: 280px;
+      padding: 16px;
+      gap: 24px;
+    }
+  }
+  
+  .mobileSlider {
+    margin-bottom: 30px;
+  }
+  
+  .reviewText {
+    font-size: 14px;
+  }
+  
+  .userName {
+    font-size: 14px;
+  }
+  
+  .childAge {
+    font-size: 14px;
+  }
+  
+  .mainButton {
+    font-size: 18px !important;
+    padding: 16px 32px !important;
+    height: 52px !important;
+  }
+  
+  .buttonCircle {
+    width: 52px;
+    height: 52px;
+  }
+  
+  .moreButton {
+    width: 280px;
+    font-size: 14px;
+    padding: 16px;
+    height: 44px;
+  }
+} 

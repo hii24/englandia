@@ -8,6 +8,10 @@ import Hero from "@/components/home/Hero";
 import ClassesSection from "@/components/home/ClassesSection";
 import GiftBanner from "@/components/home/GiftBanner";
 import VideoSection from "@/components/home/VideoSection";
+import TeachersSection from "@/components/home/TeachersSection";
+import PricingSection from "@/components/home/PricingSection";
+import ResultsSection from "@/components/home/ResultsSection";
+import ReviewsSection from "@/components/home/ReviewsSection";
 
 export default function HomePage() {
   const router = useRouter();
@@ -26,6 +30,10 @@ export default function HomePage() {
       <ClassesSection />
       <GiftBanner />
       <VideoSection />
+      <TeachersSection />
+      <PricingSection />
+      <ResultsSection />
+      <ReviewsSection />
     </div>
   );
 } 

@@ -1,0 +1,260 @@
+.teachersSection {
+  padding: 80px 0;
+  position: relative;
+  overflow: hidden;
+  background-color: white;
+}
+
+.container {
+  max-width: 1735px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 60px;
+  text-align: center;
+}
+
+.mainTitle {
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 50px;
+  line-height: 1.185;
+  background: linear-gradient(90deg, #1F55A2 0%, #850B4F 50%, #F55C42 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+
+.subtitle {
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.185;
+  color: #000000;
+  margin: 0;
+  text-align: center;
+}
+
+.teachersList {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  justify-content: center;
+  margin-bottom: 0;
+  flex-wrap: nowrap;
+  position: relative;
+}
+
+.teacherCard {
+  position: relative;
+  width: 325px;
+  height: 345px;
+  flex-shrink: 0;
+}
+
+.person {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 325px;
+  padding-top: 18px;
+}
+
+.photo {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  // margin: 0 auto;
+}
+
+.photoBg {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  width: 150px;
+  height: 150px;
+  background: #F0F9FF;
+  border-radius: 10px;
+  z-index: 1;
+}
+
+.teacherImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 165px;
+  height: 165px;
+  object-fit: cover;
+  border-radius: 10px;
+  z-index: 2;
+  transition: transform 0.3s ease;
+}
+
+.teacherCard:nth-child(odd) .teacherImage {
+  transform: rotate(-5deg);
+}
+
+.teacherCard:nth-child(even) .teacherImage {
+  transform: rotate(5deg);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 0 10px;
+}
+
+.teacherName {
+  font-family: 'Rubik', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.185;
+  color: #440693;
+  margin: 0;
+  text-align: left;
+}
+
+.teacherDescription {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #000000;
+  margin: 0;
+  text-align: left;
+}
+
+.emoji {
+  position: absolute;
+  top: 0;
+  left:  120px;
+  width: 50px;
+  height: 50px;
+  background: #EAEBFF;
+  border: 1px solid #FFFFFF;
+  border-radius: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3;
+}
+
+.emojiIcon {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.controls {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  pointer-events: none;
+}
+
+.arrow {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s ease;
+  pointer-events: all;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.arrowCircle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 60px;
+  background: #440693;
+  border-radius: 50%;
+}
+
+.arrowIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 19px;
+  height: 16px;
+  z-index: 4;
+}
+
+
+
+@media (max-width: 1400px) {
+  .teachersSection {
+    padding: 60px 0;
+  }
+  
+  .mainTitle {
+    font-size: 36px;
+  }
+  
+  .subtitle {
+    font-size: 18px;
+  }
+  
+  .teachersList {
+    gap: 15px;
+  }
+  
+  .teacherCard {
+    width: 280px;
+    height: 320px;
+  }
+  
+  .person {
+    width: 280px;
+  }
+  
+  // .photo {
+  //   width: 130px;
+  //   height: 130px;
+  // }
+  
+  // .photoBg {
+  //   width: 115px;
+  //   height: 115px;
+  // }
+  
+  // .teacherImage {
+  //   width: 130px;
+  //   height: 130px;
+  // }
+  
+  .controls {
+    padding: 0 10px;
+    z-index: 5;
+  }
+}
