@@ -2,27 +2,32 @@
 .resultsSection {
   padding: 80px 0;
   background-color: white;
+  width: 100%;
 }
 
-// Контейнер с точными размерами из Figma
+// Контейнер с адаптивными размерами
 .container {
-  width: 2059px;
+  width: 100%;
+ 
   height: 422px;
   margin: 0 auto;
   position: relative;
+  padding: 0 20px;
 }
 
 // Заголовок "Видимые результаты"
 .title {
   position: absolute;
-  left: 732px;
+  left: 50%;
   top: 0;
-  width: 512px;
+  transform: translateX(-50%);
+  width: auto;
+  max-width: 600px;
   height: 60px;
   
   font-family: 'Rubik', sans-serif;
   font-weight: 400;
-  font-size: 50px;
+  font-size: clamp(28px, 4vw, 50px);
   line-height: 1.2;
   text-align: center;
   
@@ -36,38 +41,76 @@
 // Подзаголовок
 .subtitle {
   position: absolute;
-  left: 865px;
+  left: 50%;
   top: 60px;
-  width: 247px;
+  transform: translateX(-50%);
+  width: auto;
+  max-width: 300px;
   height: 24px;
   
   font-family: 'Rubik', sans-serif;
   font-weight: 400;
-  font-size: 20px;
+  font-size: clamp(16px, 2vw, 20px);
   line-height: 1.2;
   text-align: center;
   color: #000000;
   margin: 0;
 }
 
-// Первая строка тегов
-.firstRowTags {
+// Обёртка для первой строки тегов
+.firstRowWrapper {
   position: absolute;
-  left: 121px;
+  left: 0;
   top: 149px;
+  width: 100%;
+  overflow: hidden;
+}
+
+// Первая строка тегов с анимацией справа налево
+.firstRowTags {
   display: flex;
   align-items: center;
   gap: 19px;
+  width: max-content;
+  animation: slideRightToLeft 30s linear infinite;
 }
 
-// Вторая строка тегов
-.secondRowTags {
+// Обёртка для второй строки тегов
+.secondRowWrapper {
   position: absolute;
   left: 0;
   top: 235px;
+  width: 100%;
+  overflow: hidden;
+}
+
+// Вторая строка тегов с анимацией слева направо
+.secondRowTags {
   display: flex;
   align-items: center;
   gap: 19px;
+  width: max-content;
+  animation: slideLeftToRight 25s linear infinite;
+}
+
+// Keyframes для анимации справа налево (первая строка)
+@keyframes slideRightToLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-20%);
+  }
+}
+
+// Keyframes для анимации слева направо (вторая строка)
+@keyframes slideLeftToRight {
+  0% {
+    transform: translateX(-20%);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 // Базовый стиль тега
@@ -79,6 +122,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
   
   // Специальный стиль для последнего тега в каждой строке
   &.lastTag {
@@ -91,7 +135,7 @@
 .tagText {
   font-family: 'Rubik', sans-serif;
   font-weight: 400;
-  font-size: 24px;
+  font-size: clamp(14px, 1.5vw, 24px);
   line-height: 1.5;
   color: #000000;
   white-space: nowrap;
@@ -100,10 +144,12 @@
 // Кнопка
 .buttonContainer {
   position: absolute;
-  left: 793px;
+  left: 50%;
   top: 362px;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
+  z-index: 10;
 }
 
 // Основная часть кнопки
@@ -129,7 +175,7 @@
 .buttonText {
   font-family: 'Rubik', sans-serif;
   font-weight: 700;
-  font-size: 20px;
+  font-size: clamp(16px, 1.5vw, 20px);
   line-height: 1.185;
   color: #FFFFFF;
 }
@@ -157,50 +203,65 @@
   }
 }
 
-// Адаптивность
-@media (max-width: 2100px) {
+// Адаптивность для очень больших экранов
+@media (min-width: 2200px) {
   .container {
-    width: 100%;
-    max-width: 1800px;
-    padding: 0 20px;
+   
   }
   
   .title {
-    left: 50%;
-    transform: translateX(-50%);
+    font-size: 60px;
+    max-width: 700px;
   }
   
   .subtitle {
-    left: 50%;
-    transform: translateX(-50%);
+    font-size: 24px;
+    max-width: 400px;
   }
   
+  .tagText {
+    font-size: 28px;
+  }
+  
+  .buttonText {
+    font-size: 24px;
+  }
+  
+  .buttonBase {
+    padding: 24px 48px;
+    height: 70px;
+  }
+  
+  .buttonCircle {
+    width: 70px;
+    height: 70px;
+    
+    svg {
+      width: 22px;
+      height: 18px;
+    }
+  }
+}
+
+// Стандартные большие экраны
+@media (max-width: 2100px) {
+  .container {
+   
+  }
+  
+  // Увеличиваем скорость анимации для меньших экранов
   .firstRowTags {
-    left: 50%;
-    transform: translateX(-50%);
+    animation-duration: 25s;
   }
   
   .secondRowTags {
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  
-  .buttonContainer {
-    left: 50%;
-    transform: translateX(-50%);
+    animation-duration: 20s;
   }
 }
 
 @media (max-width: 1400px) {
   .container {
-    max-width: 1200px;
-  }
-  
-  .firstRowTags,
-  .secondRowTags {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
+    max-width: 100%;
   }
   
   .tag {
@@ -211,126 +272,69 @@
     }
   }
   
-  .tagText {
-    font-size: 20px;
-  }
-}
-
-@media (max-width: 1000px) {
-  .container {
-    max-width: 800px;
-    height: auto;
-  }
-  
-  .title {
-    font-size: 36px;
-    width: auto;
-  }
-  
-  .subtitle {
-    font-size: 18px;
-    width: auto;
-  }
-  
+  // Еще больше увеличиваем скорость
   .firstRowTags {
-    top: 120px;
+    animation-duration: 20s;
   }
   
   .secondRowTags {
-    top: 200px;
-  }
-  
-  .buttonContainer {
-    top: 300px;
-  }
-  
-  .tag {
-    padding: 6px 20px;
-    
-    &.lastTag {
-      padding: 6px 14px;
-    }
-  }
-  
-  .tagText {
-    font-size: 18px;
-  }
-  
-  .buttonBase {
-    padding: 16px 32px;
-    height: 50px;
-  }
-  
-  .buttonText {
-    font-size: 18px;
-  }
-  
-  .buttonCircle {
-    width: 50px;
-    height: 50px;
-    
-    svg {
-      width: 16px;
-      height: 13px;
-    }
+    animation-duration: 18s;
   }
 }
 
+// Планшеты и мобильные
 @media (max-width: 768px) {
   .resultsSection {
     padding: 60px 0;
   }
   
   .container {
-    max-width: 100%;
+    height: auto;
     padding: 0 15px;
+    min-height: 350px;
   }
   
   .title {
-    font-size: 28px;
-    width: auto;
+    position: static;
+    transform: none;
+    margin-bottom: 10px;
   }
   
   .subtitle {
-    font-size: 16px;
-    width: auto;
+    position: static;
+    transform: none;
+    margin-bottom: 40px;
   }
   
-  .firstRowTags {
-    top: 100px;
-    gap: 10px;
+  .firstRowWrapper {
+    position: static;
+    margin-bottom: 20px;
   }
   
-  .secondRowTags {
-    top: 170px;
-    gap: 10px;
+  .secondRowWrapper {
+    position: static;
+    margin-bottom: 40px;
   }
   
   .buttonContainer {
-    top: 250px;
+    position: static;
+    transform: none;
+    justify-content: center;
   }
   
   .tag {
-    padding: 5px 15px;
+    padding: 8px 16px;
     border-radius: 30px;
     
     &.lastTag {
-      padding: 5px 12px;
-      border-radius: 20px;
+      padding: 8px 12px;
+      border-radius: 25px;
     }
-  }
-  
-  .tagText {
-    font-size: 14px;
   }
   
   .buttonBase {
     padding: 12px 24px;
     height: 44px;
-  }
-  
-  .buttonText {
-    font-size: 16px;
   }
   
   .buttonCircle {
@@ -343,4 +347,13 @@
       height: 11px;
     }
   }
-} 
+  
+  // Быстрая анимация для мобильных
+  .firstRowTags {
+    animation-duration: 15s;
+  }
+  
+  .secondRowTags {
+    animation-duration: 12s;
+  }
+}

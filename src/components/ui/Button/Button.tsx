@@ -27,8 +27,8 @@ export const Button: React.FC<ButtonProps> = ({
   ].filter(Boolean).join(' ');
 
   // Определяем цвета для иконки
-  const iconBgColor = iconColor === 'white' ? '#440693' : '#ffffff';
-  const iconStrokeColor = iconColor === 'white' ? '#ffffff' : '#440693';
+  const iconBgColor = iconColor !== 'white' ? '#440693' : '#ffffff';
+  const iconStrokeColor = iconColor !== 'white' ? '#ffffff' : '#440693';
 
   return (
     <div className="button__container">

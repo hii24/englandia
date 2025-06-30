@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './ResultsSection.module.scss';
+import { Button } from '@/components/ui';
 
 const ResultsSection: React.FC = () => {
   const firstRowTags = [
@@ -16,6 +17,10 @@ const ResultsSection: React.FC = () => {
     'Участвовать в олимпиадах по английскому'
   ];
 
+  // Дублируем теги для бесконечной анимации - больше копий для плавности
+  const duplicatedFirstRow = [...firstRowTags, ...firstRowTags, ...firstRowTags, ...firstRowTags, ...firstRowTags];
+  const duplicatedSecondRow = [...secondRowTags, ...secondRowTags, ...secondRowTags, ...secondRowTags, ...secondRowTags];
+
   return (
     <section className={styles.resultsSection}>
       <div className={styles.container}>
@@ -29,46 +34,46 @@ const ResultsSection: React.FC = () => {
           уже через месяц занятий
         </p>
 
-        {/* Первая строка тегов */}
-        <div className={styles.firstRowTags}>
-          {firstRowTags.map((tag, index) => (
-            <div
-              key={index}
-              className={`${styles.tag} ${index === 3 ? styles.lastTag : ''}`}
-            >
-              <span className={styles.tagText}>
-                {tag}
-              </span>
-            </div>
-          ))}
+        {/* Первая строка тегов - движется справа налево */}
+        <div className={styles.firstRowWrapper}>
+          <div className={styles.firstRowTags}>
+            {duplicatedFirstRow.map((tag, index) => (
+              <div
+                key={index}
+                className={`${styles.tag} ${(index % firstRowTags.length) === 3 ? styles.lastTag : ''}`}
+              >
+                <span className={styles.tagText}>
+                  {tag}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Вторая строка тегов */}
-        <div className={styles.secondRowTags}>
-          {secondRowTags.map((tag, index) => (
-            <div
-              key={index}
-              className={`${styles.tag} ${index === 3 ? styles.lastTag : ''}`}
-            >
-              <span className={styles.tagText}>
-                {tag}
-              </span>
-            </div>
-          ))}
+        {/* Вторая строка тегов - движется слева направо */}
+        <div className={styles.secondRowWrapper}>
+          <div className={styles.secondRowTags}>
+            {duplicatedSecondRow.map((tag, index) => (
+              <div
+                key={index}
+                className={`${styles.tag} ${(index % secondRowTags.length) === 3 ? styles.lastTag : ''}`}
+              >
+                <span className={styles.tagText}>
+                  {tag}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Кнопка */}
         <div className={styles.buttonContainer}>
-          <button className={styles.buttonBase}>
-            <span className={styles.buttonText}>
+          <Button className={styles.buttonBase} showIcon >
+           
               Попробовать бесплатно
-            </span>
-          </button>
-          <div className={styles.buttonCircle}>
-            <svg width="19" height="16" viewBox="0 0 19 16" fill="none">
-              <path d="M1 8H18M18 8L11 1M18 8L11 15" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
+           
+          </Button>
+          
         </div>
       </div>
     </section>
