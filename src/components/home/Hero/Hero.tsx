@@ -80,11 +80,7 @@ export default function Hero() {
               <span>с первого</span>
             </div>
             <span>урока</span>
-          </h1>
-        </div>
-
-        {/* Persons */}
-        <div className={styles.persons}>
+            <div className={styles.persons}>
           <div className={styles.personsList}>
             {persons.map((person, index) => (
               <div key={index} className={styles.personAvatar}>
@@ -101,6 +97,11 @@ export default function Hero() {
             Более 1000 довольных учеников и их родителей
           </p>
         </div>
+          </h1>
+        </div>
+
+        {/* Persons */}
+        
 
         {/* Tags */}
         <div className={styles.tags}>
