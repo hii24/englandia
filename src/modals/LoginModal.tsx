@@ -67,6 +67,11 @@ const LoginModal: React.FC<LoginModalProps> = ({
       await loginUser(form);
       setSuccess(true);
       if (onSuccess) onSuccess();
+      
+      // Закрываем модалку после успешного входа с небольшой задержкой
+      setTimeout(() => {
+        onClose();
+      }, 1000);
     } catch (error: any) {
       setServerError(error?.message || 'Ошибка входа');
       console.error('Ошибка входа:', error);

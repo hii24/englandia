@@ -54,7 +54,7 @@ const PaymentSuccessModal: React.FC<PaymentSuccessModalProps> = ({
         {/* Кнопка */}
         <Button 
           onClick={handleGoToDashboard} 
-          className="w-64" 
+        
           variant="primary"
           showIcon
         >

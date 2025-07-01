@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUserStore } from "@/store/userStore";
 import { useModal } from "@/hooks/useModal";
@@ -21,6 +21,7 @@ function HomePageContent() {
   const searchParams = useSearchParams();
   const { isAuthenticated } = useUserStore();
   const { openPaymentSuccessModal, openPaymentCancelModal } = useModal();
+  const modalOpenedRef = useRef(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -30,11 +31,14 @@ function HomePageContent() {
 
   // Проверяем URL параметры для оплаты
   useEffect(() => {
+    if (modalOpenedRef.current) return;
+
     const paymentStatus = searchParams?.get('payment');
     const sessionId = searchParams?.get('session_id');
 
     if (paymentStatus === 'success') {
       openPaymentSuccessModal({ sessionId: sessionId || undefined });
+      modalOpenedRef.current = true;
       // Очищаем URL от параметров
       const url = new URL(window.location.href);
       url.searchParams.delete('payment');
@@ -42,12 +46,13 @@ function HomePageContent() {
       window.history.replaceState({}, '', url.pathname);
     } else if (paymentStatus === 'cancel') {
       openPaymentCancelModal();
+      modalOpenedRef.current = true;
       // Очищаем URL от параметров
       const url = new URL(window.location.href);
       url.searchParams.delete('payment');
       window.history.replaceState({}, '', url.pathname);
     }
-  }, [searchParams, openPaymentSuccessModal, openPaymentCancelModal]);
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white ">

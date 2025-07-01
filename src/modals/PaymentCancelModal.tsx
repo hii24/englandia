@@ -1,6 +1,5 @@
 import React from 'react';
 import { Modal, Button } from '@/components/ui';
-import { useModal } from '@/hooks/useModal';
 
 interface PaymentCancelModalProps {
   onClose: () => void;
@@ -9,12 +8,8 @@ interface PaymentCancelModalProps {
 const PaymentCancelModal: React.FC<PaymentCancelModalProps> = ({
   onClose
 }) => {
-  const { openRegistrationModal } = useModal();
-
   const handleTryAgain = () => {
     onClose();
-    // Можно открыть модалку регистрации или перенаправить к оплате
-    openRegistrationModal();
   };
 
   return (
@@ -27,29 +22,34 @@ const PaymentCancelModal: React.FC<PaymentCancelModalProps> = ({
         
         {/* Основной текст */}
         <div className="text-center text-base mb-4">
-          Что-то пошло не так.<br />
-          Пожалуйста, попробуйте снова или используйте другую карту. Если проблема повторится - напишите нам, и мы обязательно поможем!
+          <b>Что-то пошло не так.</b><br />
+          Но не переживайте! Вы можете повторить оплату.
+        </div>
+
+        {/* Инструкция */}
+        <div className="bg-blue-50 rounded-lg p-4 mb-4 w-full">
+          <h4 className="font-bold text-blue-900 mb-2">📧 Как повторить оплату:</h4>
+          <ol className="text-blue-800 text-sm space-y-2 list-decimal list-inside">
+            <li>Перейдите в свою почту</li>
+            <li>Найдите письмо <b>"Поздравляем с первым уроком!"</b> от Eng-Landia</li>
+            <li>В этом письме есть кнопки <b>"Оформить базовую подписку"</b> и <b>"Оформить интенсивную подписку"</b></li>
+            <li>Нажмите на нужную кнопку для повторной оплаты</li>
+          </ol>
+          <p className="text-xs text-blue-600 mt-3">
+            💡 Если письма нет в основной папке, проверьте папку "Спам"
+          </p>
         </div>
         
         {/* Кнопка */}
         <Button 
           onClick={handleTryAgain} 
-          className="w-64" 
           variant="primary"
           showIcon
         >
-          Попробовать снова
+          Понятно
         </Button>
 
-        {/* Дополнительная информация */}
-        <div className="text-center text-sm text-gray-500 mt-4">
-          <p>Нужна помощь? Обратитесь к нам:</p>
-          <p className="mt-2">
-            <a href="mailto:support@eng-landia.com" className="text-blue-600 hover:underline">
-              support@eng-landia.com
-            </a>
-          </p>
-        </div>
+        
       </div>
     </Modal>
   );
