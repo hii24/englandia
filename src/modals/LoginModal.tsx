@@ -10,7 +10,7 @@ interface LoginModalProps {
 
 const initialState = {
   email: "",
-  password: "password",
+  password: "",
 };
 
 const LoginModal: React.FC<LoginModalProps> = ({
