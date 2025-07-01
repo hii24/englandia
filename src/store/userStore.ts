@@ -30,6 +30,7 @@ interface UserState {
   logout: () => void;
   setLoading: (loading: boolean) => void;
   setInitialized: (initialized: boolean) => void;
+  refreshUser: () => Promise<void>;
 }
 
 export const useUserStore = create<UserState>()(
@@ -61,6 +62,21 @@ export const useUserStore = create<UserState>()(
       }),
       setLoading: (isLoading) => set({ isLoading }),
       setInitialized: (isInitialized) => set({ isInitialized }),
+      refreshUser: async () => {
+        const state = useUserStore.getState();
+        if (!state.user?._id) return;
+        
+        try {
+          const { fetchCurrentUser } = await import('@/lib/api');
+          const userData = await fetchCurrentUser(state.user._id);
+          
+          if (userData.exists && userData.user) {
+            set({ user: { ...state.user, ...userData.user } });
+          }
+        } catch (error) {
+          console.error('Error refreshing user data:', error);
+        }
+      },
     }),
     {
       name: 'user-storage',

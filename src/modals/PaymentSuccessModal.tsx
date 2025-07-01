@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Modal, Button } from '@/components/ui';
 import { useRouter } from 'next/navigation';
+import { useUserStore } from '@/store/userStore';
 
 interface PaymentSuccessModalProps {
   onClose: () => void;
@@ -12,6 +13,12 @@ const PaymentSuccessModal: React.FC<PaymentSuccessModalProps> = ({
   sessionId
 }) => {
   const router = useRouter();
+  const { refreshUser } = useUserStore();
+
+  // Обновляем данные пользователя при открытии модалки
+  useEffect(() => {
+    refreshUser();
+  }, [refreshUser]);
 
   const handleGoToDashboard = () => {
     onClose();

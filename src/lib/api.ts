@@ -128,6 +128,12 @@ export async function fetchUsersByRole(role: string) {
   return response.data;
 }
 
+// Получить актуальные данные пользователя по ID
+export async function fetchCurrentUser(userId: string) {
+  const response = await api.get(`/debug/check-user?userId=${userId}`);
+  return response.data;
+}
+
 export async function assignTeacherToStudent(studentId: string, teacherId: string) {
   const response = await api.patch(`/users/${studentId}`, { teacherId });
   return response.data;
