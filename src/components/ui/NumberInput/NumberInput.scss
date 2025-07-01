@@ -73,3 +73,12 @@ $radius: 30px;
   min-width: 24px;
   text-align: center;
 } 
+
+@media (max-width: 480px) {
+  .number-input__container {
+    min-width: 50px;
+    width:  120px;
+    gap: 10px;
+  }
+  
+}

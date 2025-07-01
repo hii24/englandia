@@ -1,6 +1,7 @@
 import { Modal, NumberInput, Input, Button } from "@/components/ui";
 import React, { useState } from "react";
 import { sendRegistration } from '@/lib/api';
+import { useModal } from '@/hooks/useModal';
 
 interface RegistrationModalProps {
   onClose: () => void;
@@ -32,6 +33,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const { openRegistrationSuccessModal, closeModal } = useModal();
 
   const validate = (field: string, value: string | number) => {
     let error = '';
@@ -77,8 +79,8 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
       await sendRegistration(form);
       setSuccess(true);
       if (onSuccess) onSuccess();
-      // Можно закрыть модалку автоматически:
-      // onClose();
+      closeModal();
+      openRegistrationSuccessModal({ onClose: closeModal });
     } catch (error: any) {
       setServerError(error?.message || 'Ошибка регистрации');
       console.error('Ошибка регистрации:', error);
