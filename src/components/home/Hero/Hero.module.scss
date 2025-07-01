@@ -2,6 +2,8 @@
   position: relative;
   width: 100%;
   min-height: 572px;
+  max-width: 1360px;
+  margin: 0 auto;
   height: auto;
   overflow: hidden;
 }
@@ -19,23 +21,23 @@
  
   position: absolute;
   top: 0;
-  left: 50%;
+  left: 0;
   bottom: 0;
-  transform: translateX(-50%);
-  width: calc(100% - 64px);
+  width: 100vw;
   max-width: 1360px;
   height: 100%;
   background: linear-gradient(334deg, #6b97f7, #7525e2, #f7137e);
   background-size: 180% 180%;
   animation: gradient-animation 6s ease infinite;
   border-radius: 40px;
+  overflow: hidden;
 }
 
 .images {
   position: absolute;
   overflow: hidden;
   bottom: 0;
-  right: 0;
+  right: -150px;
   transform: translateX(calc(50% - 542px/2 + 1367px/2 - 825px));
   width: 542px;
   min-height: 572px;
@@ -192,9 +194,17 @@
   font-size: 16px;
   line-height: 1.5;
   color: #000000;
-  white-space: nowrap;
+  white-space: wrap;
 }
-
+@media (max-width: 768px) {
+  .tag {
+    font-size: 12px;
+  }
+  .personAvatar {
+    width: 30px;
+    height: 30px;
+  }
+}
 .action {
   display: flex;
   align-items: flex-start;
@@ -249,7 +259,7 @@
 /* Адаптивная верстка */
 @media (max-width: 1400px) {
   .gradientBg {
-    width: calc(100% - 32px);
+    width: 100vw;
   }
   
   .images {
@@ -291,16 +301,18 @@
 
 @media (max-width: 1200px) {
   .hero {
-    min-height: 100vh;
-    padding-bottom: 400px;
+    min-height: 800px;
+   
   }
   
   .gradientBg {
-    height: calc(100% - 200px);
+    height: 100%;
+    border-radius: 20px;
+    overflow: hidden;
   }
   
   .images {
-    bottom: 50px;
+    bottom: -20%;
     left: 50%;
     transform: translateX(-50%);
     width: 400px;
@@ -315,21 +327,18 @@
   }
   
   .image1 {
-    bottom: 20px;
+    bottom: 140px;
     left: 0;
     width: 150px;
     height: 150px;
   }
   
   .image2 {
-    top: 20px;
-    left: 120px;
-    width: 100px;
-    height: 100px;
+    display: none;
   }
   
   .image3 {
-    bottom: 30px;
+    bottom: 160px;
     right: 0;
     left: auto;
     width: 180px;
@@ -368,199 +377,35 @@
 
 @media (max-width: 768px) {
   .hero {
-    min-height: 100vh;
-    padding-bottom: 250px;
-  }
-  
-  .gradientBg {
-    width: calc(100% - 20px);
-    border-radius: 20px;
-    height: calc(100% - 150px);
-  }
-  
-  .images {
-    bottom: 20px;
-    width: 280px;
-    height: 200px;
-  }
-  
-  .mainImage {
-    left: 30px;
-    width: 200px;
-    height: 250px;
-  }
-  
-  .image1 {
-    bottom: 10px;
-    left: 0;
-    width: 80px;
-    height: 80px;
-  }
-  
-  .image2 {
-    display: none;
-  }
-  
-  .image3 {
-    bottom: 15px;
-    right: 0;
-    left: auto;
-    width: 100px;
-    height: 70px;
-  }
-  
-  .container {
-    padding: 0 16px;
-  }
-  
-  .title {
-    margin-top: 40px;
-    max-width: 100%;
-    text-align: left;
-    
-    h1 {
-      font-size: 28px;
-      line-height: 1.3;
-    }
-  }
-  
-  .persons {
-    margin-top: 25px;
-    flex-direction: row;
-    gap: 10px;
-    align-items: center;
-    justify-content: flex-start;
-    margin-left: 0;
-  }
-  
-  .personAvatar {
-    width: 35px;
-    height: 35px;
-  }
-  
-  .personsText {
-    font-size: 13px;
-    width: auto;
-    text-align: left;
-    max-width: 250px;
-  }
-  
-  .tags {
-    max-width: 100%;
-    margin-top: 30px;
-    gap: 8px;
-    justify-content: flex-start;
-  }
-  
-  .tag {
-    font-size: 14px;
-    padding: 8px 12px;
-  }
-  
-  .action {
-    margin-top: 30px;
-    flex-direction: column;
-    gap: 15px;
-    align-items: flex-start;
-  }
-  
-  .actionButton {
-    :global(.button) {
-      padding: 16px 32px !important;
-      font-size: 16px !important;
-      height: 52px !important;
-    }
-    
-    :global(.circle-btn) {
-      width: 52px !important;
-      height: 52px !important;
-    }
-  }
-  
-  .actionDescription {
-    width: 100%;
-    max-width: 300px;
-    text-align: left;
-    margin: 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero {
     padding-bottom: 200px;
+   
   }
-  
-  .container {
-    padding: 0 12px;
-  }
-  
-  .title h1 {
-    font-size: 24px;
-  }
-  
   .persons {
-    flex-wrap: wrap;
+    margin-top: 8px;
   }
-  
-  .personsText {
-    width: 100%;
-    margin-top: 10px;
-  }
-  
-  .tags {
-    gap: 6px;
-    margin-top: 25px;
-  }
-  
-  .tag {
-    font-size: 12px;
-    padding: 6px 10px;
-    line-height: 1.4;
-  }
-  
-  .action {
-    margin-top: 25px;
-  }
-  
-  .actionButton {
-    :global(.button) {
-      padding: 14px 28px !important;
-      font-size: 14px !important;
-      height: 48px !important;
+  .images {
+    bottom: -12%;}
+    .action{
+      flex-direction: column;
+    }
+    .image1 {
+     
+      width: 111px;
+      height: 111px;
+      bottom: 180px;
+      left: 50px;
     }
     
-    :global(.circle-btn) {
-      width: 48px !important;
-      height: 48px !important;
+   
+    
+    .image3 {
+      bottom: 180px;
+      right: 50px;
+      left: auto;
+      width: 118px;
+      height: 78px;
     }
-  }
   
-  .actionDescription {
-    font-size: 13px;
-    max-width: 280px;
-    text-align: left;
-  }
-  
-  .images {
-    width: 240px;
-    height: 150px;
-  }
-  
-  .mainImage {
-    left: 25px;
-    width: 150px;
-    height: 190px;
-  }
-  
-  .image1 {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .image3 {
-    width: 80px;
-    height: 55px;
-  }
 }
 
 /* Keyframes для параллакс эффекта */
@@ -653,5 +498,30 @@
   }
   100% {
     background-position: 0% 50%;
+  }
+}
+
+.desktopTitle {
+  display: block;
+}
+
+.mobileTitle {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktopTitle {
+    display: none;
+  }
+  .mobileTitle {
+    display: block;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 400;
+    font-size: 26px;
+    line-height: 1.3;
+    color: #fff;
+    margin-top: 24px;
+    margin-bottom: 0;
+    text-align: left;
   }
 } 

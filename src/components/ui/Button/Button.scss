@@ -16,6 +16,7 @@
     background-color: #d14e30;
   }
 }
+
 .button__container {
   display: flex;
   align-items: center;
@@ -147,4 +148,16 @@
 
 .button__content {
   // Стили для контента кнопки
+}
+@media (max-width: 768px) {
+  .button {
+    font-size: 14px;
+    padding: 14px 30px;
+  }
+  .button__container {
+    .circle-btn {
+      width: 47px;
+      height: 47px;
+    }
+  }
 }

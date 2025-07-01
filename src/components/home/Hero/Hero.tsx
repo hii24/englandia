@@ -37,32 +37,32 @@ export default function Hero() {
       <div className={styles.background}>
         <div className={styles.gradientBg}></div>
         <div className={styles.images}>
-          <Image 
-            src="/hero-new-girl.jpg" 
-            alt="Девочка изучает английский" 
-            width={430} 
+          <Image
+            src="/hero-new-girl.jpg"
+            alt="Девочка изучает английский"
+            width={430}
             height={572}
             className={styles.mainImage}
             priority
           />
-          <Image 
-            src="/hero-new-image-1.jpg" 
-            alt="Обучение английскому" 
-            width={234} 
+          <Image
+            src="/hero-new-image-1.jpg"
+            alt="Обучение английскому"
+            width={234}
             height={234}
             className={styles.image1}
           />
-          <Image 
-            src="/hero-new-image-2.jpg" 
-            alt="Интерактивные занятия" 
-            width={161} 
+          <Image
+            src="/hero-new-image-2.jpg"
+            alt="Интерактивные занятия"
+            width={161}
             height={161}
             className={styles.image2}
           />
-          <Image 
-            src="/hero-new-image-3.jpg" 
-            alt="Игровое обучение" 
-            width={316} 
+          <Image
+            src="/hero-new-image-3.jpg"
+            alt="Игровое обучение"
+            width={316}
             height={253}
             className={styles.image3}
           />
@@ -73,35 +73,40 @@ export default function Hero() {
       <div className={styles.container}>
         {/* Title */}
         <div className={styles.title}>
-          <h1>
+          {/* Десктопный заголовок */}
+          <h1 className={styles.desktopTitle}>
             <span>Английский, в который </span>
             <div className={styles.titleLine}>
               <span>влюбляются</span>
               <span>с первого</span>
             </div>
             <span>урока</span>
-            <div className={styles.persons}>
-          <div className={styles.personsList}>
-            {persons.map((person, index) => (
-              <div key={index} className={styles.personAvatar}>
-                <Image 
-                  src={person.src} 
-                  alt={person.alt} 
-                  width={50} 
-                  height={50}
-                />
-              </div>
-            ))}
-          </div>
-          <p className={styles.personsText}>
-            Более 1000 довольных учеников и их родителей
-          </p>
-        </div>
+            
           </h1>
+          {/* Мобильный заголовок */}
+          <div className={styles.mobileTitle}>
+            Английский, в который влюбляются с первого урока
+          </div>
+          <div className={styles.persons}>
+              <div className={styles.personsList}>
+                {persons.map((person, index) => (
+                  <div key={index} className={styles.personAvatar}>
+                    <Image
+                      src={person.src}
+                      alt={person.alt}
+                      width={50}
+                      height={50}
+                    />
+                  </div>
+                ))}
+              </div>
+              <p className={styles.personsText}>
+                Более 1000 довольных учеников и их родителей
+              </p>
+            </div>
         </div>
 
         {/* Persons */}
-        
 
         {/* Tags */}
         <div className={styles.tags}>
@@ -114,15 +119,17 @@ export default function Hero() {
 
         {/* Button and description */}
         <div className={styles.action}>
-          <Button 
+          <Button
             className={styles.actionButton}
             onClick={handleGetStarted}
             showIcon={true}
+            iconColor='white'
           >
             Бесплатное занятие
           </Button>
           <p className={styles.actionDescription}>
-            Первое занятие — бесплатно. Определим уровень, покажем формат, выдадим рекомендации и сертификат.
+            Первое занятие — бесплатно. Определим уровень, покажем формат,
+            выдадим рекомендации и сертификат.
           </p>
         </div>
       </div>
