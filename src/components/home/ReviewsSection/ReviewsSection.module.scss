@@ -2,7 +2,9 @@
   position: relative;
   padding: 20px 0 60px 0;
   margin: 0;
-  background: linear-gradient(135deg, #912CBC 0%, #6C2EDA 42.79%, #6F75E9 100%);
+  background: linear-gradient(334deg, #6b97f7, #7525e2, #f7137e);
+  background-size: 180% 180%;
+  animation: gradient-animation 6s ease infinite;
   // overflow: hidden;
   border-radius: 40px;
 }
@@ -349,5 +351,18 @@
   .mainButton {
     position: relative;
     z-index: 3;
+  }
+}
+
+/* Анимация градиента */
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 } 
