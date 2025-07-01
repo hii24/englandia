@@ -25,8 +25,6 @@ export default function FreeLessonSection() {
     { text: "Видеоуроки" },
     { text: "Словарный запас" },
     { text: "Артикли" },
-    { text: "✍️", isEmoji: true },
-    { text: "👀", isEmoji: true },
     { text: "📚", isEmoji: true },
     { text: "Предлоги" },
 
