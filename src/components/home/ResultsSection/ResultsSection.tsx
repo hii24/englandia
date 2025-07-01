@@ -1,8 +1,16 @@
+'use client';
+
 import React from 'react';
 import styles from './ResultsSection.module.scss';
 import { Button } from '@/components/ui';
+import { useModal } from '@/hooks/useModal';
 
 const ResultsSection: React.FC = () => {
+  const { openRegistrationModal } = useModal();
+
+  const handleTryFree = () => {
+    openRegistrationModal();
+  };
   const firstRowTags = [
     'Улучшить английский для школы',
     'Преодолеть языковой барьер', 
@@ -68,12 +76,9 @@ const ResultsSection: React.FC = () => {
 
         {/* Кнопка */}
         <div className={styles.buttonContainer}>
-          <Button className={styles.buttonBase} showIcon >
-           
-              Попробовать бесплатно
-           
+          <Button className={styles.buttonBase} showIcon onClick={handleTryFree}>
+            Попробовать бесплатно
           </Button>
-          
         </div>
       </div>
     </section>

@@ -1,6 +1,9 @@
+'use client';
+
 import React from 'react';
 import styles from './PricingSection.module.scss';
 import { Button } from '@/components/ui';
+import { useModal } from '@/hooks/useModal';
 
 interface PricingPlan {
   id: string;
@@ -57,7 +60,16 @@ const pricingPlans: PricingPlan[] = [
   }
 ];
 
-export default function PricingSection() {
+interface PricingSectionProps {
+  id?: string;
+}
+
+export default function PricingSection({ id }: PricingSectionProps) {
+  const { openRegistrationModal } = useModal();
+
+  const handleSignUp = () => {
+    openRegistrationModal();
+  };
   const renderCheckIcon = (isFeatured: boolean) => {
     return (
       <div className={styles.checkIcon}>
@@ -104,14 +116,14 @@ export default function PricingSection() {
         <p className={styles.recommendation}>{plan.recommendation}</p>
 
         <div className={styles.ctaButton}>
-          <Button showIcon>Записаться</Button>
+          <Button showIcon onClick={handleSignUp}>Записаться</Button>
         </div>
       </div>
     );
   };
 
   return (
-    <section className={styles.pricingSection}>
+    <section className={styles.pricingSection} id={id}>
       <div className={styles.container}>
         <h2 className={styles.title}>Цены</h2>
         

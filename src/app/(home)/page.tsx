@@ -28,15 +28,15 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-white ">
       <Header />
       <Hero />
-      <ClassesSection />
+      <ClassesSection id="lessons" />
       <GiftBanner />
-      <VideoSection />
+      <VideoSection id="about" />
       <FreeLessonSection />
-      <TeachersSection />
-      <PricingSection />
+      <TeachersSection id="teachers" />
+      <PricingSection id="pricing" />
       <ResultsSection />
-      <ReviewsSection />
-      <Footer />
+      <ReviewsSection id="reviews" />
+      <Footer id="contacts" />
     </div>
   );
 } 

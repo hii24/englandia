@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui';
+import { useModal } from '@/hooks/useModal';
 import styles from './ReviewsSection.module.scss';
 
 const allReviews = [
@@ -63,8 +64,17 @@ const allReviews = [
   }
 ];
 
-export default function ReviewsSection() {
+interface ReviewsSectionProps {
+  id?: string;
+}
+
+export default function ReviewsSection({ id }: ReviewsSectionProps) {
   const [visibleReviews, setVisibleReviews] = useState(6);
+  const { openRegistrationModal } = useModal();
+
+  const handleFreeLesson = () => {
+    openRegistrationModal();
+  };
 
   // Параллакс
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -152,7 +162,7 @@ export default function ReviewsSection() {
   );
 
   return (
-    <section className={styles.reviewsSection}>
+    <section className={styles.reviewsSection} id={id}>
       <div className={styles.container} ref={sectionRef}>
         {/* Декоративные изображения */}
         <div
@@ -238,6 +248,7 @@ export default function ReviewsSection() {
             size="large"
             className={styles.mainButton}
             showIcon
+            onClick={handleFreeLesson}
           >
             Бесплатное занятие
           </Button>

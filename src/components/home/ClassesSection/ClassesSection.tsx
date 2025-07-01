@@ -10,7 +10,11 @@ interface ClassItem {
   weight: 'normal' | 'bold';
 }
 
-export default function ClassesSection() {
+interface ClassesSectionProps {
+  id?: string;
+}
+
+export default function ClassesSection({ id }: ClassesSectionProps) {
   const [showAll, setShowAll] = useState(false);
 
   const classesData: ClassItem[] = [
@@ -101,7 +105,7 @@ export default function ClassesSection() {
   );
 
   return (
-    <section className={styles.classes}>
+    <section className={styles.classes} id={id}>
       <div className={styles.container}>
         <h2 className={styles.title}>Наши занятия</h2>
         

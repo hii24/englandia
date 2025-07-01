@@ -41,7 +41,11 @@ const teachers: Teacher[] = [
   }
 ];
 
-const TeachersSection: React.FC = () => {
+interface TeachersSectionProps {
+  id?: string;
+}
+
+const TeachersSection: React.FC<TeachersSectionProps> = ({ id }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const nextSlide = () => {
@@ -64,7 +68,7 @@ const TeachersSection: React.FC = () => {
   const visibleTeachers = getVisibleTeachers();
 
   return (
-    <section className={styles.teachersSection}>
+    <section className={styles.teachersSection} id={id}>
       <div className={styles.container}>
         <div className={styles.title}>
           <h2 className={styles.mainTitle}>Наши учителя</h2>

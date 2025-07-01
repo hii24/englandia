@@ -2,8 +2,12 @@ import React from 'react';
 import styles from './Footer.module.scss';
 import Image from 'next/image';
 
-const Footer = () => (
-  <footer className={styles.footer}>
+interface FooterProps {
+  id?: string;
+}
+
+const Footer: React.FC<FooterProps> = ({ id }) => (
+  <footer className={styles.footer} id={id}>
     <div className={styles.logoBlock}>
       <Image src="/logo-full.svg" alt="EngLandia Logo" width={172} height={32} />
     </div>

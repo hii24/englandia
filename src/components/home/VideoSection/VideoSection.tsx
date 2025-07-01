@@ -8,11 +8,13 @@ import styles from './VideoSection.module.scss';
 interface VideoSectionProps {
   videoId?: string;
   showVideo?: boolean;
+  id?: string;
 }
 
 export default function VideoSection({ 
   videoId = 'demo-video-id', 
-  showVideo = true 
+  showVideo = true,
+  id
 }: VideoSectionProps) {
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -21,7 +23,7 @@ export default function VideoSection({
   };
 
   return (
-    <section className={styles.videoSection}>
+    <section className={styles.videoSection} id={id}>
       <div className={styles.container}>
         <h2 className={styles.title}>Как проходят наши уроки</h2>
         
