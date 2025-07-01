@@ -80,8 +80,8 @@ async function createSubscriptionLinks(userId: string) {
               quantity: 1,
             },
           ],
-          success_url: `${process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000'}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000'}/subscription/cancel`,
+          success_url: `${process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000'}/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000'}/?payment=cancel`,
           metadata: {
             userId: userId,
             subscriptionType: type,

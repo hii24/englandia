@@ -7,4 +7,6 @@ export { default as RegistrationSuccessModal } from './RegistrationSuccessModal'
 export { SettingsModal } from './SettingsModal';
 export { TeacherPanelModal } from './TeacherPanelModal';
 export { SubscriptionSuccessModal } from './SubscriptionSuccessModal';
-export { SubscriptionCancelModal } from './SubscriptionCancelModal'; 
+export { SubscriptionCancelModal } from './SubscriptionCancelModal';
+export { default as PaymentSuccessModal } from './PaymentSuccessModal';
+export { default as PaymentCancelModal } from './PaymentCancelModal'; 

@@ -4,6 +4,8 @@ import ConfirmModal from '../modals/ConfirmModal';
 import LoginModal from '../modals/LoginModal';
 import RegistrationModal from '../modals/RegistrationModal';
 import RegistrationSuccessModal from '../modals/RegistrationSuccessModal';
+import PaymentSuccessModal from '../modals/PaymentSuccessModal';
+import PaymentCancelModal from '../modals/PaymentCancelModal';
 
 export const useModal = () => {
   const { openModal, closeModal } = useModalStore();
@@ -75,12 +77,37 @@ export const useModal = () => {
     openModal(modalConfig);
   };
 
+  const openPaymentSuccessModal = (props?: { sessionId?: string }) => {
+    const modalConfig: ModalConfig = {
+      id: 'payment-success',
+      component: PaymentSuccessModal,
+      props: {
+        ...props,
+        onClose: closeModal,
+      },
+    };
+    openModal(modalConfig);
+  };
+
+  const openPaymentCancelModal = () => {
+    const modalConfig: ModalConfig = {
+      id: 'payment-cancel',
+      component: PaymentCancelModal,
+      props: {
+        onClose: closeModal,
+      },
+    };
+    openModal(modalConfig);
+  };
+
   return {
     openConfirmModal,
     openCustomModal,
     openRegistrationModal,
     openLoginModal,
     openRegistrationSuccessModal,
+    openPaymentSuccessModal,
+    openPaymentCancelModal,
     closeModal,
   };
 }; 
