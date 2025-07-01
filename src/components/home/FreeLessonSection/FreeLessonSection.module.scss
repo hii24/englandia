@@ -4,6 +4,19 @@
   min-height: 1306px;
   height: 100%;
   position: relative;
+  
+  /* Стили для canvas анимации падающих элементов */
+  :global(.falling-canvas) {
+    position: absolute;
+    top: 0;
+    left: 10%;
+    width: 60%;
+    height: 100%;
+    pointer-events: auto;
+    z-index: 2;
+    border-radius: 40px;
+    overflow: hidden;
+  }
 }
 
 .container {
@@ -231,6 +244,11 @@
 @media (max-width: 1200px) {
   .freeLesson {
     min-height: auto;
+    
+    :global(.falling-canvas) {
+      display: none;
+     
+    }
   }
   .girlImageContainer{
     display: flex;

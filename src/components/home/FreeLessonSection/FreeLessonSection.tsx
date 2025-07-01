@@ -3,10 +3,60 @@
 import Image from 'next/image';
 import { Button } from "@/components/ui";
 import { useModal } from "@/hooks/useModal";
+import { useFallingAnimation } from "@/hooks/useFallingAnimation";
 import styles from './FreeLessonSection.module.scss';
 
 export default function FreeLessonSection() {
   const { openRegistrationModal } = useModal();
+
+  // Инициализация анимации падающих элементов  
+  const fallingTags = [
+    { text: "Аудирование" },
+    { text: "Чтение" },
+    { text: "Лексика" },
+    { text: "🌟", isEmoji: true },
+    { text: "🚀", isEmoji: true },
+    { text: "Письмо" },
+    { text: "Грамматика" },
+    { text: "Фонетика" },
+    
+    { text: "Произношение" },
+    { text: "Интерактивные игры" },
+    { text: "Видеоуроки" },
+    { text: "Словарный запас" },
+    { text: "Артикли" },
+    { text: "✍️", isEmoji: true },
+    { text: "👀", isEmoji: true },
+    { text: "📚", isEmoji: true },
+    { text: "Предлоги" },
+
+
+    { text: "Диктанты" },
+    { text: "Проекты" },
+    { text: "Групповые занятия" },
+    { text: "Индивидуальные уроки" },
+    { text: "🧑‍🎓", isEmoji: true },
+
+    { text: "⭐", isEmoji: true },
+    { text: "💡", isEmoji: true },  { text: "Домашние задания" },
+ 
+    { text: "🎵", isEmoji: true },
+    { text: "Разговорная практика" },
+  
+    { text: "Разговорный английский" },
+    { text: "Доступ к материалам 24/7" },
+    { text: "🎬", isEmoji: true },
+
+   
+    { text: "💯", isEmoji: true },
+  ];
+  
+
+  useFallingAnimation({
+    tags: fallingTags,
+    triggerElement: '#free-lesson-trigger',
+    canvasClass: 'falling-canvas'
+  });
 
   const handleGetLesson = () => {
     openRegistrationModal();
@@ -59,11 +109,14 @@ export default function FreeLessonSection() {
   ];
 
   return (
-    <section className={styles.freeLesson}>
+    <section className={styles.freeLesson} id="free-lesson-trigger">
       <div className={styles.container}>
         <div className={styles.background}>
           <div className={styles.gradientBg}></div>
         </div>
+        
+        {/* Canvas для анимации падающих элементов */}
+        <div className="falling-canvas"></div>
         
         <div className={styles.content}>
           {/* Title */}
