@@ -7,6 +7,7 @@
   max-width: 1360px;
   margin: 0 auto;
   padding: 0 32px;
+  position: relative;
 }
 
 .title {
@@ -20,7 +21,7 @@
   background-clip: text;
   text-align: center;
   margin-bottom: -40px;
-  z-index: 10;
+  z-index: 999;
 }
 
 .videoLayout {
@@ -53,7 +54,7 @@
   object-fit: cover;
   border-radius: 20px;
   z-index: 1;
-  
+  animation: parallaxBg1 7s ease-in-out infinite;
 }
 
 .bgImage2 {
@@ -66,6 +67,25 @@
   border-radius: 20px;
   transform:  scale(-1 ,1);
   z-index: 1;
+  animation: parallaxBg2 9s ease-in-out infinite;
+}
+
+@keyframes parallaxBg1 {
+  0%, 100% {
+    transform: rotate(-153.13deg) scale(1, -1) translateY(0);
+  }
+  50% {
+    transform: rotate(-153.13deg) scale(1, -1) translateY(-18px);
+  }
+}
+
+@keyframes parallaxBg2 {
+  0%, 100% {
+    transform: scale(-1, 1) translateY(0);
+  }
+  50% {
+    transform: scale(-1, 1) translateY(14px);
+  }
 }
 
 .videoContainer {
@@ -136,7 +156,10 @@
     margin-top: 100px;
   
   }
-  
+  .title{
+    max-width: 80%;
+    margin: 0 auto;
+  }
  
   .bgImage2{
     display: none;
@@ -150,5 +173,26 @@
     width: 94.25023374388374;
     height: 182.03007728271498;
 
+  }
+}
+
+@media (max-width: 1024px) {
+  .bgImage1 {
+    transform: rotate(166.13deg) scale(-1, 1);
+    animation: parallaxBg1Mobile 7s ease-in-out infinite;
+    z-index: 0;
+  }
+}
+@media (max-width: 768px) {
+  .title{
+    max-width: 100%;
+  }
+}
+@keyframes parallaxBg1Mobile {
+  0%, 100% {
+    transform: rotate(-196.13deg) scale(1, -1) translateY(0);
+  }
+  50% {
+    transform: rotate(-176.13deg) scale(1, -1) translateY(-18px);
   }
 } 
