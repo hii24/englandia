@@ -63,6 +63,8 @@
   left: 0;
   width: 234px;
   height: 234px;
+  max-width: 234px;
+  max-height: 234px;
   object-fit: cover;
   border-radius: 8px;
   animation: parallaxFloat1 6s ease-in-out infinite;
@@ -73,7 +75,9 @@
   top: 37px;
   left: 201px;
   width: 161px;
+  max-width: 161px;
   height: 161px;
+  max-height: 161px;
   object-fit: cover;
   border-radius: 8px;
   animation: parallaxFloat2 8s ease-in-out infinite;
@@ -86,6 +90,8 @@
   right: 10px;
   width: 275.9553757330477;
   height: 183.97024031617266;
+  max-width: 275.9553757330477;
+  max-height: 183.97024031617266;
   object-fit: contain;
   border-radius: 8px;
   transform: rotate(15deg);
