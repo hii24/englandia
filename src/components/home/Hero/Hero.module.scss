@@ -61,8 +61,8 @@
   position: absolute;
   bottom: 14px;
   left: 0;
-  width: 234px;
-  height: 234px;
+  width: 234px!important;
+  height: 234px!important;
   max-width: 234px;
   max-height: 234px;
   object-fit: cover;
@@ -74,9 +74,9 @@
   position: absolute;
   top: 37px;
   left: 201px;
-  width: 161px;
+  width: 161px!important;
   max-width: 161px;
-  height: 161px;
+  height: 161px!important;
   max-height: 161px;
   object-fit: cover;
   border-radius: 8px;
@@ -88,8 +88,8 @@
   position: absolute;
   bottom: 14px;
   right: 10px;
-  width: 275.9553757330477;
-  height: 183.97024031617266;
+  width: 275.9553757330477!important;
+  height: 183.97024031617266!important;
   max-width: 275.9553757330477;
   max-height: 183.97024031617266;
   object-fit: contain;
