@@ -61,10 +61,9 @@
   position: absolute;
   bottom: 14px;
   left: 0;
-  width: 234px!important;
-  height: 234px!important;
-  max-width: 234px;
-  max-height: 234px;
+  width: 234px;
+  height: 234px;
+  
   object-fit: cover;
   border-radius: 8px;
   animation: parallaxFloat1 6s ease-in-out infinite;
@@ -74,10 +73,8 @@
   position: absolute;
   top: 37px;
   left: 201px;
-  width: 161px!important;
-  max-width: 161px;
-  height: 161px!important;
-  max-height: 161px;
+  width: 161px;
+  height: 161px;
   object-fit: cover;
   border-radius: 8px;
   animation: parallaxFloat2 8s ease-in-out infinite;
@@ -88,10 +85,8 @@
   position: absolute;
   bottom: 14px;
   right: 10px;
-  width: 275.9553757330477!important;
-  height: 183.97024031617266!important;
-  max-width: 275.9553757330477;
-  max-height: 183.97024031617266;
+  width: 275.9553757330477;
+  height: 183.97024031617266;
   object-fit: contain;
   border-radius: 8px;
   transform: rotate(15deg);
@@ -268,30 +263,7 @@
     width: 100vw;
   }
   
-  .images {
-    width: 480px;
-    transform: translateX(calc(50% - 480px/2 + 1200px/2 - 700px));
-  }
-  
-  .mainImage {
-    width: 380px;
-  }
-  
-  .image1 {
-    width: 200px;
-    height: 200px;
-  }
-  
-  .image2 {
-    width: 140px;
-    height: 140px;
-  }
-  
-  .image3 {
-    width: 240px;
-    height: 160px;
-  }
-  
+ 
   .title {
     width: 500px;
     
