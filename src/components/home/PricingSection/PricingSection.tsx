@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './PricingSection.module.scss';
 import { Button } from '@/components/ui';
 import { useModal } from '@/hooks/useModal';
@@ -16,7 +16,14 @@ interface PricingPlan {
   isFeatured?: boolean;
 }
 
-const pricingPlans: PricingPlan[] = [
+interface Prices {
+  basic: number;
+  intensive: number;
+  basicCurrency: string;
+  intensiveCurrency: string;
+}
+
+const initialPlans: PricingPlan[] = [
   {
     id: 'trial',
     title: 'Пробный',
@@ -33,7 +40,7 @@ const pricingPlans: PricingPlan[] = [
   {
     id: 'basic',
     title: 'Базовый',
-    price: '$59',
+    price: '', // будет заполнено динамически
     period: '4 занятия / мес',
     description: 'Поддержка регулярных занятий и закрепление материала',
     recommendation: 'Подходит для неспешного темпа и начального уровня',
@@ -47,7 +54,7 @@ const pricingPlans: PricingPlan[] = [
   {
     id: 'intensive',
     title: 'Интенсив',
-    price: '$99',
+    price: '', // будет заполнено динамически
     period: '8 занятий / мес',
     description: 'Быстрый прогресс и уверенное владение языком',
     recommendation: 'Лучший выбор для максимального результата',
@@ -64,8 +71,55 @@ interface PricingSectionProps {
   id?: string;
 }
 
+function formatPrice(amount: number | null, currency: string | undefined) {
+  if (!amount || !currency) return '';
+  const symbols: Record<string, string> = {
+    rub: '₽',
+    usd: '$',
+    eur: '€',
+    kzt: '₸',
+    uah: '₴',
+    gbp: '£',
+    cny: '¥',
+    jpy: '¥',
+    byn: 'Br',
+    pln: 'zł',
+    czk: 'Kč',
+    try: '₺',
+  };
+  const symbol = symbols[currency.toLowerCase()] || currency.toUpperCase();
+  return `${amount} ${symbol}`;
+}
+
 export default function PricingSection({ id }: PricingSectionProps) {
   const { openRegistrationModal } = useModal();
+  const [plans, setPlans] = useState<PricingPlan[]>(initialPlans);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch('/api/subscription/prices')
+      .then(res => res.json())
+      .then((data: Prices) => {
+        setPlans(prev => prev.map(plan => {
+          if (plan.id === 'basic') {
+            return {
+              ...plan,
+              price: formatPrice(data.basic, data.basicCurrency)
+            };
+          }
+          if (plan.id === 'intensive') {
+            return {
+              ...plan,
+              price: formatPrice(data.intensive, data.intensiveCurrency)
+            };
+          }
+          return plan;
+        }));
+      })
+      .catch(() => setPlans(initialPlans))
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleSignUp = () => {
     openRegistrationModal();
@@ -93,7 +147,7 @@ export default function PricingSection({ id }: PricingSectionProps) {
         <div className={styles.cardHeader}>
           <h3 className={styles.planTitle}>{plan.title}</h3>
           <div className={styles.priceInfo}>
-            <span className={styles.price}>{plan.price}</span>
+            <span className={styles.price}>{loading && plan.id !== 'trial' ? '...' : plan.price}</span>
             <span className={styles.period}>{plan.period}</span>
           </div>
         </div>
@@ -128,7 +182,7 @@ export default function PricingSection({ id }: PricingSectionProps) {
         <h2 className={styles.title}>Цены</h2>
         
         <div className={styles.pricingGrid}>
-          {pricingPlans.map(renderPricingCard)}
+          {plans.map(renderPricingCard)}
         </div>
       </div>
     </section>

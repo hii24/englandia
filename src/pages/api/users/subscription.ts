@@ -2,6 +2,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { dbConnect } from '@/server/db';
 import { findUserById } from '@/server/db';
 import Subscription from '@/server/subscription/model';
+import { stripe } from '@/lib/stripe';
+import StudentProgress from '@/server/progress/model';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -19,53 +21,68 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    console.log('🔍 API: Fetching subscription info for user:', userId);
-
     // Получаем пользователя с подпиской
     const user = await findUserById(userId as string);
     if (!user) {
-      console.log('❌ API: User not found:', userId);
       return res.status(404).json({ error: 'User not found' });
     }
 
-    console.log('✅ API: User found:', {
-      userId: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      role: user.role,
-      hasSubscription: !!user.subscription,
-      subscriptionId: user.subscription
-    });
-
     let subscriptionInfo = null;
+    let cancelAtPeriodEnd = false;
+    let lessonsLeft = null;
+    let actualEndDate = null;
 
-    // Если у пользователя есть подписка, получаем её данные
     if (user.subscription) {
-      console.log('🔍 API: Looking for subscription:', user.subscription);
       const subscription = await Subscription.findById(user.subscription);
-      
       if (subscription) {
-        console.log('✅ API: Subscription found:', {
-          subscriptionId: subscription._id,
-          type: subscription.type,
-          status: subscription.status,
-          lessonsPerMonth: subscription.lessonsPerMonth
-        });
-        
+        // Получаем данные из Stripe
+        let stripeSub: any = null;
+        if (subscription.stripeSubscriptionId) {
+          try {
+            stripeSub = await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
+            cancelAtPeriodEnd = !!stripeSub.cancel_at_period_end;
+            if (stripeSub.cancel_at && stripeSub.cancel_at * 1000 > Date.now()) {
+              actualEndDate = new Date(stripeSub.cancel_at * 1000);
+            } else if (stripeSub.current_period_end) {
+              actualEndDate = new Date(stripeSub.current_period_end * 1000);
+            }
+          } catch (e) {
+            // Stripe не доступен — fallback на локальные данные
+            cancelAtPeriodEnd = false;
+            actualEndDate = subscription.endDate;
+          }
+        } else {
+          actualEndDate = subscription.endDate;
+        }
+
+        // Считаем оставшиеся уроки за текущий месяц
+        if (user.role === 'student') {
+          // Определяем начало текущего периода (startDate или начало месяца)
+          let periodStart = subscription.startDate;
+          if (stripeSub && stripeSub.current_period_start) {
+            periodStart = new Date(stripeSub.current_period_start * 1000);
+          }
+          const now = new Date();
+          // Считаем завершённые уроки за период
+          const completedLessons = await StudentProgress.countDocuments({
+            studentId: user._id,
+            attended: true,
+            attendanceDate: { $gte: periodStart, $lte: now }
+          });
+          lessonsLeft = Math.max(0, (subscription.lessonsPerMonth || 0) - completedLessons);
+        }
+
         subscriptionInfo = {
           type: subscription.type,
           status: subscription.status,
           lessonsPerMonth: subscription.lessonsPerMonth,
           startDate: subscription.startDate,
-          endDate: subscription.endDate,
-          autoRenewal: subscription.autoRenewal
+          endDate: actualEndDate,
+          autoRenewal: subscription.autoRenewal,
+          cancelAtPeriodEnd,
+          lessonsLeft
         };
-      } else {
-        console.log('❌ API: Subscription not found for ID:', user.subscription);
       }
-    } else {
-      console.log('ℹ️ API: User has no subscription field');
     }
 
     // Определяем название пакета
@@ -75,14 +92,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         packageName = 'Базовый (4 урока/мес)';
       } else if (subscriptionInfo.type === 'intensive') {
         packageName = 'Интенсивный (8 уроков/мес)';
-      } else {
-        console.log('⚠️ API: Unknown subscription type:', subscriptionInfo.type);
       }
     } else if (user.role === 'guest') {
       packageName = 'Гостевой доступ';
     }
-
-    console.log('📦 API: Final package name:', packageName);
 
     const response = {
       success: true,
@@ -91,12 +104,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       userRole: user.role
     };
 
-    console.log('📤 API: Sending response:', response);
-
     return res.status(200).json(response);
 
   } catch (error) {
-    console.error('❌ Error fetching subscription info:', error);
     return res.status(500).json({ 
       error: 'Failed to fetch subscription info',
       details: error instanceof Error ? error.message : 'Unknown error'

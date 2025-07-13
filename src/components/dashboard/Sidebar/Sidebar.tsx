@@ -6,6 +6,8 @@ import { SearchInput } from '@/components/ui/SearchInput';
 import { SettingsModal } from '@/modals/SettingsModal';
 import { AdminPanelModal } from '@/modals/AdminPanelModal';
 import { TeacherPanelModal } from '@/modals/TeacherPanelModal';
+import { SubscriptionManageModal } from '@/modals/SubscriptionManageModal';
+import { Button } from '@/components/ui';
 
 // Моковые ученики для примера
 const mockStudents = [
@@ -24,6 +26,8 @@ export const Sidebar: React.FC = () => {
   const [teacherPanelOpen, setTeacherPanelOpen] = useState(false);
   const [packageName, setPackageName] = useState('—');
   const [loading, setLoading] = useState(false);
+  const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
+  const [subscriptionInfo, setSubscriptionInfo] = useState<any>(null);
 
   const age = user?.age ? `${user.age} лет` : '—';
   const email = user?.email || '—';
@@ -42,6 +46,7 @@ export const Sidebar: React.FC = () => {
         .then(data => {
           console.log('✅ Subscription info loaded:', data);
           setPackageName(data.packageName || '—');
+          setSubscriptionInfo(data.subscription || null);
         })
         .catch(error => {
           console.error('❌ Error loading subscription info:', error);
@@ -73,6 +78,46 @@ export const Sidebar: React.FC = () => {
       setTeacherPanelOpen(true);
     } else {
       setSettingsOpen(true);
+    }
+  };
+
+  // Функция отмены подписки
+  const handleCancelSubscription = async () => {
+    if (!user?._id) return;
+    await fetch('/api/subscription/cancel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: user._id })
+    });
+    setSubscriptionModalOpen(false);
+    window.location.reload();
+  };
+
+  // Функция оплаты подписки
+  const handlePaySubscription = async (type: 'basic' | 'intensive') => {
+    // Проверка: если есть активная или отменённая, но ещё действующая подписка
+    if (subscriptionInfo && (
+      subscriptionInfo.status === 'active' || subscriptionInfo.cancelAtPeriodEnd
+    )) {
+      let endDate = '';
+      if (subscriptionInfo.endDate) {
+        const d = new Date(subscriptionInfo.endDate);
+        endDate = d.toLocaleDateString();
+      }
+      alert(
+        `У вас уже есть активная подписка. Оформить новую можно после окончания текущей${endDate ? ' (' + endDate + ')' : ''}.`
+      );
+      return;
+    }
+    if (!user?._id) return;
+    const res = await fetch('/api/subscription/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: user._id, subscriptionType: type.toUpperCase() })
+    });
+    const data = await res.json();
+    if (data?.url) {
+      window.location.href = data.url;
     }
   };
 
@@ -127,6 +172,19 @@ export const Sidebar: React.FC = () => {
           <span className="dashboard-sidebar__info-label">Email</span>
           <span className="dashboard-sidebar__info-value">{email}</span>
         </div>
+        <Button
+          className={
+            subscriptionInfo && subscriptionInfo.status === 'active'
+              ? 'btn-primary mb-3'
+              : 'btn-primary btn-large mb-3'
+          }
+          style={{ width: '100%', fontSize: 18, padding: '16px 0', marginTop: 16 }}
+          onClick={() => setSubscriptionModalOpen(true)}
+        >
+          {subscriptionInfo && subscriptionInfo.status === 'active'
+            ? 'Управление подпиской'
+            : 'Оформить подписку'}
+        </Button>
         <button className="dashboard-sidebar__logout" onClick={logout}>
           <Image src="/exit.svg" alt="exit" width={50} height={50} />
           <span>Выйти</span>
@@ -136,6 +194,14 @@ export const Sidebar: React.FC = () => {
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <AdminPanelModal isOpen={adminPanelOpen} onClose={() => setAdminPanelOpen(false)} />
       <TeacherPanelModal isOpen={teacherPanelOpen} onClose={() => setTeacherPanelOpen(false)} />
+      <SubscriptionManageModal
+        isOpen={subscriptionModalOpen}
+        onClose={() => setSubscriptionModalOpen(false)}
+        subscription={subscriptionInfo}
+        loading={loading}
+        onCancel={handleCancelSubscription}
+        onPay={handlePaySubscription}
+      />
     </aside>
   );
 }; 

@@ -40,10 +40,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Проверяем, что пользователь имеет роль 'guest'
-    if (user.role !== 'guest') {
+    // Проверяем, что пользователь имеет роль 'guest' или 'student'
+    if (user.role !== 'guest' && user.role !== 'student') {
       return res.status(400).json({ 
-        error: 'Only guests can create subscriptions' 
+        error: 'Only guests and students can create subscriptions' 
       });
     }
 
