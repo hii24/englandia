@@ -12,18 +12,16 @@ const Footer: React.FC<FooterProps> = ({ id }) => (
       <Image src="/logo-full.svg" alt="EngLandia Logo" width={172} height={32} />
     </div>
     <div className={styles.linksBlock}>
-      <a href="#" className={styles.link}>Политика конфиденциальности</a>
-      <a href="#" className={styles.link}>Пользовательское соглашение</a>
+      <a href="/privacy-policy" className={styles.link} target="_blank" rel="noopener noreferrer">Политика конфиденциальности</a>
+      <a href="/oferta" className={styles.link} target="_blank" rel="noopener noreferrer">Оферта</a>
     </div>
     <div className={styles.socialBlock}>
-      <a href="#" className={styles.socialIcon} aria-label="Facebook">
+      <a href="https://www.facebook.com/share/1Fvg1tktnP/" className={styles.socialIcon} aria-label="Facebook" target="_blank" rel="noopener noreferrer">
         <Image src="/facebook-icon.svg" alt="Facebook" width={24} height={24} />
       </a>
-      <a href="#" className={styles.socialIcon} aria-label="LinkedIn">
-        <Image src="/linkedin-icon.svg" alt="LinkedIn" width={24} height={24} />
-      </a>
-      <a href="#" className={styles.socialIcon} aria-label="YouTube">
-        <Image src="/youtube-icon.svg" alt="YouTube" width={24} height={24} />
+     
+      <a href="https://www.instagram.com/englandia_school?igsh=MXF5eHpvNjFveG05bw==" className={styles.socialIcon} aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+        <Image src="/instagram-icon.svg" alt="Instagram" width={24} height={24} />
       </a>
     </div>
     <div className={styles.copyright}>

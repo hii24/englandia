@@ -1,5 +1,5 @@
 import { createUser } from '../db';
-import { sendRegistrationEmail, sendTeacherRegistrationEmail } from './email';
+import { sendRegistrationEmail, sendTeacherRegistrationEmail, sendAdminNewStudentEmail } from './email';
 import { generatePassword, hashPassword } from './utils';
 import { validateRegistration } from './validate';
 
@@ -40,6 +40,14 @@ export async function handleRegistration(data: RegistrationData): Promise<{ user
         firstName: user.firstName,
         lastName: user.lastName,
         password: plainPassword,
+      });
+      // Уведомление админу о новом ученике
+      await sendAdminNewStudentEmail({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        age: user.age
       });
     }
   } catch (emailError) {

@@ -395,3 +395,41 @@ export async function sendPasswordResetEmail({ email, firstName, lastName, newPa
     throw new Error('Не удалось отправить email с новым паролем');
   }
 } 
+
+export async function sendAdminNewStudentEmail({ firstName, lastName, email, phone, age }: { firstName: string, lastName: string, email: string, phone?: string, age?: number }) {
+  try {
+    const transporter = createTransporter();
+    const adminEmail = 'englandiame@gmail.com';
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || 'noreply@eng-landia.com',
+      to: adminEmail,
+      subject: 'Новый ученик на платформе Eng-Landia',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1 style="margin: 0; font-size: 24px;">Новый ученик зарегистрировался!</h1>
+          </div>
+          <div style="background: #f8f9fa; padding: 24px; border-radius: 0 0 10px 10px;">
+            <h2 style="color: #333; margin-top: 0;">Данные ученика:</h2>
+            <ul style="color: #333; font-size: 16px;">
+              <li><b>Имя:</b> ${firstName}</li>
+              <li><b>Фамилия:</b> ${lastName}</li>
+              <li><b>Email:</b> ${email}</li>
+              ${phone ? `<li><b>Телефон:</b> ${phone}</li>` : ''}
+              ${age ? `<li><b>Возраст:</b> ${age}</li>` : ''}
+            </ul>
+          </div>
+          <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+            <p>Это автоматическое уведомление. Не отвечайте на него.</p>
+            <p>&copy; 2025 Eng-Landia</p>
+          </div>
+        </div>
+      `,
+      text: `Новый ученик зарегистрировался!\n\nИмя: ${firstName}\nФамилия: ${lastName}\nEmail: ${email}${phone ? `\nТелефон: ${phone}` : ''}${age ? `\nВозраст: ${age}` : ''}`
+    };
+    await transporter.sendMail(mailOptions);
+    console.log('Admin notification email отправлен успешно:', { to: adminEmail, student: email });
+  } catch (error) {
+    console.error('Ошибка отправки письма админу о новом ученике:', error);
+  }
+} 

@@ -12,7 +12,7 @@ interface VideoSectionProps {
 }
 
 export default function VideoSection({ 
-  videoId = 'demo-video-id', 
+  videoId = '02fd037d-e52b-4bb8-a6be-a8b64cf80e81', 
   showVideo = true,
   id
 }: VideoSectionProps) {
