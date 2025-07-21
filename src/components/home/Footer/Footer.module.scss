@@ -54,6 +54,33 @@
   padding: 0;
 }
 
+.contactBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  justify-content: center;
+  font-size: 13px;
+  color: #22031F;
+  min-width: 180px;
+}
+.contactRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #22031F;
+  font-size: 13px;
+  text-decoration: none;
+}
+.contactIcon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #808080;
+}
+
 .copyright {
   color: #808080;
   font-size: 12px;
@@ -75,5 +102,9 @@
   }
   .socialBlock {
     gap: 12px;
+  }
+  .contactBlock {
+    align-items: center;
+    min-width: unset;
   }
 } 

@@ -78,15 +78,13 @@ export const BurgerMenuHome: React.FC<BurgerMenuHomeProps> = ({
 
         {/* Social */}
         <div className={styles.socials}>
-          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-            <Image src="/facebook-icon.svg" alt="Facebook" width={40} height={40} />
-          </a>
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
-            <Image src="/linkedin-icon.svg" alt="LinkedIn" width={40} height={40} />
-          </a>
-          <a href="https://youtube.com" target="_blank" rel="noopener noreferrer">
-            <Image src="/youtube-icon.svg" alt="YouTube" width={40} height={40} />
-          </a>
+        <a href="https://www.facebook.com/share/1Fvg1tktnP/" className={styles.socialIcon} aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+        <Image src="/facebook-icon.svg" alt="Facebook" width={40} height={40} />
+      </a>
+     
+      <a href="https://www.instagram.com/englandia_school?igsh=MXF5eHpvNjFveG05bw==" className={styles.socialIcon} aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+        <Image src="/instagram-icon.svg" alt="Instagram" width={40} height={40} />
+      </a>
         </div>
       </div>
     </div>
