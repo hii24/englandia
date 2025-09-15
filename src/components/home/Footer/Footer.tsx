@@ -35,6 +35,14 @@ const Footer: React.FC<FooterProps> = ({ id }) => (
         </span>
         +1 (403) 703 7323
       </a>
+      <a href="mailto:englandiame@gmail.com" className={styles.contactRow}>
+        <span className={styles.contactIcon}>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.25 4.5h13.5a.75.75 0 0 1 .75.75v7.5a.75.75 0 0 1-.75.75H2.25a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 0 1 .75-.75Zm0 0 6.75 4.5L16.5 4.5" stroke="#808080" strokeWidth="1.5"/>
+          </svg>
+        </span>
+        engladiame@gmail.com
+      </a>
       <div className={styles.contactRow}>
         <span className={styles.contactIcon}>
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -138,7 +138,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
         />
 
         <Input
-          placeholder="Комментарий (необязательно)"
+          placeholder="Мессенджер для быстрой связи (Telegram / WhatsApp)"
           value={form.comment}
           onChange={(e) => handleChange("comment", e.target.value)}
         />

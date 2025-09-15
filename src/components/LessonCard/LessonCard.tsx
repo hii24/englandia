@@ -18,6 +18,8 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
   const { materials = [], additionalMaterials = [], homework = [] } = lesson;
   const user = useUserStore(s => s.user);
   const [studentProgress, setStudentProgress] = useState<any>(null);
+  const isTeacherOrAdmin = user?.role === 'teacher' || user?.role === 'admin';
+  const allowForStudent = (item: { forStudent?: boolean }) => item?.forStudent !== false;
 
   // Загружаем teacherId для всех пользователей
   useEffect(() => {
@@ -270,12 +272,16 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
 
   const thumbnail = lesson.videoUrl ? getVideoThumbnail(lesson.videoUrl) : null;
 
-  const visibleMaterials = lesson.materials || [];
+  // Видимость материалов в зависимости от роли
+  const visibleMaterials = isTeacherOrAdmin ? (lesson.materials || []) : (lesson.materials || []).filter(allowForStudent);
+  const visibleAdditionalMaterials = isTeacherOrAdmin ? (lesson.additionalMaterials || []) : (lesson.additionalMaterials || []).filter(allowForStudent);
 
-  // Ссылка на занятие - отображается одинаково для всех пользователей
-  const effectiveLessonLink = studentLessonLink;
-  // Домашка - всегда показываем из урока, без индивидуальных данных
-  const effectiveHomework = homework;
+  // Ссылка на занятие: студенту показываем только если forStudent !== false
+  const effectiveLessonLink = isTeacherOrAdmin
+    ? studentLessonLink
+    : (studentLessonLink && studentLessonLink.forStudent !== false ? studentLessonLink : null);
+  // Домашка: фильтр по forStudent для студентов/гостей
+  const visibleHomework = isTeacherOrAdmin ? (homework || []) : (homework || []).filter(allowForStudent);
 
   // Отладочная информация для ссылки на урок
   console.log('🔍 LessonCard LessonLink Debug:', {
@@ -294,9 +300,9 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
     lessonTitle: lesson.title,
     userRole: user?.role,
     originalHomework: homework,
-    effectiveHomework: effectiveHomework,
-    effectiveHomeworkLength: effectiveHomework.length,
-    willShowHomework: effectiveHomework.length > 0
+    effectiveHomework: visibleHomework,
+    effectiveHomeworkLength: visibleHomework.length,
+    willShowHomework: visibleHomework.length > 0
   });
 
   // Функция для нормализации URL
@@ -407,11 +413,11 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
             </div>
           )}
           {/* Домашка */}
-          {effectiveHomework.length > 0 && (
+          {visibleHomework.length > 0 && (
             <div className="lesson-card__materials-block mb-2">
               <span className="font-semibold">Домашнее задание:</span>
               <ul className="list-disc pl-5 mt-2 space-y-1">
-                {effectiveHomework.map((m, i) => (
+                {visibleHomework.map((m, i) => (
                   <li key={`${m.url}-${i}`}>
                     <a href={normalizeUrl(m.url)} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline font-medium">{m.title || m.url}</a>
                   </li>
@@ -420,11 +426,11 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
             </div>
           )}
           {/* Дополнительные материалы */}
-          {additionalMaterials.length > 0 && (
+          {visibleAdditionalMaterials.length > 0 && (
             <div className="lesson-card__materials-block mb-2">
               <span className="font-semibold">Дополнительные материалы:</span>
               <ul className="list-disc pl-5 mt-2 space-y-1">
-                {additionalMaterials.map((m, i) => (
+                {visibleAdditionalMaterials.map((m, i) => (
                   <li key={`${m.url}-${i}`}>
                     <a href={normalizeUrl(m.url)} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline font-medium">{m.title || m.url}</a>
                   </li>
@@ -448,7 +454,7 @@ export const LessonCard: React.FC<LessonCardProps> = ({ lesson, progress }) => {
           
           {/* Игры для урока */}
           {lesson.games && lesson.games.length > 0 && (
-            <GameGrid games={lesson.games} />
+            <GameGrid games={isTeacherOrAdmin ? lesson.games : lesson.games.filter(allowForStudent)} />
           )}
         </div>
       )}
