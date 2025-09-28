@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import styles from './TeachersSection.module.scss';
 
@@ -47,6 +47,18 @@ interface TeachersSectionProps {
 
 const TeachersSection: React.FC<TeachersSectionProps> = ({ id }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(4);
+
+  useEffect(() => {
+    const update = () => {
+      if (typeof window !== 'undefined') {
+        setVisibleCount(window.innerWidth <= 768 ? 1 : 4);
+      }
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % teachers.length);
@@ -58,7 +70,8 @@ const TeachersSection: React.FC<TeachersSectionProps> = ({ id }) => {
 
   const getVisibleTeachers = () => {
     const result = [];
-    for (let i = 0; i < 4; i++) {
+    const count = Math.max(1, Math.min(visibleCount, teachers.length));
+    for (let i = 0; i < count; i++) {
       const index = (currentIndex + i) % teachers.length;
       result.push(teachers[index]);
     }
