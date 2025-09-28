@@ -32,7 +32,7 @@ export const BurgerMenu: React.FC<BurgerMenuProps> = ({
           >
             <div className="burger-menu-panel" onClick={(e) => e.stopPropagation()}>
               <div className="burger-menu-header">
-                <Image src="/logo.png" alt="logo" width={172} height={32} />
+                <Image src="/logo-full1.svg" alt="logo" width={172} height={32} />
                 <button 
                   className="burger-menu-close" 
                   onClick={onToggle}

@@ -13,7 +13,7 @@ export const Header: React.FC = () => {
   return (
     <header className="dashboard-header">
       <div className="dashboard-header__top">
-        <Image src="/logo.png" alt="logo" width={172} height={32} />
+        <Image src="/logo-full1.svg" alt="logo" width={172} height={32} />
         <div>
           <div className="dashboard-header__top-right">
             <Image

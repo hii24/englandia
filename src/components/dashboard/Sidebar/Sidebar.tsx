@@ -124,7 +124,7 @@ export const Sidebar: React.FC = () => {
   return (
     <aside className="dashboard-sidebar">
       <div className="dashboard-sidebar__logo">
-        <Image src="/logo.png" alt="logo" width={172} height={32} />
+        <Image src="/logo-full1.svg" alt="logo" width={172} height={32} />
       </div>
       <div className="dashboard-sidebar__profile">
         <Image

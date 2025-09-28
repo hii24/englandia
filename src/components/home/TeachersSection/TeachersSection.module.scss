@@ -2,6 +2,7 @@
   padding: 80px 0;
   position: relative;
   overflow: hidden;
+  height: 676px;
   background-color: white;
 }
 
@@ -81,7 +82,7 @@
   left: 7px;
   width: 150px;
   height: 150px;
-  background: #F0F9FF;
+  // background: #F0F9FF;
   border-radius: 10px;
   z-index: 1;
 }
@@ -147,6 +148,7 @@
   justify-content: center;
   align-items: center;
   z-index: 3;
+  pointer-events: none; // не блокируем клики по стрелкам
 }
 
 .emojiIcon {
@@ -168,6 +170,7 @@
   justify-content: space-between;
   padding: 0 20px;
   pointer-events: none;
+  z-index: 10; // поверх карточек и эмодзи
 }
 
 .arrow {
@@ -180,6 +183,7 @@
   padding: 0;
   transition: transform 0.2s ease;
   pointer-events: all;
+  z-index: 11; // самая верхняя кнопка
 
   &:hover {
     transform: scale(1.05);

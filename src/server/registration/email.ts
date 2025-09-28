@@ -45,6 +45,7 @@ const createCustomTransporter = () => {
 export async function sendRegistrationEmail(data: EmailData): Promise<void> {
   try {
     const transporter = createTransporter();
+    const frontendUrl = process.env.NEXT_PUBLIC_DOMAIN || process.env.FRONTEND_URL || 'https://englandia.me';
     
     // Если транспортер не создан (нет настроек), выводим данные в консоль
     if (!transporter) {
@@ -91,7 +92,7 @@ export async function sendRegistrationEmail(data: EmailData): Promise<void> {
             </p>
             
             <div style="text-align: center; margin-top: 30px;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}" 
+              <a href="${frontendUrl}" 
                  style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
                 Перейти на сайт
               </a>
@@ -155,6 +156,7 @@ export async function sendRegistrationEmail(data: EmailData): Promise<void> {
 export async function sendTeacherRegistrationEmail({ email, password, firstName, lastName }: { email: string, password: string, firstName?: string, lastName?: string }) {
   try {
     const transporter = createTransporter();
+    const frontendUrl = process.env.NEXT_PUBLIC_DOMAIN || process.env.FRONTEND_URL || 'https://englandia.me';
     
     // Если транспортер не создан (нет настроек), выводим данные в консоль
     if (!transporter) {
@@ -210,7 +212,7 @@ export async function sendTeacherRegistrationEmail({ email, password, firstName,
             </p>
             
             <div style="text-align: center; margin-top: 30px;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}" 
+              <a href="${frontendUrl}" 
                  style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
                 Перейти на платформу
               </a>
@@ -279,6 +281,7 @@ export async function sendTeacherRegistrationEmail({ email, password, firstName,
 export async function sendPasswordResetEmail({ email, firstName, lastName, newPassword }: { email: string, firstName?: string, lastName?: string, newPassword: string }) {
   try {
     const transporter = createTransporter();
+    const frontendUrl = process.env.NEXT_PUBLIC_DOMAIN || process.env.FRONTEND_URL || 'https://englandia.me';
     
     // Если транспортер не создан (нет настроек), выводим данные в консоль
     if (!transporter) {
@@ -332,7 +335,7 @@ export async function sendPasswordResetEmail({ email, firstName, lastName, newPa
             </p>
             
             <div style="text-align: center; margin-top: 30px;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}" 
+              <a href="${frontendUrl}" 
                  style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
                 Войти в систему
               </a>

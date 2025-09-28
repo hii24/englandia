@@ -45,6 +45,7 @@
 }
 
 .bgImage1 {
+  background-color: #fff;
   position: absolute;
   top: 20px;
   right: 30px;
@@ -112,7 +113,7 @@
   transform: translate(-50%, -50%);
   width: 95px;
   height: 95px;
-  background: rgba(255, 255, 255, 0.6);
+  // background: rgba(255, 255, 255, 0.6);
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -123,7 +124,7 @@
   backdrop-filter: blur(10px);
   
   &:hover {
-    background: rgba(255, 255, 255, 0.8);
+    // background: rgba(255, 255, 255, 0.8);
     transform: translate(-50%, -50%) scale(1.1);
   }
   

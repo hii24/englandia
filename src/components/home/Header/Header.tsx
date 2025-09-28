@@ -30,7 +30,7 @@ export default function Header() {
     <header className={styles.header}>
       <div className={styles.container}>
         <div className={styles.logoBlock}>
-          <Image src="/logo-full.svg" alt="EngLandia Logo" width={172} height={32} priority />
+          <Image src="/logo-full1.svg" alt="EngLandia Logo" width={172} height={32} priority />
         </div>
         <div className={styles.navBlock}>
           <nav className={styles.menu}>

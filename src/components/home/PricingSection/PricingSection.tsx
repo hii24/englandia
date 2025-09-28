@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styles from './PricingSection.module.scss';
 import { Button } from '@/components/ui';
 import { useModal } from '@/hooks/useModal';
@@ -16,53 +16,49 @@ interface PricingPlan {
   isFeatured?: boolean;
 }
 
-interface Prices {
-  basic: number;
-  intensive: number;
-  basicCurrency: string;
-  intensiveCurrency: string;
-}
-
 const initialPlans: PricingPlan[] = [
   {
-    id: 'trial',
-    title: 'Пробный',
-    price: 'бесплатно',
-    period: '1 занятие',
-    description: 'Познакомимся, определим уровень, ребёнок попробует формат и получит красочный сертификат.',
-    recommendation: 'Идеально для знакомства со школой',
+    id: 'month1',
+    title: '1 месяц',
+    price: '100 USD',
+    period: '8 уроков /месяц',
+    description: 'Скидка $20 — 120 USD → 100 USD',
+    recommendation: 'Международный стандарт обучения CEFR',
     features: [
-      '25 минут индивидуального урока',
-      'Подходит для детей 4–12 лет',
-      'Без обязательств'
+      'Индивидуальные онлайн-занятия',
+      '24/7 доступ к обучающим материалам и играм',
+      'Игровая форма обучения',
+      'Обратная связь от учителя',
     ]
   },
   {
-    id: 'basic',
-    title: 'Базовый',
-    price: '', // будет заполнено динамически
-    period: '4 занятия / мес',
-    description: 'Поддержка регулярных занятий и закрепление материала',
-    recommendation: 'Подходит для неспешного темпа и начального уровня',
+    id: 'month3',
+    title: '3 месяца',
+    price: '280 USD',
+    period: '24 урока / 3 месяца',
+    description: 'Скидка $80 — 360 USD → 280 USD',
+    recommendation: 'Международный стандарт обучения CEFR',
     features: [
-      'Индивидуальные уроки (1 раз в неделю)',
-      'Домашние задания и рекомендации',
-      'Доступ к обучающим играм'
+      'Индивидуальные онлайн-занятия',
+      '24/7 доступ к обучающим материалам и играм',
+      'Игровая форма обучения',
+      'Обратная связь от учителя',
+    
     ],
     isFeatured: true
   },
   {
-    id: 'intensive',
-    title: 'Интенсив',
-    price: '', // будет заполнено динамически
-    period: '8 занятий / мес',
-    description: 'Быстрый прогресс и уверенное владение языком',
-    recommendation: 'Лучший выбор для максимального результата',
+    id: 'month6',
+    title: '6 месяцев',
+    price: '530 USD',
+    period: '48 уроков / 6 месяцев',
+    description: 'Скидка $190 — 720 USD → 530 USD',
+    recommendation: 'Международный стандарт обучения CEFR',
     features: [
-      'Индивидуальные занятия (2 раза в неделю)',
-      'Разговорный клуб в подарок',
-      'Отслеживание прогресса и отчёты',
-      'Поддержка в подготовке к Cambridge English'
+      'Индивидуальные онлайн-занятия',
+      '24/7 доступ к обучающим материалам и играм',
+      'Игровая форма обучения',
+      'Обратная связь от учителя',
     ]
   }
 ];
@@ -71,55 +67,12 @@ interface PricingSectionProps {
   id?: string;
 }
 
-function formatPrice(amount: number | null, currency: string | undefined) {
-  if (!amount || !currency) return '';
-  const symbols: Record<string, string> = {
-    rub: '₽',
-    usd: '$',
-    eur: '€',
-    kzt: '₸',
-    uah: '₴',
-    gbp: '£',
-    cny: '¥',
-    jpy: '¥',
-    byn: 'Br',
-    pln: 'zł',
-    czk: 'Kč',
-    try: '₺',
-  };
-  const symbol = symbols[currency.toLowerCase()] || currency.toUpperCase();
-  return `${amount} ${symbol}`;
-}
+// Статические цены на лендинге по требованию — без динамической загрузки
 
 export default function PricingSection({ id }: PricingSectionProps) {
   const { openRegistrationModal } = useModal();
   const [plans, setPlans] = useState<PricingPlan[]>(initialPlans);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setLoading(true);
-    fetch('/api/subscription/prices')
-      .then(res => res.json())
-      .then((data: Prices) => {
-        setPlans(prev => prev.map(plan => {
-          if (plan.id === 'basic') {
-            return {
-              ...plan,
-              price: formatPrice(data.basic, data.basicCurrency)
-            };
-          }
-          if (plan.id === 'intensive') {
-            return {
-              ...plan,
-              price: formatPrice(data.intensive, data.intensiveCurrency)
-            };
-          }
-          return plan;
-        }));
-      })
-      .catch(() => setPlans(initialPlans))
-      .finally(() => setLoading(false));
-  }, []);
+  
 
   const handleSignUp = () => {
     openRegistrationModal();
@@ -147,7 +100,7 @@ export default function PricingSection({ id }: PricingSectionProps) {
         <div className={styles.cardHeader}>
           <h3 className={styles.planTitle}>{plan.title}</h3>
           <div className={styles.priceInfo}>
-            <span className={styles.price}>{loading && plan.id !== 'trial' ? '...' : plan.price}</span>
+            <span className={styles.price}>{plan.price}</span>
             <span className={styles.period}>{plan.period}</span>
           </div>
         </div>

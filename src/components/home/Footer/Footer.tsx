@@ -9,7 +9,7 @@ interface FooterProps {
 const Footer: React.FC<FooterProps> = ({ id }) => (
   <footer className={styles.footer} id={id}>
     <div className={styles.logoBlock}>
-      <Image src="/logo-full.svg" alt="EngLandia Logo" width={172} height={32} />
+      <Image src="/logo-full1.svg" alt="EngLandia Logo" width={172} height={32} />
     </div>
     <div className={styles.linksBlock}>
       <a href="/privacy-policy" className={styles.link} target="_blank" rel="noopener noreferrer">Политика конфиденциальности</a>
@@ -53,7 +53,7 @@ const Footer: React.FC<FooterProps> = ({ id }) => (
       </div>
     </div>
     <div className={styles.copyright}>
-      ©2025, EngLand
+      ©2025, EngLandia
     </div>
   </footer>
 );

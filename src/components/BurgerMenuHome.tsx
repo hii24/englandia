@@ -40,7 +40,7 @@ export const BurgerMenuHome: React.FC<BurgerMenuHomeProps> = ({
 
         {/* Logo */}
         <div className={styles.logoBlock}>
-          <Image src="/logo-full.svg" alt="EngLandia Logo" width={172} height={32} priority />
+          <Image src="/logo-full1.svg" alt="EngLandia Logo" width={172} height={32} priority />
         </div>
 
         {/* Menu */}
