@@ -8,6 +8,7 @@ interface AdminState {
   error: string | null;
   loadUsers: () => Promise<void>;
   assignTeacher: (studentId: string, teacherId: string) => Promise<void>;
+  deleteTeacher: (teacherId: string) => Promise<void>;
 }
 
 export const useAdminStore = create<AdminState>((set, get) => ({
@@ -32,5 +33,16 @@ export const useAdminStore = create<AdminState>((set, get) => ({
   assignTeacher: async (studentId: string, teacherId: string) => {
     await api.patch(`/users/${studentId}`, { teacherId });
     await get().loadUsers();
+  },
+
+  deleteTeacher: async (teacherId: string) => {
+    set({ loading: true, error: null });
+    try {
+      await api.delete(`/users/${teacherId}`);
+      await get().loadUsers();
+      set({ loading: false });
+    } catch (e: any) {
+      set({ error: e.response?.data?.error || e.message, loading: false });
+    }
   },
 })); 

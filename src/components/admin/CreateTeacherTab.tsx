@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { api } from '@/lib/api';
 
 export default function CreateTeacherTab() {
   const [formData, setFormData] = useState({
@@ -12,6 +13,25 @@ export default function CreateTeacherTab() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [teachers, setTeachers] = useState<any[]>([]);
+  const [listLoading, setListLoading] = useState(false);
+
+  const loadTeachers = async () => {
+    try {
+      setListLoading(true);
+      const res = await fetch('/api/users?role=teacher');
+      const data = await res.json();
+      setTeachers(Array.isArray(data) ? data : []);
+    } catch (e) {
+      // noop
+    } finally {
+      setListLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    void loadTeachers();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -60,6 +80,7 @@ export default function CreateTeacherTab() {
           age: 25,
           comment: ''
         });
+        void loadTeachers();
       } else {
         setError(data.error || 'Ошибка регистрации учителя');
       }
@@ -189,6 +210,22 @@ export default function CreateTeacherTab() {
           </button>
         </div>
       </form>
+
+      <div className="teachers-list">
+        <h3 className="section-title">Текущие учителя</h3>
+        {listLoading ? (
+          <div>Загрузка...</div>
+        ) : (
+          <div className="teacher-cards">
+            {teachers.map((t) => (
+              <TeacherCard key={t._id} teacher={t} onDeleted={loadTeachers} />
+            ))}
+            {teachers.length === 0 && (
+              <div className="empty-state">Пока нет учителей</div>
+            )}
+          </div>
+        )}
+      </div>
 
       <style jsx>{`
         .create-teacher-container {
@@ -351,3 +388,43 @@ export default function CreateTeacherTab() {
     </div>
   );
 } 
+
+function TeacherCard({ teacher, onDeleted }: { teacher: any; onDeleted: () => void }) {
+  const [deleting, setDeleting] = React.useState(false);
+  const handleDelete = async () => {
+    if (!confirm(`Удалить учителя ${teacher.firstName} ${teacher.lastName}? Ученики будут отвязаны, расписания удалены.`)) return;
+    setDeleting(true);
+    try {
+      const res = await api.delete(`/users/${teacher._id}`);
+      if (res.status >= 200 && res.status < 300) {
+        onDeleted();
+      } else {
+        const msg = (res.data && res.data.error) ? res.data.error : 'Не удалось удалить учителя';
+        alert(msg);
+      }
+    } catch (e) {
+      alert('Ошибка соединения');
+    } finally {
+      setDeleting(false);
+    }
+  };
+  return (
+    <div className="teacher-card">
+      <div className="teacher-card__info">
+        <div className="teacher-card__name">{teacher.firstName} {teacher.lastName}</div>
+        <div className="teacher-card__email">{teacher.email}</div>
+      </div>
+      <button className="delete-button" onClick={handleDelete} disabled={deleting}>
+        {deleting ? 'Удаление...' : 'Удалить'}
+      </button>
+      <style jsx>{`
+        .teacher-card { display: flex; align-items: center; justify-content: space-between; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px; }
+        .teacher-card__name { font-weight: 600; color: #1e293b; }
+        .teacher-card__email { color: #64748b; font-size: 13px; }
+        .delete-button { padding: 8px 12px; background: #ef4444; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+        .delete-button:disabled { background: #9ca3af; cursor: not-allowed; }
+        .teacher-cards { display: flex; flex-direction: column; }
+      `}</style>
+    </div>
+  );
+}
