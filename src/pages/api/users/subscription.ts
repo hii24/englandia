@@ -55,13 +55,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           actualEndDate = subscription.endDate;
         }
 
-        // Считаем оставшиеся уроки за текущий месяц
+        // Считаем оставшиеся уроки за текущий биллинговый период
         if (user.role === 'student') {
-          // Определяем начало текущего периода (startDate или начало месяца)
+          // Определяем начало текущего периода (из Stripe, если доступно)
           let periodStart = subscription.startDate;
           if (stripeSub && stripeSub.current_period_start) {
             periodStart = new Date(stripeSub.current_period_start * 1000);
           }
+
+          // Определяем длительность периода в месяцах по данным Stripe
+          let periodMonths = 1;
+          try {
+            const recurring = stripeSub?.items?.data?.[0]?.price?.recurring;
+            const interval = recurring?.interval as 'day' | 'week' | 'month' | 'year' | undefined;
+            const intervalCount = (recurring?.interval_count as number | undefined) || 1;
+            if (interval === 'month') {
+              periodMonths = intervalCount;
+            } else if (interval === 'year') {
+              periodMonths = 12 * intervalCount;
+            } else {
+              // Для day/week сохраняем период как 1 месяц (консервативно)
+              periodMonths = 1;
+            }
+          } catch {
+            periodMonths = 1;
+          }
+
           const now = new Date();
           // Считаем завершённые уроки за период
           const completedLessons = await StudentProgress.countDocuments({
@@ -69,7 +88,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             attended: true,
             attendanceDate: { $gte: periodStart, $lte: now }
           });
-          lessonsLeft = Math.max(0, (subscription.lessonsPerMonth || 0) - completedLessons);
+
+          const allowedLessonsThisPeriod = (subscription.lessonsPerMonth || 0) * periodMonths;
+          lessonsLeft = Math.max(0, allowedLessonsThisPeriod - completedLessons);
         }
 
         subscriptionInfo = {
@@ -89,9 +110,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let packageName = '—';
     if (subscriptionInfo) {
       if (subscriptionInfo.type === 'basic') {
-        packageName = 'Базовый (4 урока/мес)';
-      } else if (subscriptionInfo.type === 'intensive') {
-        packageName = 'Интенсивный (8 уроков/мес)';
+        packageName = 'Базовый (8 уроков/мес)';
+      } else if (subscriptionInfo.type === 'standard') {
+        packageName = 'Стандарт (24 урока/мес)';
+      } else if (subscriptionInfo.type === 'premium') {
+        packageName = 'Премиум (48 уроков/мес)';
       }
     } else if (user.role === 'guest') {
       packageName = 'Гостевой доступ';

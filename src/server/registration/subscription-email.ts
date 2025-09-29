@@ -3,7 +3,7 @@ import { findUserById } from '../db';
 import Lesson from '../lessons/model';
 import StudentProgress from '../progress/model';
 import { Types } from 'mongoose';
-import { stripe, SUBSCRIPTION_TYPES } from '@/lib/stripe';
+import { stripe, SUBSCRIPTION_TYPES, resolvePriceIdFor } from '@/lib/stripe';
 
 interface SubscriptionEmailData {
   studentId: string;
@@ -56,32 +56,27 @@ async function createSubscriptionLinks(userId: string) {
     return links;
   }
   
-  if (!process.env.STRIPE_BASIC_PRICE_ID || !process.env.STRIPE_INTENSIVE_PRICE_ID) {
-    console.error('❌ Price IDs не настроены:', {
-      basic: process.env.STRIPE_BASIC_PRICE_ID ? '✅' : '❌',
-      intensive: process.env.STRIPE_INTENSIVE_PRICE_ID ? '✅' : '❌'
-    });
-    return links;
-  }
+  // priceId можем резолвить на лету, поэтому не требуем обязательного наличия env
   
   try {
     for (const [type, config] of Object.entries(SUBSCRIPTION_TYPES)) {
       console.log(`📝 Создаем ссылку для ${type}:`, config);
       
-      if (config.priceId) {
-        console.log(`💰 Используем Price ID: ${config.priceId}`);
-        
+      try {
+        const priceId = config.priceId || await resolvePriceIdFor(type as keyof typeof SUBSCRIPTION_TYPES);
+        console.log(`💰 Используем Price ID: ${priceId}`);
+
         const session = await stripe.checkout.sessions.create({
           mode: 'subscription',
           payment_method_types: ['card'],
           line_items: [
             {
-              price: config.priceId,
+              price: priceId,
               quantity: 1,
             },
           ],
-          success_url: `${process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000'}/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000'}/?payment=cancel`,
+          success_url: `${process.env.NEXT_PUBLIC_DOMAIN || process.env.FRONTEND_URL || 'https://englandia.me'}/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN || process.env.FRONTEND_URL || 'https://englandia.me'}/?payment=cancel`,
           metadata: {
             userId: userId,
             subscriptionType: type,
@@ -97,8 +92,8 @@ async function createSubscriptionLinks(userId: string) {
         
         links[type] = session.url!;
         console.log(`✅ Ссылка создана для ${type}:`, session.url);
-      } else {
-        console.warn(`⚠️ Price ID не настроен для ${type}`);
+      } catch (e) {
+        console.warn(`⚠️ Не удалось создать ссылку для ${type}:`, e);
       }
     }
   } catch (error) {

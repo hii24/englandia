@@ -16,6 +16,27 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+### Production Stripe настройка
+
+1) Установите переменные окружения (live):
+
+```
+NEXT_PUBLIC_DOMAIN=https://englandia.me
+FRONTEND_URL=https://englandia.me
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_PUBLISHABLE_KEY=pk_live_...
+STRIPE_BASIC_PRICE_ID=price_...
+STRIPE_INTENSIVE_PRICE_ID=price_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+ENABLE_DEBUG=false
+```
+
+2) В Stripe создайте endpoint для вебхуков на `/api/webhooks/stripe` и используйте секрет `STRIPE_WEBHOOK_SECRET`.
+
+3) В админке Stripe используйте Price IDs для тарифов `basic` и `intensive`.
+
+4) В продакшене debug-роуты `/api/debug/*` отключены (middleware). Для временного включения задайте `ENABLE_DEBUG=true`.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

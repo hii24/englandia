@@ -156,13 +156,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             console.log('💾 Payment record created for user:', user._id);
 
             // Создаем запись подписки в базе данных
+            const lessonsByType: Record<string, number> = {
+              BASIC: 8,
+              STANDARD: 24,
+              PREMIUM: 48
+            };
+            const internalTypeByMeta: Record<string, 'basic' | 'standard' | 'premium'> = {
+              BASIC: 'basic',
+              STANDARD: 'standard',
+              PREMIUM: 'premium'
+            } as const;
+
+            const isMetaType = (value: unknown): value is 'BASIC' | 'STANDARD' | 'PREMIUM' =>
+              value === 'BASIC' || value === 'STANDARD' || value === 'PREMIUM';
+
+            const typeKey: 'BASIC' | 'STANDARD' | 'PREMIUM' = isMetaType(subscriptionType) ? subscriptionType : 'BASIC';
+
+            
             const subscriptionData = {
               userId: user._id,
-              type: subscriptionType === 'BASIC' ? 'basic' : 'intensive',
+              type: internalTypeByMeta[typeKey],
               status: 'active',
               startDate: new Date(),
               autoRenewal: true,
-              lessonsPerMonth: subscriptionType === 'BASIC' ? 4 : 8,
+              lessonsPerMonth: lessonsByType[typeKey],
               stripeSubscriptionId: session.subscription,
               stripeCustomerId: session.customer,
               createdAt: new Date(),

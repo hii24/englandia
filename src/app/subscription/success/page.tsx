@@ -3,10 +3,29 @@
 import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams?.get('session_id');
+  const [confirmed, setConfirmed] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const run = async () => {
+      if (!sessionId) return;
+      try {
+        const res = await fetch('/api/subscription/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId })
+        });
+        setConfirmed(res.ok);
+      } catch {
+        setConfirmed(false);
+      }
+    };
+    run();
+  }, [sessionId]);
 
   return (
     <div className="max-w-md mx-auto mt-16">
@@ -32,7 +51,7 @@ function SuccessContent() {
         </h1>
 
         <p className="text-gray-600 mb-6">
-          Поздравляем! Ваша подписка активирована. Теперь у вас есть доступ ко всем урокам платформы.
+          Поздравляем! {confirmed === false ? 'Обработка платежа займёт немного времени, доступ будет выдан автоматически.' : 'Ваша подписка активирована. Теперь у вас есть доступ ко всем урокам платформы.'}
         </p>
 
         {sessionId && (

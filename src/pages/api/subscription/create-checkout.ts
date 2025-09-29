@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { stripe, SUBSCRIPTION_TYPES } from '@/lib/stripe';
+import { stripe, SUBSCRIPTION_TYPES, resolvePriceIdFor } from '@/lib/stripe';
 import { dbConnect } from '@/server/db';
 import { findUserById } from '@/server/db';
 
@@ -28,11 +28,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const subscriptionConfig = SUBSCRIPTION_TYPES[subscriptionType as keyof typeof SUBSCRIPTION_TYPES];
     
-    if (!subscriptionConfig.priceId) {
-      return res.status(500).json({ 
-        error: `Price ID not configured for ${subscriptionType} subscription` 
-      });
-    }
+    // Резолвим priceId: используем настроенный, либо вытаскиваем по productId
+    const priceId = subscriptionConfig.priceId || await resolvePriceIdFor(subscriptionType as keyof typeof SUBSCRIPTION_TYPES);
 
     // Получаем данные пользователя
     const user = await findUserById(userId);
@@ -51,7 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       userId,
       subscriptionType,
       userEmail: user.email,
-      priceId: subscriptionConfig.priceId
+      priceId
     });
 
     // Создаем Stripe Checkout Session
@@ -61,12 +58,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       customer_email: user.email,
       line_items: [
         {
-          price: subscriptionConfig.priceId,
+          price: priceId,
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000'}/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000'}/?payment=cancel`,
+      success_url: `${process.env.NEXT_PUBLIC_DOMAIN || process.env.FRONTEND_URL || 'https://englandia.me'}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN || process.env.FRONTEND_URL || 'https://englandia.me'}/subscription/cancel`,
       metadata: {
         userId: String(user._id),
         subscriptionType: subscriptionType,

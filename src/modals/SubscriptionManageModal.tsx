@@ -8,7 +8,7 @@ interface SubscriptionManageModalProps {
   subscription: any | null;
   loading: boolean;
   onCancel: () => Promise<void>;
-  onPay: (type: 'basic' | 'intensive') => Promise<void>;
+  onPay: (type: 'basic' | 'standard' | 'premium') => Promise<void>;
 }
 
 export const SubscriptionManageModal: React.FC<SubscriptionManageModalProps> = ({
@@ -20,12 +20,14 @@ export const SubscriptionManageModal: React.FC<SubscriptionManageModalProps> = (
   onPay
 }) => {
   const [cancelLoading, setCancelLoading] = useState(false);
-  const [payLoading, setPayLoading] = useState<'basic' | 'intensive' | null>(null);
+  const [payLoading, setPayLoading] = useState<'basic' | 'standard' | 'premium' | null>(null);
   const [prices, setPrices] = useState<{
     basic: number;
-    intensive: number;
+    standard: number;
+    premium: number;
     basicCurrency: string;
-    intensiveCurrency: string;
+    standardCurrency: string;
+    premiumCurrency: string;
   } | null>(null);
   const [pricesLoading, setPricesLoading] = useState(false);
 
@@ -37,9 +39,11 @@ export const SubscriptionManageModal: React.FC<SubscriptionManageModalProps> = (
         .then(data => {
           setPrices({
             basic: data.basic,
-            intensive: data.intensive,
+            standard: data.standard,
+            premium: data.premium,
             basicCurrency: data.basicCurrency,
-            intensiveCurrency: data.intensiveCurrency
+            standardCurrency: data.standardCurrency,
+            premiumCurrency: data.premiumCurrency
           });
         })
         .catch(() => setPrices(null))
@@ -99,7 +103,13 @@ export const SubscriptionManageModal: React.FC<SubscriptionManageModalProps> = (
         ) : subscription && subscription.status === 'active' ? (
           <>
             <div className="mb-4">
-              <div className="text-lg font-semibold mb-2">Текущий тариф: {subscription.type === 'basic' ? 'Базовый (4 урока/мес)' : 'Интенсивный (8 уроков/мес)'}</div>
+              <div className="text-lg font-semibold mb-2">Текущий тариф: {
+                subscription.type === 'basic'
+                  ? 'Базовый (8 уроков/мес)'
+                  : subscription.type === 'standard'
+                  ? 'Стандарт (24 урока/мес)'
+                  : 'Премиум (48 уроков/мес)'
+              }</div>
               <div className="text-gray-600 mb-2">Статус: <b>{statusText}</b></div>
               <div className="text-gray-600 mb-2">Автопродление: {subscription.autoRenewal ? 'Включено' : 'Отключено'}</div>
               <div className="text-gray-600 mb-2">Действует до: {endDateText}</div>
@@ -129,7 +139,7 @@ export const SubscriptionManageModal: React.FC<SubscriptionManageModalProps> = (
               <div className="flex flex-col gap-4">
                 <div className="border rounded-lg p-4 text-left">
                   <div className="font-bold mb-1">Базовый</div>
-                  <div className="mb-2">4 урока в месяц</div>
+                  <div className="mb-2">8 уроков в месяц</div>
                   <Button 
                     variant="primary" 
                     size="large" 
@@ -144,20 +154,36 @@ export const SubscriptionManageModal: React.FC<SubscriptionManageModalProps> = (
                   >Оформить {prices ? formatPrice(prices.basic, prices.basicCurrency) : ''}</Button>
                 </div>
                 <div className="border rounded-lg p-4 text-left">
-                  <div className="font-bold mb-1">Интенсивный</div>
-                  <div className="mb-2">8 уроков в месяц</div>
+                  <div className="font-bold mb-1">Стандарт</div>
+                  <div className="mb-2">24 урока в месяц</div>
                   <Button 
                     variant="primary" 
                     size="large" 
                     fullWidth 
-                    loading={payLoading === 'intensive' || pricesLoading}
+                    loading={payLoading === 'standard' || pricesLoading}
                     disabled={pricesLoading || !prices}
                     onClick={async () => {
-                      setPayLoading('intensive');
-                      await onPay('intensive');
+                      setPayLoading('standard');
+                      await onPay('standard');
                       setPayLoading(null);
                     }}
-                  >Оформить {prices ? formatPrice(prices.intensive, prices.intensiveCurrency) : ''}</Button>
+                  >Оформить {prices ? formatPrice(prices.standard, prices.standardCurrency) : ''}</Button>
+                </div>
+                <div className="border rounded-lg p-4 text-left">
+                  <div className="font-bold mb-1">Премиум</div>
+                  <div className="mb-2">48 уроков в месяц</div>
+                  <Button 
+                    variant="primary" 
+                    size="large" 
+                    fullWidth 
+                    loading={payLoading === 'premium' || pricesLoading}
+                    disabled={pricesLoading || !prices}
+                    onClick={async () => {
+                      setPayLoading('premium');
+                      await onPay('premium');
+                      setPayLoading(null);
+                    }}
+                  >Оформить {prices ? formatPrice(prices.premium, prices.premiumCurrency) : ''}</Button>
                 </div>
               </div>
             </div>

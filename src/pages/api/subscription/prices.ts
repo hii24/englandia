@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { stripe, SUBSCRIPTION_TYPES } from '@/lib/stripe';
+import { stripe, SUBSCRIPTION_TYPES, resolvePriceIdFor } from '@/lib/stripe';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -7,25 +7,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Получаем priceId для каждого тарифа
-    const basicPriceId = SUBSCRIPTION_TYPES.BASIC.priceId;
-    const intensivePriceId = SUBSCRIPTION_TYPES.INTENSIVE.priceId;
-
-    if (!basicPriceId || !intensivePriceId) {
-      return res.status(500).json({ error: 'Stripe priceId not configured' });
-    }
+    // Резолвим priceIds для трёх тарифов
+    const [basicPriceId, standardPriceId, premiumPriceId] = await Promise.all([
+      resolvePriceIdFor('BASIC'),
+      resolvePriceIdFor('STANDARD'),
+      resolvePriceIdFor('PREMIUM')
+    ]);
 
     // Получаем цены из Stripe
-    const [basicPrice, intensivePrice] = await Promise.all([
+    const [basicPrice, standardPrice, premiumPrice] = await Promise.all([
       stripe.prices.retrieve(basicPriceId),
-      stripe.prices.retrieve(intensivePriceId)
+      stripe.prices.retrieve(standardPriceId),
+      stripe.prices.retrieve(premiumPriceId)
     ]);
 
     res.status(200).json({
       basic: basicPrice.unit_amount ? Math.round(basicPrice.unit_amount / 100) : null,
       basicCurrency: basicPrice.currency || '$',
-      intensive: intensivePrice.unit_amount ? Math.round(intensivePrice.unit_amount / 100) : null,
-      intensiveCurrency: intensivePrice.currency || '$'
+      standard: standardPrice.unit_amount ? Math.round(standardPrice.unit_amount / 100) : null,
+      standardCurrency: standardPrice.currency || '$',
+      premium: premiumPrice.unit_amount ? Math.round(premiumPrice.unit_amount / 100) : null,
+      premiumCurrency: premiumPrice.currency || '$'
     });
   } catch (error) {
     console.error('Error fetching Stripe prices:', error);

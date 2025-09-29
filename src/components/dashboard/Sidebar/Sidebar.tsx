@@ -94,7 +94,7 @@ export const Sidebar: React.FC = () => {
   };
 
   // Функция оплаты подписки
-  const handlePaySubscription = async (type: 'basic' | 'intensive') => {
+  const handlePaySubscription = async (type: 'basic' | 'standard' | 'premium') => {
     // Проверка: если есть активная или отменённая, но ещё действующая подписка
     if (subscriptionInfo && (
       subscriptionInfo.status === 'active' || subscriptionInfo.cancelAtPeriodEnd
