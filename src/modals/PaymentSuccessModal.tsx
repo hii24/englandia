@@ -15,10 +15,22 @@ const PaymentSuccessModal: React.FC<PaymentSuccessModalProps> = ({
   const router = useRouter();
   const { refreshUser } = useUserStore();
 
-  // Обновляем данные пользователя при открытии модалки
+  // Обновляем данные пользователя при открытии модалки и подтверждаем сессию, если есть sessionId
   useEffect(() => {
-    refreshUser();
-  }, [refreshUser]);
+    const run = async () => {
+      try {
+        if (sessionId) {
+          await fetch('/api/subscription/confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId })
+          });
+        }
+      } catch {}
+      refreshUser();
+    };
+    run();
+  }, [refreshUser, sessionId]);
 
   const handleGoToDashboard = () => {
     onClose();
