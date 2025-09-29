@@ -104,6 +104,60 @@
   margin-bottom: 40px;
 }
 
+.priceBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.periodText {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 22px;
+  color: #000;
+}
+
+.pillPrice {
+  width: 100%;
+  max-width: 620px;
+  padding: 22px 24px;
+  background: linear-gradient(180deg, #E9ECF3 0%, #E3E6EE 100%);
+  border-radius: 48px;
+  box-shadow: inset 0 6px 18px rgba(0,0,0,0.06);
+}
+
+.oldPrice {
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 28px;
+  color: #000;
+  opacity: .5;
+  text-decoration: line-through;
+}
+
+.newPrice {
+  text-align: center;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 800;
+  font-size: 44px;
+  color: #D90000;
+}
+
+.discountBadge {
+  position: absolute;
+  top: -10px;
+  right: 12px;
+  background: #D41616;
+  color: #fff;
+  padding: 8px 14px;
+  font-weight: 800;
+  transform: rotate(-6deg);
+  box-shadow: 0 4px 0 #000;
+  border-radius: 2px;
+  text-transform: lowercase;
+}
+
 .planTitle {
   font-family: 'Rubik', sans-serif;
   font-weight: 400;
@@ -243,15 +297,16 @@
 
 .recommendation {
   font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 1.21;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.4;
   text-align: center;
   color: #000000;
   margin: 30px 0 0;
   flex-shrink: 0;
   
   @media (max-width: 1024px) {
+    font-size: 16px;
     margin: 20px 0 0;
   }
 }

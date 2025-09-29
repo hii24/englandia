@@ -14,6 +14,8 @@ interface PricingPlan {
   recommendation: string;
   features: string[];
   isFeatured?: boolean;
+  oldPrice?: string;
+  discountLabel?: string; // текст бейджа скидки
 }
 
 const initialPlans: PricingPlan[] = [
@@ -23,6 +25,8 @@ const initialPlans: PricingPlan[] = [
     price: '100 USD',
     period: '8 уроков /месяц',
     description: 'Скидка $20 — 120 USD → 100 USD',
+    oldPrice: '120 USD',
+    discountLabel: 'скидка — $20',
     recommendation: 'Международный стандарт обучения CEFR',
     features: [
       'Индивидуальные онлайн-занятия',
@@ -37,6 +41,8 @@ const initialPlans: PricingPlan[] = [
     price: '280 USD',
     period: '24 урока / 3 месяца',
     description: 'Скидка $80 — 360 USD → 280 USD',
+    oldPrice: '360 USD',
+    discountLabel: 'скидка — $80',
     recommendation: 'Международный стандарт обучения CEFR',
     features: [
       'Индивидуальные онлайн-занятия',
@@ -53,6 +59,8 @@ const initialPlans: PricingPlan[] = [
     price: '530 USD',
     period: '48 уроков / 6 месяцев',
     description: 'Скидка $190 — 720 USD → 530 USD',
+    oldPrice: '720 USD',
+    discountLabel: 'скидка — $190',
     recommendation: 'Международный стандарт обучения CEFR',
     features: [
       'Индивидуальные онлайн-занятия',
@@ -99,13 +107,19 @@ export default function PricingSection({ id }: PricingSectionProps) {
       <div key={plan.id} className={cardClasses}>
         <div className={styles.cardHeader}>
           <h3 className={styles.planTitle}>{plan.title}</h3>
-          <div className={styles.priceInfo}>
-            <span className={styles.price}>{plan.price}</span>
-            <span className={styles.period}>{plan.period}</span>
+          {plan.discountLabel && (
+            <div className={styles.discountBadge}>{plan.discountLabel}</div>
+          )}
+          <div className={styles.priceBlock}>
+            <div className={styles.periodText}>{plan.period}</div>
+            <div className={styles.pillPrice}>
+              {plan.oldPrice && (
+                <div className={styles.oldPrice}>{plan.oldPrice}</div>
+              )}
+              <div className={styles.newPrice}>{plan.price}</div>
+            </div>
           </div>
         </div>
-
-        <p className={styles.description}>{plan.description}</p>
 
         <div className={styles.separator}></div>
 
