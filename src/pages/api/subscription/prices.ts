@@ -31,6 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   } catch (error) {
     console.error('Error fetching Stripe prices:', error);
-    res.status(500).json({ error: 'Failed to fetch prices' });
+    const details = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: 'Failed to fetch prices', details });
   }
 } 
