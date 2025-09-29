@@ -5,6 +5,7 @@ import { findUserById } from '@/server/db';
 import { Schema, model, Types, models } from 'mongoose';
 import { buffer } from 'micro';
 import { Payment } from '@/server/payments/model';
+import { sendPaymentReceiptEmail } from '@/server/registration/email';
 import Subscription from '@/server/subscription/model';
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -155,6 +156,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             });
             console.log('💾 Payment record created for user:', user._id);
 
+            // Письмо-квитанция
+            try {
+              const planName = subscriptionType === 'BASIC' ? 'Базовый (8/мес)' : subscriptionType === 'STANDARD' ? 'Стандарт (24/мес)' : 'Премиум (48/мес)';
+              await sendPaymentReceiptEmail({
+                email: user.email,
+                amount: (session.amount_total || 0) / 100,
+                currency: session.currency || 'usd',
+                planName,
+                intervalText: undefined,
+                sessionId: session.id,
+              });
+            } catch (e) {
+              console.warn('⚠️ Не удалось отправить квитанцию:', e);
+            }
+
             // Создаем запись подписки в базе данных
             const lessonsByType: Record<string, number> = {
               BASIC: 8,
@@ -287,6 +303,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log('💸 Invoice payment failed:', invoice.id);
         console.log('Customer email:', invoice.customer_email);
         console.log('Subscription ID:', (invoice as any).subscription);
+        break;
+      }
+
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object as any;
+        const email = invoice.customer_email || undefined;
+        if (email) {
+          try {
+            await sendPaymentReceiptEmail({
+              email,
+              amount: (invoice.amount_paid || 0) / 100,
+              currency: invoice.currency || 'usd',
+              planName: undefined,
+              intervalText: undefined,
+              sessionId: invoice.id,
+            });
+          } catch (e) {
+            console.warn('⚠️ Не удалось отправить квитанцию по invoice:', e);
+          }
+        }
         break;
       }
 

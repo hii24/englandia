@@ -4,6 +4,7 @@ import { dbConnect } from '@/server/db';
 import { findUserById } from '@/server/db';
 import { Payment } from '@/server/payments/model';
 import Subscription from '@/server/subscription/model';
+import { sendPaymentReceiptEmail } from '@/server/registration/email';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -75,6 +76,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       subscription: newSubscription._id,
       updatedAt: new Date()
     });
+
+    // Отправляем квитанцию
+    try {
+      const planName = internalType[subscriptionType] === 'basic' ? 'Базовый (8/мес)'
+        : internalType[subscriptionType] === 'standard' ? 'Стандарт (24/мес)'
+        : 'Премиум (48/мес)';
+      await sendPaymentReceiptEmail({
+        email: user.email,
+        amount: (session.amount_total || 0) / 100,
+        currency: session.currency || 'usd',
+        planName,
+        intervalText: undefined,
+        sessionId: session.id,
+      });
+    } catch (e) {
+      console.warn('⚠️ Не удалось отправить квитанцию (confirm):', e);
+    }
 
     return res.status(200).json({ success: true, subscriptionId: newSubscription._id });
   } catch (error) {

@@ -452,3 +452,56 @@ export async function sendAdminNewStudentEmail({ firstName, lastName, email, pho
     console.error('Ошибка отправки письма админу о новом ученике:', error);
   }
 } 
+
+export async function sendPaymentReceiptEmail({
+  email,
+  amount,
+  currency,
+  planName,
+  intervalText,
+  sessionId,
+}: {
+  email: string;
+  amount: number; // в базовой валюте (например, usd)
+  currency: string;
+  planName?: string;
+  intervalText?: string; // например: "1 month", "3 months"
+  sessionId?: string;
+}): Promise<void> {
+  try {
+    const transporter = createTransporter();
+    const symbols: Record<string, string> = {
+      rub: '₽', usd: '$', eur: '€', kzt: '₸', uah: '₴', gbp: '£', cny: '¥', jpy: '¥', byn: 'Br', pln: 'zł', czk: 'Kč', try: '₺'
+    };
+    const sym = symbols[currency?.toLowerCase?.() || ''] || currency?.toUpperCase?.() || '';
+    const amountFormatted = `${amount} ${sym}`;
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || 'noreply@eng-landia.com',
+      to: email,
+      subject: 'Квитанция об оплате — Eng-Landia',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%); color: white; padding: 24px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1 style="margin: 0; font-size: 22px;">Оплата прошла успешно</h1>
+          </div>
+          <div style="background: #f8f9fa; padding: 24px; border-radius: 0 0 10px 10px;">
+            <p style="color: #333; line-height: 1.6; margin: 0 0 12px;">Спасибо за оплату на платформе <b>Eng-Landia</b>.</p>
+            <div style="background: white; padding: 16px; border-radius: 8px; border-left: 4px solid #22c55e; margin-bottom: 12px;">
+              <p style="margin: 6px 0;"><b>Сумма:</b> ${amountFormatted}</p>
+              ${planName ? `<p style="margin: 6px 0;"><b>Тариф:</b> ${planName}${intervalText ? ` (${intervalText})` : ''}</p>` : ''}
+              ${sessionId ? `<p style="margin: 6px 0;"><b>Номер операции:</b> ${sessionId}</p>` : ''}
+            </div>
+            <p style="color: #666; line-height: 1.6;">Квитанция сформирована автоматически. Если у вас есть вопросы, ответьте на это письмо.</p>
+          </div>
+        </div>
+      `,
+      text: `Оплата прошла успешно\n\nСумма: ${amountFormatted}\n${planName ? `Тариф: ${planName}${intervalText ? ` (${intervalText})` : ''}\n` : ''}${sessionId ? `Номер операции: ${sessionId}\n` : ''}`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log('Payment receipt email отправлен:', { to: email, amount, currency, sessionId });
+  } catch (error) {
+    console.error('Ошибка отправки квитанции:', error);
+  }
+}
