@@ -84,6 +84,15 @@ export async function sendRegistrationEmail(data: EmailData): Promise<void> {
               <p style="margin: 10px 0;"><strong>Логин:</strong> ${data.email}</p>
               <p style="margin: 10px 0;"><strong>Пароль:</strong> ${data.password}</p>
             </div>
+            <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #22c55e;">
+              <h3 style="margin-top: 0; color: #166534;">🚀 Готовы начать обучение?</h3>
+              <p style="color: #166534; line-height: 1.6; margin: 0 0 10px;">Выберите подписку, которая подходит вам:</p>
+              <ul style="color: #166534; line-height: 1.6; margin: 0; padding-left: 20px;">
+                <li><b>Базовый</b> — 8 уроков в месяц</li>
+                <li><b>Стандарт</b> — 24 урока в месяц</li>
+                <li><b>Премиум</b> — 48 уроков в месяц</li>
+              </ul>
+            </div>
           
             
             <p style="color: #666; line-height: 1.6;">
@@ -92,9 +101,9 @@ export async function sendRegistrationEmail(data: EmailData): Promise<void> {
             </p>
             
             <div style="text-align: center; margin-top: 30px;">
-              <a href="${frontendUrl}" 
+              <a href="${frontendUrl}/dashboard" 
                  style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
-                Перейти на сайт
+                Перейти в личный кабинет
               </a>
             </div>
           </div>
@@ -110,7 +119,7 @@ export async function sendRegistrationEmail(data: EmailData): Promise<void> {
 
 Здравствуйте, ${data.firstName} ${data.lastName}!
 
-Спасибо за регистрацию в нашей платформе обучения английскому языку. 
+Спасибо за регистрацию в нашей платформе обучения английскому языку.
 Мы рады приветствовать вас в сообществе Eng-Landia!
 
 Ваши данные для входа:
@@ -119,7 +128,14 @@ export async function sendRegistrationEmail(data: EmailData): Promise<void> {
 
 Важно: Рекомендуем сменить пароль после первого входа в систему.
 
-Если у вас возникнут вопросы, не стесняйтесь обращаться к нам. 
+Подписка и доступы:
+- Базовый — 8 уроков/мес
+- Стандарт — 24 урока/мес
+- Премиум — 48 уроков/мес
+
+Оформить подписку и начать занятия: ${frontendUrl}/dashboard
+
+Если у вас возникнут вопросы, не стесняйтесь обращаться к нам.
 Мы всегда готовы помочь!
 
 С уважением,
