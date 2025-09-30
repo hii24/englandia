@@ -54,23 +54,32 @@ export const SubscriptionManageModal: React.FC<SubscriptionManageModalProps> = (
   // Корректное отображение "Действует до" и статуса
   let endDateText = '—';
   let statusText = '';
-  if (subscription && subscription.status === 'active') {
-    if (subscription.cancelAtPeriodEnd && subscription.endDate) {
+  const nowTs = Date.now();
+  const endTs = subscription?.endDate ? new Date(subscription.endDate).getTime() : null;
+  const isCancelledButValid = !!subscription && (
+    (!!subscription.cancelAtPeriodEnd && !!subscription.endDate) ||
+    (subscription.status === 'cancelled' && !!endTs && endTs > nowTs)
+  );
+
+  if (subscription) {
+    if (subscription.status === 'active') {
+      if (subscription.cancelAtPeriodEnd && subscription.endDate) {
+        endDateText = new Date(subscription.endDate).toLocaleDateString();
+        statusText = `Подписка отменена, действует до ${endDateText}`;
+      } else if (subscription.endDate) {
+        endDateText = new Date(subscription.endDate).toLocaleDateString();
+        statusText = 'Активна, продлевается автоматически';
+      } else if (subscription.autoRenewal) {
+        endDateText = 'Подписка продлевается автоматически';
+        statusText = 'Активна, продлевается автоматически';
+      } else {
+        endDateText = '—';
+        statusText = 'Активна';
+      }
+    } else if (isCancelledButValid && subscription.endDate) {
       endDateText = new Date(subscription.endDate).toLocaleDateString();
       statusText = `Подписка отменена, действует до ${endDateText}`;
-    } else if (subscription.endDate) {
-      endDateText = new Date(subscription.endDate).toLocaleDateString();
-      statusText = 'Активна, продлевается автоматически';
-    } else if (subscription.autoRenewal) {
-      endDateText = 'Подписка продлевается автоматически';
-      statusText = 'Активна, продлевается автоматически';
-    } else {
-      endDateText = '—';
-      statusText = 'Активна';
     }
-  } else if (subscription && subscription.status === 'cancelled' && subscription.endDate) {
-    endDateText = new Date(subscription.endDate).toLocaleDateString();
-    statusText = `Подписка отменена, действует до ${endDateText}`;
   }
 
   // Функция для красивого отображения валюты
@@ -100,7 +109,7 @@ export const SubscriptionManageModal: React.FC<SubscriptionManageModalProps> = (
         <h2 className="text-2xl font-bold mb-4">Управление подпиской</h2>
         {loading ? (
           <div>Загрузка...</div>
-        ) : subscription && subscription.status === 'active' ? (
+        ) : subscription && (subscription.status === 'active' || isCancelledButValid) ? (
           <>
             <div className="mb-4">
               <div className="text-lg font-semibold mb-2">Текущий тариф: {
@@ -115,7 +124,7 @@ export const SubscriptionManageModal: React.FC<SubscriptionManageModalProps> = (
               <div className="text-gray-600 mb-2">Действует до: {endDateText}</div>
               
             </div>
-            {!subscription.cancelAtPeriodEnd && (
+            {!subscription.cancelAtPeriodEnd && subscription.status === 'active' && (
               <Button 
                 variant="danger" 
                 size="large" 

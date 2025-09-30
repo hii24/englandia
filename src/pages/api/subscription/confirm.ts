@@ -4,7 +4,7 @@ import { dbConnect } from '@/server/db';
 import { findUserById } from '@/server/db';
 import { Payment } from '@/server/payments/model';
 import Subscription from '@/server/subscription/model';
-import { sendPaymentReceiptEmail } from '@/server/registration/email';
+import { sendPaymentReceiptEmail, sendAdminStripeReceiptEmail } from '@/server/registration/email';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -90,6 +90,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         intervalText: undefined,
         sessionId: session.id,
       });
+      // Письмо админу
+      const invoiceId = session.invoice as string | undefined;
+      if (invoiceId) {
+        const invoice = await stripe.invoices.retrieve(invoiceId, { expand: ['charge'] } as any);
+        await sendAdminStripeReceiptEmail({
+          customerEmail: user.email,
+          amount: (session.amount_total || 0) / 100,
+          currency: session.currency || 'usd',
+          invoiceId,
+          invoicePdfUrl: (invoice as any).invoice_pdf,
+          hostedInvoiceUrl: (invoice as any).hosted_invoice_url,
+          receiptUrl: (invoice as any).charge?.receipt_url,
+          subscriptionId: session.subscription as string,
+          sessionId: session.id,
+        });
+      } else {
+        await sendAdminStripeReceiptEmail({
+          customerEmail: user.email,
+          amount: (session.amount_total || 0) / 100,
+          currency: session.currency || 'usd',
+          subscriptionId: session.subscription as string,
+          sessionId: session.id,
+        });
+      }
     } catch (e) {
       console.warn('⚠️ Не удалось отправить квитанцию (confirm):', e);
     }

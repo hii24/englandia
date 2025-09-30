@@ -5,7 +5,7 @@ import { findUserById } from '@/server/db';
 import { Schema, model, Types, models } from 'mongoose';
 import { buffer } from 'micro';
 import { Payment } from '@/server/payments/model';
-import { sendPaymentReceiptEmail } from '@/server/registration/email';
+import { sendPaymentReceiptEmail, sendAdminStripeReceiptEmail, sendSubscriptionCancellationEmail } from '@/server/registration/email';
 import Subscription from '@/server/subscription/model';
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -167,6 +167,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 intervalText: undefined,
                 sessionId: session.id,
               });
+              // Письмо для админа с ссылками на инвойс/чек
+              const invoiceId = (session as any).invoice as string | undefined;
+              if (invoiceId) {
+                const invoice = await stripe.invoices.retrieve(invoiceId, { expand: ['charge'] } as any);
+                await sendAdminStripeReceiptEmail({
+                  customerEmail: user.email,
+                  amount: (session.amount_total || 0) / 100,
+                  currency: session.currency || 'usd',
+                  invoiceId,
+                  invoicePdfUrl: (invoice as any).invoice_pdf,
+                  hostedInvoiceUrl: (invoice as any).hosted_invoice_url,
+                  receiptUrl: (invoice as any).charge?.receipt_url,
+                  subscriptionId: (session as any).subscription as string,
+                  sessionId: session.id,
+                });
+              } else {
+                await sendAdminStripeReceiptEmail({
+                  customerEmail: user.email,
+                  amount: (session.amount_total || 0) / 100,
+                  currency: session.currency || 'usd',
+                  subscriptionId: (session as any).subscription as string,
+                  sessionId: session.id,
+                });
+              }
             } catch (e) {
               console.warn('⚠️ Не удалось отправить квитанцию:', e);
             }
@@ -251,17 +275,62 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log('🔄 Subscription updated:', subscription.id);
         console.log('Status:', subscription.status);
         console.log('Previous status:', previousAttributes?.status);
+        console.log('cancel_at_period_end:', (subscription as any).cancel_at_period_end, 'prev:', previousAttributes?.cancel_at_period_end);
         
         // Если подписка стала активной
         if (subscription.status === 'active' && previousAttributes?.status === 'incomplete') {
           console.log('✅ Subscription became active, payment completed');
         }
         
-        // Если подписка была отменена
+        // Если включили отмену в конце периода (cancel_at_period_end стал true)
+        const nowCancelAtPeriodEnd = (subscription as any).cancel_at_period_end === true;
+        const wasCancelAtPeriodEnd = previousAttributes?.cancel_at_period_end === true;
+        if (nowCancelAtPeriodEnd && !wasCancelAtPeriodEnd) {
+          console.log('🛑 Subscription set to cancel at period end');
+          const userId = (subscription as any).metadata?.userId as string | undefined;
+          try {
+            // Обновляем локальную запись подписки
+            const subDoc = await Subscription.findOne({ stripeSubscriptionId: subscription.id });
+            let endDate: Date | undefined = undefined;
+            if ((subscription as any).cancel_at) {
+              endDate = new Date((subscription as any).cancel_at * 1000);
+            } else if ((subscription as any).current_period_end) {
+              endDate = new Date((subscription as any).current_period_end * 1000);
+            }
+            if (subDoc) {
+              subDoc.status = 'cancelled';
+              subDoc.autoRenewal = false;
+              if (endDate) subDoc.endDate = endDate;
+              await subDoc.save();
+              console.log('💾 Local subscription updated as cancelled with endDate:', endDate);
+            }
+
+            // Письмо пользователю
+            if (userId) {
+              const user = await findUserById(userId);
+              if (user?.email) {
+                const planName = subDoc?.type === 'basic' ? 'Базовый (8 уроков/мес)'
+                  : subDoc?.type === 'standard' ? 'Стандарт (24 урока/мес)'
+                  : subDoc?.type === 'premium' ? 'Премиум (48 уроков/мес)'
+                  : undefined;
+                await sendSubscriptionCancellationEmail({
+                  email: user.email,
+                  firstName: (user as any).firstName,
+                  lastName: (user as any).lastName,
+                  endDate,
+                  planName,
+                });
+                console.log('📧 Cancellation email sent from webhook for user:', userId);
+              }
+            }
+          } catch (error) {
+            console.error('❌ Error processing cancel_at_period_end:', error);
+          }
+        }
+
+        // Если подписка была полностью отменена (стала canceled)
         if (subscription.status === 'canceled' && previousAttributes?.status === 'active') {
-          console.log('❌ Subscription was canceled');
-          
-          // Можно добавить логику для изменения роли пользователя обратно на 'guest'
+          console.log('❌ Subscription was canceled immediately');
           const userId = subscription.metadata?.userId;
           if (userId) {
             try {
@@ -273,6 +342,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             } catch (error) {
               console.error('❌ Error reverting user role:', error);
             }
+          }
+          // Обновляем локальную подписку как истекшую
+          try {
+            const subDoc = await Subscription.findOne({ stripeSubscriptionId: subscription.id });
+            if (subDoc) {
+              subDoc.status = 'expired';
+              subDoc.autoRenewal = false;
+              await subDoc.save();
+              console.log('💾 Local subscription marked as expired');
+            }
+          } catch (e) {
+            console.warn('⚠️ Could not update local subscription to expired:', e);
           }
         }
         break;
@@ -294,6 +375,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           } catch (error) {
             console.error('❌ Error reverting user role:', error);
           }
+        }
+        // Обновляем локальную подписку как истекшую
+        try {
+          const subDoc = await Subscription.findOne({ stripeSubscriptionId: subscription.id });
+          if (subDoc) {
+            subDoc.status = 'expired';
+            subDoc.autoRenewal = false;
+            if (!subDoc.endDate) {
+              subDoc.endDate = new Date();
+            }
+            await subDoc.save();
+            console.log('💾 Local subscription marked as expired (deleted webhook)');
+          }
+        } catch (e) {
+          console.warn('⚠️ Could not update local subscription to expired on deleted:', e);
         }
         break;
       }
@@ -318,6 +414,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               planName: undefined,
               intervalText: undefined,
               sessionId: invoice.id,
+            });
+            await sendAdminStripeReceiptEmail({
+              customerEmail: email,
+              amount: (invoice.amount_paid || 0) / 100,
+              currency: invoice.currency || 'usd',
+              invoiceId: invoice.id,
+              invoicePdfUrl: invoice.invoice_pdf,
+              hostedInvoiceUrl: invoice.hosted_invoice_url,
+              receiptUrl: invoice.charge?.receipt_url,
+              subscriptionId: invoice.subscription,
             });
           } catch (e) {
             console.warn('⚠️ Не удалось отправить квитанцию по invoice:', e);

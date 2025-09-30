@@ -75,8 +75,8 @@ async function createSubscriptionLinks(userId: string) {
               quantity: 1,
             },
           ],
-          success_url: `${process.env.NEXT_PUBLIC_DOMAIN || process.env.FRONTEND_URL || 'https://englandia.me'}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN || process.env.FRONTEND_URL || 'https://englandia.me'}/subscription/cancel`,
+          success_url: `https://englandia.me/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `https://englandia.me/subscription/cancel`,
           metadata: {
             userId: userId,
             subscriptionType: type,

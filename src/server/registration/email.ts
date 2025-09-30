@@ -45,7 +45,7 @@ const createCustomTransporter = () => {
 export async function sendRegistrationEmail(data: EmailData): Promise<void> {
   try {
     const transporter = createTransporter();
-    const frontendUrl = process.env.NEXT_PUBLIC_DOMAIN || process.env.FRONTEND_URL || 'https://englandia.me';
+    const frontendUrl = 'https://englandia.me';
     
     // Если транспортер не создан (нет настроек), выводим данные в консоль
     if (!transporter) {
@@ -172,7 +172,7 @@ export async function sendRegistrationEmail(data: EmailData): Promise<void> {
 export async function sendTeacherRegistrationEmail({ email, password, firstName, lastName }: { email: string, password: string, firstName?: string, lastName?: string }) {
   try {
     const transporter = createTransporter();
-    const frontendUrl = process.env.NEXT_PUBLIC_DOMAIN || process.env.FRONTEND_URL || 'https://englandia.me';
+    const frontendUrl = 'https://englandia.me';
     
     // Если транспортер не создан (нет настроек), выводим данные в консоль
     if (!transporter) {
@@ -297,7 +297,7 @@ export async function sendTeacherRegistrationEmail({ email, password, firstName,
 export async function sendPasswordResetEmail({ email, firstName, lastName, newPassword }: { email: string, firstName?: string, lastName?: string, newPassword: string }) {
   try {
     const transporter = createTransporter();
-    const frontendUrl = process.env.NEXT_PUBLIC_DOMAIN || process.env.FRONTEND_URL || 'https://englandia.me';
+    const frontendUrl = 'https://englandia.me';
     
     // Если транспортер не создан (нет настроек), выводим данные в консоль
     if (!transporter) {
@@ -503,5 +503,129 @@ export async function sendPaymentReceiptEmail({
     console.log('Payment receipt email отправлен:', { to: email, amount, currency, sessionId });
   } catch (error) {
     console.error('Ошибка отправки квитанции:', error);
+  }
+}
+
+export async function sendAdminStripeReceiptEmail({
+  to,
+  customerEmail,
+  amount,
+  currency,
+  invoiceId,
+  invoicePdfUrl,
+  hostedInvoiceUrl,
+  receiptUrl,
+  subscriptionId,
+  sessionId,
+}: {
+  to?: string;
+  customerEmail?: string;
+  amount?: number;
+  currency?: string;
+  invoiceId?: string;
+  invoicePdfUrl?: string;
+  hostedInvoiceUrl?: string;
+  receiptUrl?: string;
+  subscriptionId?: string;
+  sessionId?: string;
+}): Promise<void> {
+  try {
+    const transporter = createTransporter();
+    const adminEmail = to || process.env.BILLING_RECEIPTS_EMAIL || 'englandiame@gmail.com';
+    const symbols: Record<string, string> = { rub: '₽', usd: '$', eur: '€', kzt: '₸', uah: '₴', gbp: '£', cny: '¥', jpy: '¥', byn: 'Br', pln: 'zł', czk: 'Kč', try: '₺' };
+    const sym = symbols[currency?.toLowerCase?.() || ''] || currency?.toUpperCase?.() || '';
+    const amountStr = typeof amount === 'number' ? `${amount} ${sym}` : '—';
+
+    const linksHtml = `
+      ${invoicePdfUrl ? `<p style="margin:6px 0;"><b>Invoice PDF:</b> <a href="${invoicePdfUrl}">${invoicePdfUrl}</a></p>` : ''}
+      ${hostedInvoiceUrl ? `<p style=\"margin:6px 0;\"><b>Hosted Invoice:</b> <a href=\"${hostedInvoiceUrl}\">${hostedInvoiceUrl}</a></p>` : ''}
+      ${receiptUrl ? `<p style=\"margin:6px 0;\"><b>Charge receipt:</b> <a href=\"${receiptUrl}\">${receiptUrl}</a></p>` : ''}
+    `;
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || 'noreply@eng-landia.com',
+      to: adminEmail,
+      subject: `Stripe квитанция${invoiceId ? ` — ${invoiceId}` : ''}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 720px; margin: 0 auto; padding: 20px;">
+          <h2 style="margin:0 0 10px;">Платёж прошёл успешно</h2>
+          ${customerEmail ? `<p style=\"margin:6px 0;\"><b>Клиент:</b> ${customerEmail}</p>` : ''}
+          ${amount ? `<p style=\"margin:6px 0;\"><b>Сумма:</b> ${amountStr}</p>` : ''}
+          ${invoiceId ? `<p style=\"margin:6px 0;\"><b>Invoice ID:</b> ${invoiceId}</p>` : ''}
+          ${subscriptionId ? `<p style=\"margin:6px 0;\"><b>Subscription ID:</b> ${subscriptionId}</p>` : ''}
+          ${sessionId ? `<p style=\"margin:6px 0;\"><b>Session ID:</b> ${sessionId}</p>` : ''}
+          ${linksHtml}
+        </div>
+      `,
+      text: `Платёж прошёл успешно\n${customerEmail ? `Клиент: ${customerEmail}\n` : ''}${amount ? `Сумма: ${amountStr}\n` : ''}${invoiceId ? `Invoice ID: ${invoiceId}\n` : ''}${subscriptionId ? `Subscription ID: ${subscriptionId}\n` : ''}${sessionId ? `Session ID: ${sessionId}\n` : ''}${invoicePdfUrl ? `Invoice PDF: ${invoicePdfUrl}\n` : ''}${hostedInvoiceUrl ? `Hosted Invoice: ${hostedInvoiceUrl}\n` : ''}${receiptUrl ? `Charge receipt: ${receiptUrl}\n` : ''}`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log('Admin Stripe receipt email отправлен:', { to: adminEmail, invoiceId, amount });
+  } catch (error) {
+    console.error('Ошибка отправки Admin Stripe receipt:', error);
+  }
+}
+
+export async function sendSubscriptionCancellationEmail({
+  email,
+  firstName,
+  lastName,
+  endDate,
+  planName,
+}: {
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  endDate?: Date | string | number;
+  planName?: string;
+}): Promise<void> {
+  try {
+    const transporter = createTransporter();
+
+    const formatDate = (d?: Date | string | number) => {
+      if (!d) return 'конца оплаченного периода';
+      const date = d instanceof Date ? d : new Date(d);
+      const dd = String(date.getDate()).padStart(2, '0');
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const yyyy = date.getFullYear();
+      return `${dd}.${mm}.${yyyy}`;
+    };
+
+    const until = formatDate(endDate);
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || 'noreply@eng-landia.com',
+      to: email,
+      subject: 'Подписка отменена — доступ сохранится до конца периода',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #ef4444 0%, #f97316 100%); color: white; padding: 24px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1 style="margin: 0; font-size: 22px;">Подписка отменена</h1>
+          </div>
+          <div style="background: #f8f9fa; padding: 24px; border-radius: 0 0 10px 10px;">
+            <p style="color: #333; line-height: 1.6; margin: 0 0 12px;">${firstName || ''} ${lastName || ''}</p>
+            <p style="color: #333; line-height: 1.6; margin: 0 0 12px;">Мы получили запрос на отмену вашей подписки${planName ? ` <b>«${planName}»</b>` : ''}.</p>
+            <div style="background: white; padding: 16px; border-radius: 8px; border-left: 4px solid #ef4444; margin-bottom: 12px;">
+              <p style="margin: 6px 0;">Подписка будет действовать <b>до ${until}</b>. Доступ к урокам и материалам сохранится до этой даты.</p>
+            </div>
+            <p style="color: #666; line-height: 1.6;">Вы можете в любой момент возобновить подписку в личном кабинете.</p>
+            <div style="text-align: center; margin-top: 16px;">
+              <a href="${process.env.NEXT_PUBLIC_DOMAIN || 'https://englandia.me'}/dashboard" style="background: #334155; color: white; padding: 10px 22px; text-decoration: none; border-radius: 6px; display: inline-block;">Перейти в личный кабинет</a>
+            </div>
+          </div>
+          <div style="text-align: center; margin-top: 12px; color: #999; font-size: 12px;">
+            <p>Это автоматическое письмо, не отвечайте на него.</p>
+            <p>&copy; 2025 Eng-Landia</p>
+          </div>
+        </div>
+      `,
+      text: `Подписка отменена\n\n${firstName || ''} ${lastName || ''}\n\nВаша подписка${planName ? ` «${planName}»` : ''} будет действовать до ${until}. Доступ к урокам и материалам сохранится до этой даты.\n\nВы можете возобновить подписку в личном кабинете: ${(process.env.NEXT_PUBLIC_DOMAIN || 'https://englandia.me') + '/dashboard'}\n\n— Eng-Landia`,
+    } as const;
+
+    await transporter.sendMail(mailOptions);
+    console.log('Cancellation email отправлен:', { to: email, endDate: until, planName });
+  } catch (error) {
+    console.error('Ошибка отправки письма об отмене подписки:', error);
   }
 }
