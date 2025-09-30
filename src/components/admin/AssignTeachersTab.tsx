@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useModalStore } from '@/store/modalStore';
+import { ConfirmModal } from '@/modals';
 
 export const AssignTeachersTab: React.FC = () => {
   const [students, setStudents] = useState<any[]>([]);
   const [teachers, setTeachers] = useState<any[]>([]);
   const [assignments, setAssignments] = useState<{[key: string]: string}>({});
+  const { openModal, closeModal } = useModalStore();
 
   useEffect(() => {
     loadUsers();
@@ -46,6 +49,38 @@ export const AssignTeachersTab: React.FC = () => {
     }
   };
 
+  const handleDeleteStudent = async (studentId: string) => {
+    try {
+      const res = await fetch(`/api/users/${studentId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || `Failed to delete user (${res.status})`);
+      }
+      // Обновляем список
+      await loadUsers();
+    } catch (error) {
+      console.error('Ошибка удаления ученика:', error);
+    }
+  };
+
+  const confirmDeleteStudent = (student: any) => {
+    openModal({
+      id: 'confirm-delete-student',
+      component: ConfirmModal,
+      props: {
+        title: 'Удалить ученика',
+        message: `Вы уверены, что хотите удалить ученика ${student.firstName} ${student.lastName}? Действие необратимо: будут удалены его прогресс и расписания.`,
+        confirmText: 'Удалить',
+        cancelText: 'Отмена',
+        onConfirm: async () => {
+          await handleDeleteStudent(student._id);
+          closeModal();
+        },
+        onCancel: () => closeModal(),
+      }
+    });
+  };
+
   return (
     <div className="assign-teachers-container">
       <h4 className="section-title">Назначение учителей ученикам</h4>
@@ -73,6 +108,14 @@ export const AssignTeachersTab: React.FC = () => {
                   </option>
                 ))}
               </select>
+              <div className="row-actions">
+                <button
+                  className="btn btn-danger"
+                  onClick={() => confirmDeleteStudent(student)}
+                >
+                  Удалить ученика
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -129,6 +172,24 @@ export const AssignTeachersTab: React.FC = () => {
           display: flex;
           flex-direction: column;
           gap: 8px;
+        }
+        .row-actions {
+          display: flex;
+          justify-content: flex-end;
+          margin-top: 8px;
+        }
+        .btn.btn-danger {
+          background: #ef4444;
+          color: #fff;
+          border: none;
+          border-radius: 8px;
+          padding: 10px 14px;
+          font-size: 14px;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        .btn.btn-danger:hover {
+          background: #dc2626;
         }
         .assignment-label {
           font-weight: 500;

@@ -2,8 +2,21 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useModalStore } from '@/store/modalStore';
+import { SubscriptionCancelModal } from '@/modals/SubscriptionCancelModal';
 
 export default function SubscriptionCancelPage() {
+  const router = useRouter();
+  const openModal = useModalStore(s => s.openModal);
+
+  React.useEffect(() => {
+    try {
+      openModal({ id: 'subscription-cancel', component: SubscriptionCancelModal, props: { isOpen: true } });
+    } catch {}
+    router.replace('/dashboard');
+  }, [openModal, router]);
+
   return (
     <div className="max-w-md mx-auto mt-16">
       <div className="card text-center">

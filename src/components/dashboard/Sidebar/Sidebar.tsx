@@ -96,8 +96,14 @@ export const Sidebar: React.FC = () => {
   // Функция оплаты подписки
   const handlePaySubscription = async (type: 'basic' | 'standard' | 'premium') => {
     // Проверка: если есть активная или отменённая, но ещё действующая подписка
+    const nowTs = Date.now();
+    const endTs = subscriptionInfo?.endDate ? new Date(subscriptionInfo.endDate).getTime() : null;
+    const isCancelledButValid = !!subscriptionInfo && (
+      subscriptionInfo.cancelAtPeriodEnd ||
+      (subscriptionInfo.status === 'cancelled' && !!endTs && endTs > nowTs)
+    );
     if (subscriptionInfo && (
-      subscriptionInfo.status === 'active' || subscriptionInfo.cancelAtPeriodEnd
+      subscriptionInfo.status === 'active' || isCancelledButValid
     )) {
       let endDate = '';
       if (subscriptionInfo.endDate) {
@@ -172,19 +178,28 @@ export const Sidebar: React.FC = () => {
           <span className="dashboard-sidebar__info-label">Email</span>
           <span className="dashboard-sidebar__info-value">{email}</span>
         </div>
-        <Button
-          className={
-            subscriptionInfo && subscriptionInfo.status === 'active'
-              ? 'btn-primary mb-3'
-              : 'btn-primary btn-large mb-3'
-          }
-          style={{ width: '100%', fontSize: 18, padding: '16px 0', marginTop: 16 }}
-          onClick={() => setSubscriptionModalOpen(true)}
-        >
-          {subscriptionInfo && subscriptionInfo.status === 'active'
-            ? 'Управление подпиской'
-            : 'Оформить подписку'}
-        </Button>
+        {(() => {
+          const nowTs = Date.now();
+          const endTs = subscriptionInfo?.endDate ? new Date(subscriptionInfo.endDate).getTime() : null;
+          const isCancelledButValid = !!subscriptionInfo && (
+            subscriptionInfo?.cancelAtPeriodEnd ||
+            (subscriptionInfo?.status === 'cancelled' && !!endTs && endTs > nowTs)
+          );
+          const showManage = !!subscriptionInfo && (
+            subscriptionInfo.status === 'active' || isCancelledButValid
+          );
+          const btnClass = showManage ? 'btn-primary mb-3' : 'btn-primary btn-large mb-3';
+          const btnText = showManage ? 'Управление подпиской' : 'Оформить подписку';
+          return (
+            <Button
+              className={btnClass}
+              style={{ width: '100%', fontSize: 18, padding: '16px 0', marginTop: 16 }}
+              onClick={() => setSubscriptionModalOpen(true)}
+            >
+              {btnText}
+            </Button>
+          );
+        })()}
         <button className="dashboard-sidebar__logout" onClick={logout}>
           <Image src="/exit.svg" alt="exit" width={50} height={50} />
           <span>Выйти</span>

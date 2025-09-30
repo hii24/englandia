@@ -489,8 +489,8 @@ export async function sendPaymentReceiptEmail({
             <p style="color: #333; line-height: 1.6; margin: 0 0 12px;">Спасибо за оплату на платформе <b>Eng-Landia</b>.</p>
             <div style="background: white; padding: 16px; border-radius: 8px; border-left: 4px solid #22c55e; margin-bottom: 12px;">
               <p style="margin: 6px 0;"><b>Сумма:</b> ${amountFormatted}</p>
-              ${planName ? `<p style="margin: 6px 0;"><b>Тариф:</b> ${planName}${intervalText ? ` (${intervalText})` : ''}</p>` : ''}
-              ${sessionId ? `<p style="margin: 6px 0;"><b>Номер операции:</b> ${sessionId}</p>` : ''}
+              ${planName ? `<p style=\"margin: 6px 0;\"><b>Тариф:</b> ${planName}${intervalText ? ` (${intervalText})` : ''}</p>` : ''}
+              ${sessionId ? `<p style=\"margin: 6px 0;\"><b>Номер операции:</b> ${sessionId}</p>` : ''}
             </div>
             <p style="color: #666; line-height: 1.6;">Квитанция сформирована автоматически. Если у вас есть вопросы, ответьте на это письмо.</p>
           </div>

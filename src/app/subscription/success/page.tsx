@@ -2,13 +2,17 @@
 
 import React, { Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useModalStore } from '@/store/modalStore';
+import { SubscriptionSuccessModal } from '@/modals/SubscriptionSuccessModal';
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams?.get('session_id');
   const [confirmed, setConfirmed] = useState<boolean | null>(null);
+  const openModal = useModalStore(s => s.openModal);
+  const router = useRouter();
 
   useEffect(() => {
     const run = async () => {
@@ -23,9 +27,19 @@ function SuccessContent() {
       } catch {
         setConfirmed(false);
       }
+
+      // Открываем модалку успеха и возвращаем пользователя в кабинет
+      try {
+        openModal({
+          id: 'subscription-success',
+          component: SubscriptionSuccessModal,
+          props: { isOpen: true, sessionId }
+        });
+      } catch {}
+      router.replace('/dashboard');
     };
     run();
-  }, [sessionId]);
+  }, [sessionId, openModal, router]);
 
   return (
     <div className="max-w-md mx-auto mt-16">
