@@ -64,10 +64,10 @@ function DashboardContent() {
 
 export default function DashboardPage() {
   return (
-    <AuthGuard>
-      <Suspense fallback={<DashboardLoader />}>
+    <Suspense fallback={<DashboardLoader />}>
+      <AuthGuard>
         <DashboardContent />
-      </Suspense>
-    </AuthGuard>
+      </AuthGuard>
+    </Suspense>
   );
 }
