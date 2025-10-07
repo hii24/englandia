@@ -34,7 +34,7 @@ export const SubscriptionCancelModal: React.FC<SubscriptionCancelModalProps> = (
         </h2>
 
         <p className="text-gray-600 mb-6">
-          Вы отменили оформление подписки. Ваша роль осталась "Гость" и у вас есть доступ только к первому уроку.
+          Вы отменили оформление подписки. Ваша роль осталась &ldquo;Гость&rdquo; и у вас есть доступ только к первому уроку.
         </p>
 
         <div className="space-y-3 mb-6">

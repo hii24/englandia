@@ -44,7 +44,7 @@ export const LessonSettingsModal: React.FC<LessonSettingsModalProps> = ({ isOpen
         <div className="lesson-settings-content">
           <div className="lesson-settings-header">
             <h2>Настройки урока</h2>
-            <p>Редактирование параметров урока "{lesson.title}"</p>
+            <p>Редактирование параметров урока &ldquo;{lesson.title}&rdquo;</p>
           </div>
           
           <div className="lesson-settings-body">

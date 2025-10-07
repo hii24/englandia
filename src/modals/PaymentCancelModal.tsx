@@ -31,12 +31,12 @@ const PaymentCancelModal: React.FC<PaymentCancelModalProps> = ({
           <h4 className="font-bold text-blue-900 mb-2">📧 Как повторить оплату:</h4>
           <ol className="text-blue-800 text-sm space-y-2 list-decimal list-inside">
             <li>Перейдите в свою почту</li>
-            <li>Найдите письмо <b>"Поздравляем с первым уроком!"</b> от Eng-Landia</li>
-            <li>В этом письме есть кнопки <b>"Оформить базовую подписку"</b> и <b>"Оформить интенсивную подписку"</b></li>
+            <li>Найдите письмо <b>&ldquo;Поздравляем с первым уроком!&rdquo;</b> от Eng-Landia</li>
+            <li>В этом письме есть кнопки <b>&ldquo;Оформить базовую подписку&rdquo;</b> и <b>&ldquo;Оформить интенсивную подписку&rdquo;</b></li>
             <li>Нажмите на нужную кнопку для повторной оплаты</li>
           </ol>
           <p className="text-xs text-blue-600 mt-3">
-            💡 Если письма нет в основной папке, проверьте папку "Спам"
+            💡 Если письма нет в основной папке, проверьте папку &ldquo;Спам&rdquo;
           </p>
         </div>
         

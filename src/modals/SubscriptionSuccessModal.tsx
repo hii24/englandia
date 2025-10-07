@@ -51,7 +51,7 @@ export const SubscriptionSuccessModal: React.FC<SubscriptionSuccessModalProps> =
             Что изменилось:
           </p>
           <ul className="text-sm text-gray-600 text-left space-y-2">
-            <li>• ✅ Ваша роль изменена с "Гость" на "Студент"</li>
+            <li>• ✅ Ваша роль изменена с &ldquo;Гость&rdquo; на &ldquo;Студент&rdquo;</li>
             <li>• ✅ Теперь вы можете видеть все уроки курса</li>
             <li>• ✅ Учитель сможет назначать вам занятия</li>
             <li>• ✅ Вы получите доступ к домашним заданиям</li>
